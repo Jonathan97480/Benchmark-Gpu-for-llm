@@ -1,0 +1,46 @@
+import { HeroMetrics } from "../dashboard/HeroMetrics.jsx";
+
+export function HeroSection({ gpuData, models, totals, quantizations }) {
+  return (
+    <header className="hero reveal">
+      <nav className="topbar glass">
+        <div className="brand">
+          <span className="brand-mark"></span>
+          <span>GPU LLM Benchmark</span>
+        </div>
+        <div className="topbar-links">
+          <a href="#dashboard">Dashboard</a>
+          <a href="#tables">Tableaux</a>
+          <a href="#insights">Insights</a>
+          <a href="/admin" className="admin-link">Admin</a>
+        </div>
+      </nav>
+
+      <section className="hero-content">
+        <div className="hero-copy reveal">
+          <span className="eyebrow">Benchmark matériel pour LLM open source</span>
+          <h1>Trouvez en un coup d&apos;oeil le meilleur GPU pour vos modèles LLM</h1>
+          <p>
+            Comparez les cartes graphiques, explorez les performances par modèle et repérez
+            rapidement les configurations qui comptent vraiment pour vos usages IA, du labo perso
+            aux déploiements plus ambitieux.
+          </p>
+          <div className="hero-actions">
+            <a className="btn btn-primary" href="#dashboard">Voir le dashboard</a>
+            <a className="btn btn-secondary" href="#tables">Explorer les tableaux</a>
+          </div>
+        </div>
+
+        <div className="hero-panel glass reveal">
+          <div className="panel-tag">Highlights base publique</div>
+          <HeroMetrics
+            gpuData={gpuData}
+            models={models}
+            totals={totals}
+            quantizations={quantizations}
+          />
+        </div>
+      </section>
+    </header>
+  );
+}
