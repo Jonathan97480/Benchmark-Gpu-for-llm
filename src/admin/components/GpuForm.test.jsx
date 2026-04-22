@@ -20,6 +20,7 @@ function createProps() {
           {
             clientId: "row-1",
             resultId: 11,
+            gpu_count: "2",
             tokens_per_second: 71,
             context_size: "",
             precision: "",
@@ -34,6 +35,7 @@ function createProps() {
         id: 1,
         name: "DeepSeek R1 32B",
         params_billions: 32,
+        total_params_billions: 32,
         description: "Modele de test",
       },
     ],
@@ -41,6 +43,8 @@ function createProps() {
       open: false,
       name: "",
       params_billions: "",
+      max_context_size: "",
+      total_params_billions: "",
       description: "",
     },
     onAddBenchmarkRow: vi.fn(),
@@ -65,6 +69,7 @@ describe("GpuForm", () => {
 
     expect(screen.getByRole("heading", { name: "DeepSeek R1 32B" })).toBeInTheDocument();
     expect(screen.getByDisplayValue("71")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("2")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Inference reportee")).toBeInTheDocument();
   });
 

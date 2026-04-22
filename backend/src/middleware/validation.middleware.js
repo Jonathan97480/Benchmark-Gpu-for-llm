@@ -73,6 +73,8 @@ const validateLLMModel = (req, res, next) => {
   const schema = Joi.object({
     name: Joi.string().required(),
     params_billions: Joi.number().integer().min(1),
+    total_params_billions: Joi.number().integer().min(1).allow(null),
+    max_context_size: Joi.number().integer().min(1).allow(null),
     description: Joi.string().allow('', null)
   });
 
@@ -88,6 +90,7 @@ const validateLLMModel = (req, res, next) => {
 const validateBenchmarkResult = (req, res, next) => {
   const schema = Joi.object({
     llm_model_id: Joi.number().integer().required(),
+    gpu_count: Joi.number().integer().min(1).default(1),
     tokens_per_second: Joi.number().min(0).required(),
     context_size: Joi.number().integer().min(1),
     precision: Joi.string().allow('', null),

@@ -223,6 +223,14 @@ export async function createModel(payload) {
   });
 }
 
+export async function updateModel(id, payload) {
+  return apiRequest(`/api/v1/models/${id}`, {
+    method: "PUT",
+    body: payload,
+    auth: true,
+  });
+}
+
 export async function deleteModel(id) {
   return apiRequest(`/api/v1/models/${id}`, {
     method: "DELETE",

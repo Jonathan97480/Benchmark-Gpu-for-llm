@@ -71,12 +71,18 @@ const bootstrapDatabase = () => {
     }
 
     const insertModel = db.prepare(`
-      INSERT INTO llm_models (name, params_billions, description)
-      VALUES (?, ?, ?)
+      INSERT INTO llm_models (name, params_billions, total_params_billions, max_context_size, description)
+      VALUES (?, ?, ?, ?, ?)
     `);
 
     for (const model of llmModels) {
-      insertModel.run(model.name, model.params, model.description);
+      insertModel.run(
+        model.name,
+        model.params,
+        model.totalParams ?? null,
+        model.maxContextSize ?? null,
+        model.description
+      );
     }
 
     const gpuMap = new Map(
@@ -89,13 +95,14 @@ const bootstrapDatabase = () => {
     const insertBenchmark = db.prepare(`
       INSERT INTO benchmark_results (
         gpu_id,
+        gpu_count,
         llm_model_id,
         tokens_per_second,
         context_size,
         precision,
         notes
       )
-      VALUES (?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
     for (const result of benchmarkResults) {
@@ -108,6 +115,7 @@ const bootstrapDatabase = () => {
 
       insertBenchmark.run(
         gpuId,
+        result.gpuCount ?? 1,
         modelId,
         result.tokensPerSecond,
         result.contextSize,

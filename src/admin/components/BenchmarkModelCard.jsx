@@ -1,6 +1,10 @@
 function renderRowLabel(row) {
   const parts = [];
 
+  if (row.gpu_count && Number(row.gpu_count) > 1) {
+    parts.push(`${row.gpu_count}x GPU`);
+  }
+
   if (row.context_size) {
     parts.push(`ctx ${row.context_size}`);
   }
@@ -58,7 +62,20 @@ export function BenchmarkModelCard({
               </button>
             </div>
 
-            <div className="admin-grid admin-grid-3">
+            <div className="admin-grid admin-grid-2">
+              <label>
+                <span>Nombre de GPU</span>
+                <input
+                  min="1"
+                  step="1"
+                  type="number"
+                  value={row.gpu_count}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "gpu_count", event.target.value)
+                  }
+                />
+              </label>
+
               <label>
                 <span>Tokens/s</span>
                 <input

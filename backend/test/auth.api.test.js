@@ -66,6 +66,7 @@ test('POST /api/v1/models exige un access token valide', async (t) => {
     .send({
       name: 'Qwen 3.5 35B',
       params_billions: 35,
+      total_params_billions: 35,
       description: 'Modele de test',
     })
     .expect(401);
@@ -99,6 +100,7 @@ test('une API key active permet a un service externe de creer un modele', async 
     .send({
       name: 'Qwen 3.5 35B',
       params_billions: 35,
+      total_params_billions: 35,
       description: 'Cree via api key',
     })
     .expect(201);
@@ -118,6 +120,7 @@ test('une API key invalide est refusee sur les routes d ecriture', async (t) => 
     .send({
       name: 'Bad Model',
       params_billions: 10,
+      total_params_billions: 10,
       description: 'Ne doit pas passer',
     })
     .expect(403);

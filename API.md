@@ -178,6 +178,32 @@ Cette route renvoie le dataset public restructure pour le frontend React :
 - resultats detailles `benchmark_results`
 - donnees legacy `tokens_8b`, `tokens_32b`, `tokens_70b`
 
+Extrait de `benchmark_results` :
+
+```json
+{
+  "id": 12,
+  "gpu_id": 1,
+  "gpu_count": 4,
+  "llm_model_id": 2,
+  "tokens_per_second": 510,
+  "context_size": 32000,
+  "precision": "INT4",
+  "notes": "Test sur 4x GPU identiques",
+  "gpu_name": "RTX 4090",
+  "vendor": "NVIDIA",
+  "architecture": "Ada Lovelace",
+  "tier": "prosumer",
+  "vram": 24,
+  "price_value": 1800,
+  "price_new_value": 1800,
+  "price_used_value": 0,
+  "model_name": "DeepSeek R1 32B",
+  "params_billions": 32,
+  "total_params_billions": 32
+}
+```
+
 ### Details d'un GPU
 
 ```http
@@ -185,6 +211,39 @@ GET /gpu/:id
 ```
 
 Le GPU inclut ses `benchmark_results`.
+
+Exemple de reponse :
+
+```json
+{
+  "id": 1,
+  "name": "RTX 4090",
+  "vendor": "NVIDIA",
+  "architecture": "Ada Lovelace",
+  "vram": 24,
+  "bandwidth": 1008,
+  "price_value": 1800,
+  "price_new_value": 1800,
+  "price_used_value": 0,
+  "tier": "prosumer",
+  "score": 82,
+  "benchmark_results": [
+    {
+      "id": 12,
+      "gpu_id": 1,
+      "gpu_count": 4,
+      "llm_model_id": 2,
+      "model_name": "DeepSeek R1 32B",
+      "params_billions": 32,
+      "total_params_billions": 32,
+      "tokens_per_second": 510,
+      "context_size": 32000,
+      "precision": "INT4",
+      "notes": "Test sur 4x GPU identiques"
+    }
+  ]
+}
+```
 
 ### Creer un GPU
 
@@ -261,10 +320,32 @@ Content-Type: application/json
 ```json
 {
   "llm_model_id": 1,
+  "gpu_count": 1,
   "tokens_per_second": 213,
   "context_size": 4096,
   "precision": "FP16",
   "notes": "Test configuration details"
+}
+```
+
+`gpu_count` indique combien de cartes identiques ont ete utilisees pour le benchmark. Si le champ est omis, la valeur par defaut est `1`.
+
+Exemple de reponse :
+
+```json
+{
+  "message": "Benchmark result created successfully",
+  "benchmark": {
+    "id": 12,
+    "gpu_id": 1,
+    "gpu_count": 4,
+    "llm_model_id": 2,
+    "tokens_per_second": 510,
+    "context_size": 32000,
+    "precision": "INT4",
+    "notes": "Test sur 4x GPU identiques",
+    "created_at": "2026-04-22 10:00:00"
+  }
 }
 ```
 
@@ -276,12 +357,41 @@ Accepte JWT admin ou API key.
 PUT /gpu/:gpu_id/benchmark/:result_id
 ```
 
+Le body accepte les memes champs que la creation, y compris `gpu_count`.
+
+Exemple de reponse :
+
+```json
+{
+  "message": "Benchmark result updated successfully",
+  "benchmark": {
+    "id": 12,
+    "gpu_id": 1,
+    "gpu_count": 2,
+    "llm_model_id": 2,
+    "tokens_per_second": 260,
+    "context_size": 32000,
+    "precision": "INT4",
+    "notes": "Valeur corrigee",
+    "created_at": "2026-04-22 10:00:00"
+  }
+}
+```
+
 ### Supprimer un resultat
 
 Accepte JWT admin ou API key.
 
 ```http
 DELETE /gpu/:gpu_id/benchmark/:result_id
+```
+
+Reponse :
+
+```json
+{
+  "message": "Benchmark result deleted successfully"
+}
 ```
 
 ## Cas d'usage pour un service externe
@@ -314,7 +424,16 @@ Exemple :
 curl -X POST http://localhost:3000/api/v1/gpu/1/benchmark ^
   -H "Content-Type: application/json" ^
   -H "x-api-key: VOTRE_CLE_API" ^
-  -d "{\"llm_model_id\":2,\"tokens_per_second\":142.5,\"context_size\":32000,\"precision\":\"INT4\",\"notes\":\"Ajout service externe\"}"
+  -d "{\"llm_model_id\":2,\"gpu_count\":1,\"tokens_per_second\":142.5,\"context_size\":32000,\"precision\":\"INT4\",\"notes\":\"Ajout service externe\"}"
+```
+
+Exemple multi-GPU :
+
+```bash
+curl -X POST http://localhost:3000/api/v1/gpu/1/benchmark ^
+  -H "Content-Type: application/json" ^
+  -H "x-api-key: VOTRE_CLE_API" ^
+  -d "{\"llm_model_id\":2,\"gpu_count\":4,\"tokens_per_second\":510,\"context_size\":32000,\"precision\":\"INT4\",\"notes\":\"Test sur 4x GPU identiques\"}"
 ```
 
 ### Cas 2: le GPU existe deja mais le modele n'existe pas encore
@@ -340,7 +459,7 @@ Exemple de creation du modele :
 curl -X POST http://localhost:3000/api/v1/models ^
   -H "Content-Type: application/json" ^
   -H "x-api-key: VOTRE_CLE_API" ^
-  -d "{\"name\":\"Qwen 3.5 35B\",\"params_billions\":35,\"description\":\"Ajout automatique\"}"
+  -d "{\"name\":\"Qwen 3.5 35B\",\"params_billions\":35,\"total_params_billions\":35,\"description\":\"Ajout automatique\"}"
 ```
 
 Puis creation du benchmark avec l'id du modele :
@@ -349,7 +468,7 @@ Puis creation du benchmark avec l'id du modele :
 curl -X POST http://localhost:3000/api/v1/gpu/1/benchmark ^
   -H "Content-Type: application/json" ^
   -H "x-api-key: VOTRE_CLE_API" ^
-  -d "{\"llm_model_id\":6,\"tokens_per_second\":118,\"context_size\":32000,\"precision\":\"FP8\",\"notes\":\"Ajout service externe\"}"
+  -d "{\"llm_model_id\":6,\"gpu_count\":1,\"tokens_per_second\":118,\"context_size\":32000,\"precision\":\"FP8\",\"notes\":\"Ajout service externe\"}"
 ```
 
 ### Cas 3: le GPU n'existe pas encore mais le modele existe deja
@@ -409,7 +528,7 @@ Exemple :
 curl -X PUT http://localhost:3000/api/v1/gpu/1/benchmark/4 ^
   -H "Content-Type: application/json" ^
   -H "x-api-key: VOTRE_CLE_API" ^
-  -d "{\"llm_model_id\":2,\"tokens_per_second\":149,\"context_size\":32000,\"precision\":\"INT4\",\"notes\":\"Valeur corrigee\"}"
+  -d "{\"llm_model_id\":2,\"gpu_count\":1,\"tokens_per_second\":149,\"context_size\":32000,\"precision\":\"INT4\",\"notes\":\"Valeur corrigee\"}"
 ```
 
 ### Cas 6: supprimer un resultat errone
@@ -423,7 +542,7 @@ DELETE /gpu/:gpu_id/benchmark/:result_id
 ### Bonnes pratiques pour l'import externe
 
 - utilisez `GET /gpu` et `GET /models` pour eviter les doublons
-- considerez qu'un benchmark est distinct selon `gpu_id`, `llm_model_id`, `context_size` et `precision`
+- considerez qu'un benchmark est distinct selon `gpu_id`, `gpu_count`, `llm_model_id`, `context_size` et `precision`
 - renseignez `precision` pour refleter la quantization reelle
 - utilisez `notes` pour garder la trace de la source ou de la configuration
 - gardez `tokens_8b`, `tokens_32b`, `tokens_70b` pour les donnees legacy, pas pour les benchmarks detailles
@@ -455,9 +574,12 @@ Content-Type: application/json
 {
   "name": "Gemma 4 9B",
   "params_billions": 9,
+  "total_params_billions": 9,
   "description": "Google Gemma 4 9B model"
 }
 ```
+
+`params_billions` represente les parametres actifs. `total_params_billions` represente les parametres totaux charges en memoire, utile pour des variantes comme `Gemma 4 E4B` qui activent moins de parametres qu'elles n'en chargent.
 
 ### Modifier un modele
 

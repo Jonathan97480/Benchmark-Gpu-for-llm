@@ -3,7 +3,14 @@ const db = require('../../config/database');
 const createBenchmarkResult = (req, res) => {
   try {
     const { gpu_id } = req.params;
-    const { llm_model_id, tokens_per_second, context_size, precision, notes } = req.body;
+    const {
+      llm_model_id,
+      gpu_count = 1,
+      tokens_per_second,
+      context_size,
+      precision,
+      notes
+    } = req.body;
 
     const gpuExists = db.prepare('SELECT id FROM gpu_benchmarks WHERE id = ?').get(gpu_id);
     if (!gpuExists) {
@@ -16,9 +23,9 @@ const createBenchmarkResult = (req, res) => {
     }
 
     const result = db.prepare(`
-      INSERT INTO benchmark_results (gpu_id, llm_model_id, tokens_per_second, context_size, precision, notes)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(gpu_id, llm_model_id, tokens_per_second, context_size, precision, notes);
+      INSERT INTO benchmark_results (gpu_id, gpu_count, llm_model_id, tokens_per_second, context_size, precision, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(gpu_id, gpu_count, llm_model_id, tokens_per_second, context_size, precision, notes);
 
     const benchmark = db.prepare('SELECT * FROM benchmark_results WHERE id = ?').get(result.lastInsertRowid);
 
@@ -35,7 +42,14 @@ const createBenchmarkResult = (req, res) => {
 const updateBenchmarkResult = (req, res) => {
   try {
     const { gpu_id, result_id } = req.params;
-    const { llm_model_id, tokens_per_second, context_size, precision, notes } = req.body;
+    const {
+      llm_model_id,
+      gpu_count,
+      tokens_per_second,
+      context_size,
+      precision,
+      notes
+    } = req.body;
 
     const existingResult = db.prepare(`
       SELECT * FROM benchmark_results WHERE id = ? AND gpu_id = ?
@@ -56,6 +70,7 @@ const updateBenchmarkResult = (req, res) => {
     const params = [];
 
     if (llm_model_id !== undefined) { updateFields.push('llm_model_id = ?'); params.push(llm_model_id); }
+    if (gpu_count !== undefined) { updateFields.push('gpu_count = ?'); params.push(gpu_count); }
     if (tokens_per_second !== undefined) { updateFields.push('tokens_per_second = ?'); params.push(tokens_per_second); }
     if (context_size !== undefined) { updateFields.push('context_size = ?'); params.push(context_size); }
     if (precision !== undefined) { updateFields.push('precision = ?'); params.push(precision); }

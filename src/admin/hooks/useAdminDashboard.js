@@ -14,6 +14,7 @@ import {
   revokeApiKey,
   updateBenchmark,
   updateGpu,
+  updateModel,
 } from "../services/adminApi.js";
 
 let benchmarkRowCounter = 0;
@@ -24,6 +25,7 @@ function createBenchmarkRow(overrides = {}) {
   return {
     clientId: `benchmark-row-${benchmarkRowCounter}`,
     resultId: null,
+    gpu_count: "1",
     tokens_per_second: "",
     context_size: "",
     precision: "",
@@ -45,6 +47,7 @@ function buildBenchmarkRowsByModel(models, benchmarkResults = []) {
     groupedRows[key].push(
       createBenchmarkRow({
         resultId: benchmark.id,
+        gpu_count: String(benchmark.gpu_count ?? 1),
         tokens_per_second: benchmark.tokens_per_second ?? "",
         context_size: benchmark.context_size ?? "",
         precision: benchmark.precision || "",
@@ -96,6 +99,8 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     open: false,
     name: "",
     params_billions: "",
+    total_params_billions: "",
+    max_context_size: "",
     description: "",
   });
   const [apiKeyForm, setApiKeyForm] = useState({
@@ -152,6 +157,7 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
                 .map((row) => ({
                   id: row.resultId,
                   llm_model_id: row.llm_model_id,
+                  gpu_count: row.gpu_count === "" ? 1 : Number(row.gpu_count),
                   tokens_per_second: row.tokens_per_second,
                   context_size: row.context_size,
                   precision: row.precision,
@@ -282,6 +288,7 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     for (const row of rows) {
       const payload = {
         llm_model_id: row.llm_model_id,
+        gpu_count: row.gpu_count === "" ? 1 : Number(row.gpu_count),
         tokens_per_second: row.tokens_per_second === "" ? null : Number(row.tokens_per_second),
         context_size: row.context_size === "" ? null : Number(row.context_size),
         precision: row.precision || null,
@@ -384,6 +391,9 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       await createModel({
         name: newModelForm.name.trim(),
         params_billions: newModelForm.params_billions === "" ? null : Number(newModelForm.params_billions),
+        total_params_billions:
+          newModelForm.total_params_billions === "" ? null : Number(newModelForm.total_params_billions),
+        max_context_size: newModelForm.max_context_size === "" ? null : Number(newModelForm.max_context_size),
         description: newModelForm.description.trim() || null,
       });
 
@@ -391,6 +401,8 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
         open: false,
         name: "",
         params_billions: "",
+        total_params_billions: "",
+        max_context_size: "",
         description: "",
       });
       await loadDashboardData();
@@ -422,6 +434,26 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       }
 
       setError(modelError.message || "Failed to delete model");
+    } finally {
+      setSaving(false);
+    }
+  }, [loadDashboardData, onUnauthorized, showNotification]);
+
+  const saveExistingModel = useCallback(async (modelId, payload) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      await updateModel(modelId, payload);
+      await loadDashboardData();
+      showNotification("Modèle mis à jour avec succès");
+    } catch (modelError) {
+      if (modelError.status === 401) {
+        await onUnauthorized();
+        return;
+      }
+
+      setError(modelError.message || "Failed to update model");
     } finally {
       setSaving(false);
     }
@@ -490,6 +522,7 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     resetGpuForm,
     saveGpu,
     saveApiKey,
+    saveExistingModel,
     saveModel,
     saving,
     search,

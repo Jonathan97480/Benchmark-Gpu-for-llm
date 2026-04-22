@@ -5,7 +5,6 @@ export function AdvancedMetrics({ gpuData, models, totals, quantizations }) {
     return null;
   }
 
-  const totalVram = gpuData.reduce((sum, gpu) => sum + (gpu.vram || 0), 0);
   const testedGpuCount = gpuData.filter((gpu) => gpu.coverageCount > 0).length;
   const averageBenchmarksPerGpu =
     gpuData.length > 0 ? (totals.benchmarkResults / gpuData.length).toFixed(1) : "0";
@@ -14,7 +13,6 @@ export function AdvancedMetrics({ gpuData, models, totals, quantizations }) {
     { icon: "🧠", value: formatNumber(models.length), label: "Modèles LLM" },
     { icon: "🖥️", value: formatNumber(gpuData.length), label: "Cartes GPU" },
     { icon: "📊", value: formatNumber(totals.benchmarkResults), label: "Résultats détaillés" },
-    { icon: "💾", value: `${formatNumber(totalVram)} Go`, label: "VRAM Totale" },
     {
       icon: "🧪",
       value: `${formatNumber(testedGpuCount)}/${formatNumber(gpuData.length)}`,

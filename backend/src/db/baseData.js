@@ -64,6 +64,22 @@ const gpuData = [
     tokens70b: 10
   },
   {
+    name: 'RTX 3060 12GB',
+    vendor: 'NVIDIA',
+    architecture: 'Ampere',
+    vram: 12,
+    bandwidth: 360,
+    price: '220EUR - 320EUR',
+    priceValue: 270,
+    priceNewValue: 0,
+    priceUsedValue: 270,
+    tier: 'budget',
+    score: 58,
+    tokens8b: 24,
+    tokens32b: 0,
+    tokens70b: 0
+  },
+  {
     name: 'RTX 4060 Ti',
     vendor: 'NVIDIA',
     architecture: 'Ada Lovelace',
@@ -242,24 +258,25 @@ const gpuData = [
 ];
 
 const llmModels = [
-  { name: 'Llama 3.1 8B', params: 8, description: 'Modele 8B cite dans Data.md.' },
-  { name: 'Qwen 2.5 7B', params: 7, description: 'Modele 7B cite comme reference de la section 8B.' },
-  { name: 'DeepSeek R1 32B', params: 32, description: 'Modele de raisonnement 32B avec mesures explicites.' },
-  { name: 'Qwen 3.5 27B', params: 27, description: 'Modele de raisonnement cite dans Data.md.' },
-  { name: 'Qwen 3.5-35B (MoE)', params: 35, description: 'Modele MoE avec mesures prefill et decode.' },
-  { name: 'Gemma 4 26B (MoE)', params: 26, description: 'Modele Gemma 4 26B avec vitesse FP8 rapportee.' },
-  { name: 'Gemma 4 26B-A4B (MoE)', params: 26, description: 'Variante MoE de Gemma 4 issue du tableau de VRAM.' },
-  { name: 'Llama 3.1 70B', params: 70, description: 'Modele 70B quantifie INT4 dans Data.md.' },
-  { name: 'DeepSeek R1 671B', params: 671, description: 'Modele MoE geant cite pour les besoins VRAM cluster.' },
-  { name: 'Qwen3 MoE 235B', params: 235, description: 'Modele MoE cite pour les configurations multi-GPU.' },
-  { name: 'Gemma 4 31B', params: 31, description: 'Variante dense de Gemma 4 issue du tableau de VRAM.' },
-  { name: 'Gemma 4 E4B', params: 4, description: 'Variante edge Gemma 4 issue du tableau de VRAM.' },
-  { name: 'Gemma 4 E2B', params: 2, description: 'Variante edge Gemma 4 issue du tableau de VRAM.' }
+  { name: 'Llama 3.1 8B', params: 8, totalParams: 8, maxContextSize: 128000, description: 'Modele 8B cite dans Data.md.' },
+  { name: 'Qwen 2.5 7B', params: 7, totalParams: 7, maxContextSize: 128000, description: 'Modele 7B cite comme reference de la section 8B.' },
+  { name: 'DeepSeek R1 32B', params: 32, totalParams: 32, maxContextSize: 128000, description: 'Modele de raisonnement 32B avec mesures explicites.' },
+  { name: 'Qwen 3.5 27B', params: 27, totalParams: 27, maxContextSize: 128000, description: 'Modele de raisonnement cite dans Data.md.' },
+  { name: 'Qwen 3.5-35B (MoE)', params: 35, totalParams: 35, maxContextSize: 128000, description: 'Modele MoE avec mesures prefill et decode.' },
+  { name: 'Gemma 4 26B (MoE)', params: 26, totalParams: 26, maxContextSize: 131072, description: 'Modele Gemma 4 26B avec vitesse FP8 rapportee.' },
+  { name: 'Gemma 4 26B-A4B (MoE)', params: 4, totalParams: 26, maxContextSize: 131072, description: 'Variante MoE de Gemma 4 avec 4B actifs pour 26B charges en memoire.' },
+  { name: 'Llama 3.1 70B', params: 70, totalParams: 70, maxContextSize: 128000, description: 'Modele 70B quantifie INT4 dans Data.md.' },
+  { name: 'DeepSeek R1 671B', params: 671, totalParams: 671, maxContextSize: 128000, description: 'Modele MoE geant cite pour les besoins VRAM cluster.' },
+  { name: 'Qwen3 MoE 235B', params: 235, totalParams: 235, maxContextSize: 128000, description: 'Modele MoE cite pour les configurations multi-GPU.' },
+  { name: 'Gemma 4 31B', params: 31, totalParams: 31, maxContextSize: 131072, description: 'Variante dense de Gemma 4 issue du tableau de VRAM.' },
+  { name: 'Gemma 4 E4B', params: 4, totalParams: 8, maxContextSize: 32768, description: 'Variante edge Gemma 4 avec 4B actifs pour 8B charges en memoire.' },
+  { name: 'Gemma 4 E2B', params: 2, totalParams: 2, maxContextSize: 32768, description: 'Variante edge Gemma 4 issue du tableau de VRAM.' }
 ];
 
 const benchmarkResults = [
   {
     gpuName: 'RTX 5090',
+    gpuCount: 1,
     modelName: 'DeepSeek R1 32B',
     tokensPerSecond: 71,
     contextSize: null,
@@ -268,6 +285,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'RTX 4090',
+    gpuCount: 1,
     modelName: 'DeepSeek R1 32B',
     tokensPerSecond: 45,
     contextSize: null,
@@ -276,6 +294,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'RTX 5090',
+    gpuCount: 1,
     modelName: 'Gemma 4 26B (MoE)',
     tokensPerSecond: 170,
     contextSize: null,
@@ -284,6 +303,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'RTX 5090',
+    gpuCount: 1,
     modelName: 'Qwen 3.5-35B (MoE)',
     tokensPerSecond: 7026,
     contextSize: 512,
@@ -292,6 +312,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'RTX 5090',
+    gpuCount: 1,
     modelName: 'Qwen 3.5-35B (MoE)',
     tokensPerSecond: 6461,
     contextSize: 32000,
@@ -300,6 +321,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'RTX 5090',
+    gpuCount: 1,
     modelName: 'Qwen 3.5-35B (MoE)',
     tokensPerSecond: 194,
     contextSize: null,
@@ -308,6 +330,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'Radeon AI PRO R9700',
+    gpuCount: 1,
     modelName: 'Qwen 3.5-35B (MoE)',
     tokensPerSecond: 2713,
     contextSize: 512,
@@ -316,6 +339,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'Radeon AI PRO R9700',
+    gpuCount: 1,
     modelName: 'Qwen 3.5-35B (MoE)',
     tokensPerSecond: 1877,
     contextSize: 32000,
@@ -324,6 +348,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'Radeon AI PRO R9700',
+    gpuCount: 1,
     modelName: 'Qwen 3.5-35B (MoE)',
     tokensPerSecond: 127.4,
     contextSize: null,
@@ -332,6 +357,7 @@ const benchmarkResults = [
   },
   {
     gpuName: 'RTX 3090',
+    gpuCount: 1,
     modelName: 'Llama 3.1 70B',
     tokensPerSecond: 10,
     contextSize: null,

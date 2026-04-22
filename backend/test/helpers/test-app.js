@@ -65,9 +65,9 @@ function loadFreshBackend(dbPath) {
   `).run('RTX 5090', 'NVIDIA', 'Blackwell', 32, 1792, 0, 0, 0, 'prosumer', 98, 213, 71, 0);
 
   const modelResult = db.prepare(`
-    INSERT INTO llm_models (name, params_billions, description)
-    VALUES (?, ?, ?)
-  `).run('DeepSeek R1 32B', 32, 'Modele de test');
+    INSERT INTO llm_models (name, params_billions, total_params_billions, description)
+    VALUES (?, ?, ?, ?)
+  `).run('DeepSeek R1 32B', 32, 32, 'Modele de test');
 
   db.prepare(`
     INSERT INTO benchmark_results (gpu_id, llm_model_id, tokens_per_second, context_size, precision, notes)

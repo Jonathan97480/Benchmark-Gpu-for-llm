@@ -27,6 +27,7 @@ export function createModelPerformanceChartConfig(gpus, selectedModel) {
         ? {
             gpuName: gpu.name,
             vendor: gpu.vendor,
+            gpuCount: benchmark.gpu_count || 1,
             tokens: benchmark.tokens_per_second,
             precision: benchmark.precision || "Non spécifié",
             contextSize: benchmark.context_size,
@@ -68,6 +69,10 @@ export function createModelPerformanceChartConfig(gpus, selectedModel) {
                 `Débit: ${formatNumber(point.tokens)} tokens/s`,
                 `Quantization: ${point.precision}`,
               ];
+
+              if (point.gpuCount > 1) {
+                labels.push(`Configuration: ${point.gpuCount}x GPU`);
+              }
 
               if (point.contextSize) {
                 labels.push(`Contexte: ${formatNumber(point.contextSize)}`);

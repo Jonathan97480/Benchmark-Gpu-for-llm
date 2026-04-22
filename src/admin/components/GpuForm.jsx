@@ -155,12 +155,32 @@ export function GpuForm({
                 </label>
 
                 <label>
-                  <span>Paramètres (B)</span>
+                  <span>Paramètres actifs (B)</span>
                   <input
                     min="1"
                     type="number"
                     value={newModelForm.params_billions}
                     onChange={(event) => onNewModelFormChange("params_billions", event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  <span>Paramètres totaux (B)</span>
+                  <input
+                    min="1"
+                    type="number"
+                    value={newModelForm.total_params_billions}
+                    onChange={(event) => onNewModelFormChange("total_params_billions", event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  <span>Contexte max</span>
+                  <input
+                    min="1"
+                    type="number"
+                    value={newModelForm.max_context_size}
+                    onChange={(event) => onNewModelFormChange("max_context_size", event.target.value)}
                   />
                 </label>
               </div>

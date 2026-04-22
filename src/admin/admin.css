@@ -249,6 +249,10 @@
   color: #0f172a;
 }
 
+.admin-table-input {
+  min-width: 150px;
+}
+
 .admin-table th {
   color: #475569;
   font-size: 0.85rem;

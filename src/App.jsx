@@ -2,6 +2,7 @@ import { HeroSection } from "./components/sections/HeroSection.jsx";
 import { DashboardSection } from "./components/sections/DashboardSection.jsx";
 import { TablesSection } from "./components/sections/TablesSection.jsx";
 import { InsightsSection } from "./components/sections/InsightsSection.jsx";
+import { PurchaseCalculator } from "./components/calculator/PurchaseCalculator.jsx";
 import { StatusSection } from "./components/sections/StatusSection.jsx";
 import { useDashboardData } from "./hooks/useDashboardData.js";
 import { useReveal } from "./hooks/useReveal.js";
@@ -86,6 +87,7 @@ export default function App() {
           vendors={vendors}
         />
         <InsightsSection insights={insights} loading={loading} />
+        <PurchaseCalculator gpuData={gpuData} models={models} />
         <StatusSection error={error} loading={loading} />
       </main>
 

@@ -25,7 +25,7 @@ export function useDashboardData() {
   const [search, setSearch] = useState("");
   const [vendor, setVendor] = useState("all");
   const [tier, setTier] = useState("all");
-  const [selectedModelId, setSelectedModelId] = useState("all");
+  const [selectedModelId, setSelectedModelId] = useState("");
   const [sort, setSort] = useState({ key: "coverageCount", direction: "desc" });
 
   useEffect(() => {
@@ -49,6 +49,11 @@ export function useDashboardData() {
         setTotals(normalizedDataset.totals);
         setQuantizations(normalizedDataset.allQuantizations);
         setInsights(data.insights);
+        setSelectedModelId((current) =>
+          current && current !== "all"
+            ? current
+            : String(normalizedDataset.models[0]?.id ?? "all")
+        );
       } catch (loadError) {
         if (!cancelled) {
           setError(loadError.message);
@@ -68,7 +73,14 @@ export function useDashboardData() {
   }, []);
 
   const sortedData = useMemo(
-    () => sortData(filterGpuCatalog(gpuData, { search, vendor, tier }), sort),
+    () =>
+      sortData(
+        filterGpuCatalog(
+          gpuData.filter((gpu) => gpu.coverageCount > 0),
+          { search, vendor, tier }
+        ),
+        sort
+      ),
     [gpuData, search, sort, tier, vendor]
   );
   const vendors = useMemo(() => getVendors(gpuData), [gpuData]);

@@ -6,7 +6,8 @@ Application de benchmark GPU pour LLM avec :
 - admin React sur `/admin`
 - backend Express
 - base SQLite
-- benchmarks detailles par `GPU x modele x precision x contexte`
+- benchmarks detailles par `GPU x nombre de cartes x modele x precision x contexte`
+- modeles avec `params_billions` actifs et `total_params_billions` pour le chargement memoire
 - support d'API keys pour ingestion externe
 
 ## Dossiers principaux
@@ -106,7 +107,12 @@ npm test
 
 ## Documentation
 
+Pour une base deja existante, consultez le guide de migration avant toute mise a jour :
+
+- [Update.md](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/Update.md)
+
 - [SETUP.md](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/SETUP.md)
 - [API.md](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/API.md)
+- [Update.md](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/Update.md)
 - [admi.md](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/admi.md)
 - [securiter.md](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/securiter.md)

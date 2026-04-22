@@ -2,7 +2,7 @@ const db = require('../../config/database');
 
 const getAllModels = (req, res) => {
   try {
-    const models = db.prepare('SELECT * FROM llm_models ORDER BY params_billions ASC').all();
+    const models = db.prepare('SELECT * FROM llm_models ORDER BY params_billions ASC, total_params_billions ASC, name ASC').all();
 
     res.json({
       models,
@@ -44,12 +44,12 @@ const getModelById = (req, res) => {
 
 const createModel = (req, res) => {
   try {
-    const { name, params_billions, description } = req.body;
+    const { name, params_billions, total_params_billions, max_context_size, description } = req.body;
 
     const result = db.prepare(`
-      INSERT INTO llm_models (name, params_billions, description)
-      VALUES (?, ?, ?)
-    `).run(name, params_billions, description);
+      INSERT INTO llm_models (name, params_billions, total_params_billions, max_context_size, description)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(name, params_billions, total_params_billions, max_context_size, description);
 
     const model = db.prepare('SELECT * FROM llm_models WHERE id = ?').get(result.lastInsertRowid);
 
@@ -69,7 +69,7 @@ const createModel = (req, res) => {
 const updateModel = (req, res) => {
   try {
     const { id } = req.params;
-    const { name, params_billions, description } = req.body;
+    const { name, params_billions, total_params_billions, max_context_size, description } = req.body;
 
     const existingModel = db.prepare('SELECT * FROM llm_models WHERE id = ?').get(id);
 
@@ -82,6 +82,8 @@ const updateModel = (req, res) => {
 
     if (name !== undefined) { updateFields.push('name = ?'); params.push(name); }
     if (params_billions !== undefined) { updateFields.push('params_billions = ?'); params.push(params_billions); }
+    if (total_params_billions !== undefined) { updateFields.push('total_params_billions = ?'); params.push(total_params_billions); }
+    if (max_context_size !== undefined) { updateFields.push('max_context_size = ?'); params.push(max_context_size); }
     if (description !== undefined) { updateFields.push('description = ?'); params.push(description); }
 
     if (updateFields.length === 0) {

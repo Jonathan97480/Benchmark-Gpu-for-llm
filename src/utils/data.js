@@ -42,6 +42,7 @@ export function getVendors(data) {
 export function normalizePublicDataset(rawDataset) {
   const benchmarkResults = (rawDataset.benchmark_results || []).map((result) => ({
     ...result,
+    gpu_count: Number(result.gpu_count) || 1,
     precision: result.precision || null,
     tokens_per_second: Number(result.tokens_per_second) || 0,
     context_size: result.context_size || null,
@@ -97,6 +98,8 @@ export function normalizePublicDataset(rawDataset) {
 
     return {
       ...model,
+      total_params_billions: model.total_params_billions || null,
+      max_context_size: model.max_context_size || null,
       benchmarks: modelResults,
       testedGpuCount: modelResults.length,
       topBenchmark,

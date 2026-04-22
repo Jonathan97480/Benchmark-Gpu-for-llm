@@ -82,6 +82,8 @@ const createTables = () => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL UNIQUE,
       params_billions INTEGER,
+      total_params_billions INTEGER,
+      max_context_size INTEGER,
       description TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -89,6 +91,7 @@ const createTables = () => {
     CREATE TABLE IF NOT EXISTS benchmark_results (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       gpu_id INTEGER NOT NULL,
+      gpu_count INTEGER NOT NULL DEFAULT 1,
       llm_model_id INTEGER NOT NULL,
       tokens_per_second REAL NOT NULL,
       context_size INTEGER,
@@ -132,6 +135,9 @@ const createTables = () => {
 
   addColumnIfMissing('gpu_benchmarks', 'price_new_value', 'INTEGER DEFAULT 0');
   addColumnIfMissing('gpu_benchmarks', 'price_used_value', 'INTEGER DEFAULT 0');
+  addColumnIfMissing('benchmark_results', 'gpu_count', 'INTEGER NOT NULL DEFAULT 1');
+  addColumnIfMissing('llm_models', 'total_params_billions', 'INTEGER');
+  addColumnIfMissing('llm_models', 'max_context_size', 'INTEGER');
   backfillGpuPriceColumns();
 
   console.log('Tables created successfully');

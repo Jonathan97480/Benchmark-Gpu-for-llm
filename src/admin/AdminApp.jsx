@@ -73,7 +73,14 @@ export function AdminApp() {
           newModelForm={dashboard.newModelForm}
           onAddBenchmarkRow={dashboard.addBenchmarkRow}
           onCancelNewModel={() =>
-            dashboard.setNewModelForm({ open: false, name: "", params_billions: "", description: "" })
+            dashboard.setNewModelForm({
+              open: false,
+              name: "",
+              params_billions: "",
+              total_params_billions: "",
+              max_context_size: "",
+              description: "",
+            })
           }
           onChangeBenchmarkRow={dashboard.upsertBenchmarkRow}
           onDeleteBenchmarkRow={dashboard.removeBenchmarkRow}
@@ -106,7 +113,12 @@ export function AdminApp() {
           vendorFilter={dashboard.vendorFilter}
         />
 
-        <ModelManagementPanel models={dashboard.models} onDelete={dashboard.removeModel} />
+        <ModelManagementPanel
+          models={dashboard.models}
+          onDelete={dashboard.removeModel}
+          onUpdate={dashboard.saveExistingModel}
+          saving={dashboard.saving}
+        />
 
         <ApiKeysPanel
           apiKeyForm={dashboard.apiKeyForm}

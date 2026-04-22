@@ -62,7 +62,7 @@ const getPublicBenchmarkDataset = (req, res) => {
     const models = db.prepare(`
       SELECT *
       FROM llm_models
-      ORDER BY params_billions ASC, name ASC
+      ORDER BY params_billions ASC, total_params_billions ASC, name ASC
     `).all();
 
     const benchmarkResults = db.prepare(`
@@ -77,11 +77,12 @@ const getPublicBenchmarkDataset = (req, res) => {
         g.price_new_value,
         g.price_used_value,
         lm.name AS model_name,
-        lm.params_billions
+        lm.params_billions,
+        lm.total_params_billions
       FROM benchmark_results br
       JOIN gpu_benchmarks g ON g.id = br.gpu_id
       JOIN llm_models lm ON lm.id = br.llm_model_id
-      ORDER BY lm.params_billions ASC, lm.name ASC, br.tokens_per_second DESC
+      ORDER BY lm.params_billions ASC, lm.total_params_billions ASC, lm.name ASC, br.tokens_per_second DESC
     `).all();
 
     res.json({
@@ -111,7 +112,7 @@ const getGPUById = (req, res) => {
     }
 
     const benchmarkResults = db.prepare(`
-      SELECT br.*, lm.name as model_name, lm.params_billions
+      SELECT br.*, lm.name as model_name, lm.params_billions, lm.total_params_billions
       FROM benchmark_results br
       JOIN llm_models lm ON lm.id = br.llm_model_id
       WHERE br.gpu_id = ?

@@ -1,6 +1,6 @@
 import { BenchmarkMatrixTable } from "../tables/BenchmarkMatrixTable.jsx";
 import { GpuTable } from "../tables/GpuTable.jsx";
-import { LegacyBenchmarkTable } from "../tables/LegacyBenchmarkTable.jsx";
+import { getBenchmarkForGpuAndModel } from "../../utils/data.js";
 
 export function TablesSection({
   gpuData,
@@ -18,6 +18,10 @@ export function TablesSection({
   vendor,
   vendors,
 }) {
+  const hasSelectedModelBenchmarks =
+    !selectedModel ||
+    sortedData.some((gpu) => getBenchmarkForGpuAndModel(gpu, selectedModel.id));
+
   return (
     <section className="section reveal" id="tables">
       <div className="section-heading">
@@ -83,49 +87,42 @@ export function TablesSection({
         </div>
       </div>
 
-      <article className="card glass reveal">
-        <div className="card-header split">
-          <div>
-            <span className="card-kicker">Catalogue public</span>
-            <h3>Cartes GPU enrichies par la couverture réelle des benchmarks</h3>
-            <p className="table-note">
-              Le catalogue distingue maintenant le prix neuf et le prix occasion quand ces données
-              existent dans la base.
+      <div className="tables-layout">
+        <article className="card glass reveal table-card">
+          <div className="card-header split">
+            <div>
+              <span className="card-kicker">Catalogue public</span>
+              <h3>Cartes GPU enrichies par la couverture réelle des benchmarks</h3>
+              <p className="table-note">
+                Le catalogue distingue maintenant le prix neuf et le prix occasion quand ces données
+                existent dans la base.
+              </p>
+            </div>
+            <div className="legend">
+              <span><i className="dot dot-budget"></i>Budget</span>
+              <span><i className="dot dot-pro"></i>Prosumer</span>
+              <span><i className="dot dot-enterprise"></i>Enterprise</span>
+            </div>
+          </div>
+          {hasSelectedModelBenchmarks ? (
+            <GpuTable selectedModel={selectedModel} setSort={setSort} sortedData={sortedData} />
+          ) : (
+            <p className="empty-state-text">
+              Aucun benchmark n&apos;est disponible pour le modèle sélectionné dans la vue actuelle.
             </p>
-          </div>
-          <div className="legend">
-            <span><i className="dot dot-budget"></i>Budget</span>
-            <span><i className="dot dot-pro"></i>Prosumer</span>
-            <span><i className="dot dot-enterprise"></i>Enterprise</span>
-          </div>
-        </div>
-        <GpuTable selectedModel={selectedModel} setSort={setSort} sortedData={sortedData} />
-      </article>
+          )}
+        </article>
 
-      <article className="card glass reveal">
-        <div className="card-header">
-          <div>
-            <span className="card-kicker">Matrice complète</span>
-            <h3>Résultats par GPU et par modèle LLM</h3>
+        <article className="card glass reveal table-card">
+          <div className="card-header">
+            <div>
+              <span className="card-kicker">Matrice complète</span>
+              <h3>Résultats par GPU et par modèle LLM</h3>
+            </div>
           </div>
-        </div>
-        <BenchmarkMatrixTable gpus={gpuData} models={models} />
-      </article>
-
-      <article className="card glass reveal">
-        <div className="card-header">
-          <div>
-            <span className="card-kicker">Données legacy</span>
-            <h3>Mesures stockées sans rattachement explicite à un modèle</h3>
-          </div>
-        </div>
-        <p className="table-note">
-          Ces colonnes proviennent directement de <code>gpu_benchmarks</code>. Elles existent en
-          base, mais ne permettent pas d&apos;identifier précisément le nom du modèle LLM ni la
-          quantization associée.
-        </p>
-        <LegacyBenchmarkTable gpus={gpuData} />
-      </article>
+          <BenchmarkMatrixTable gpus={gpuData} models={models} />
+        </article>
+      </div>
     </section>
   );
 }
