@@ -189,6 +189,16 @@ Extrait de `benchmark_results` :
   "tokens_per_second": 510,
   "context_size": 32000,
   "precision": "INT4",
+  "inference_backend": "vLLM",
+  "measurement_type": "decode",
+  "vram_used_gb": 23.4,
+  "ram_used_gb": 19.8,
+  "kv_cache_precision": "FP8",
+  "batch_size": 4,
+  "concurrency": 2,
+  "gpu_power_limit_watts": 420,
+  "gpu_core_clock_mhz": 2520,
+  "gpu_memory_clock_mhz": 1312,
   "notes": "Test sur 4x GPU identiques",
   "gpu_name": "RTX 4090",
   "vendor": "NVIDIA",
@@ -239,6 +249,16 @@ Exemple de reponse :
       "tokens_per_second": 510,
       "context_size": 32000,
       "precision": "INT4",
+      "inference_backend": "vLLM",
+      "measurement_type": "decode",
+      "vram_used_gb": 23.4,
+      "ram_used_gb": 19.8,
+      "kv_cache_precision": "FP8",
+      "batch_size": 4,
+      "concurrency": 2,
+      "gpu_power_limit_watts": 420,
+      "gpu_core_clock_mhz": 2520,
+      "gpu_memory_clock_mhz": 1312,
       "notes": "Test sur 4x GPU identiques"
     }
   ]
@@ -314,6 +334,7 @@ Accepte JWT admin ou API key.
 
 ```http
 POST /gpu/:gpu_id/benchmark
+x-api-key: <api_key>
 Content-Type: application/json
 ```
 
@@ -324,11 +345,45 @@ Content-Type: application/json
   "tokens_per_second": 213,
   "context_size": 4096,
   "precision": "FP16",
+  "inference_backend": "vLLM",
+  "measurement_type": "decode",
+  "vram_used_gb": 23.4,
+  "ram_used_gb": 19.8,
+  "kv_cache_precision": "FP8",
+  "batch_size": 4,
+  "concurrency": 2,
+  "gpu_power_limit_watts": 420,
+  "gpu_core_clock_mhz": 2520,
+  "gpu_memory_clock_mhz": 1312,
   "notes": "Test configuration details"
 }
 ```
 
 `gpu_count` indique combien de cartes identiques ont ete utilisees pour le benchmark. Si le champ est omis, la valeur par defaut est `1`.
+
+Champs benchmark supportes :
+
+- `llm_model_id` : entier, requis
+- `gpu_count` : entier >= 1
+- `tokens_per_second` : nombre >= 0, requis
+- `context_size` : entier >= 1 ou `null`
+- `precision` : texte libre, typiquement `INT4`, `AWQ INT4`, `GPTQ INT4`, `FP8`, `FP16`
+- `inference_backend` : `llama.cpp`, `Ollama`, `vLLM`, `exllamav2`, `tabbyAPI`, `SGLang`, `Autre`
+- `measurement_type` : `decode`, `prefill`, `mixed`
+- `vram_used_gb` : nombre >= 0 ou `null`
+- `ram_used_gb` : nombre >= 0 ou `null`
+- `kv_cache_precision` : `FP16`, `FP8`, `INT8`, `INT4`, `Non spécifié`
+- `batch_size` : entier >= 1 ou `null`
+- `concurrency` : entier >= 1 ou `null`
+- `gpu_power_limit_watts` : entier >= 1 ou `null`
+- `gpu_core_clock_mhz` : entier >= 1 ou `null`
+- `gpu_memory_clock_mhz` : entier >= 1 ou `null`
+- `notes` : texte libre
+
+Ces champs peuvent etre envoyes avec :
+
+- `Authorization: Bearer <access_token>`
+- ou `x-api-key: <api_key>`
 
 Exemple de reponse :
 
@@ -343,6 +398,16 @@ Exemple de reponse :
     "tokens_per_second": 510,
     "context_size": 32000,
     "precision": "INT4",
+    "inference_backend": "vLLM",
+    "measurement_type": "decode",
+    "vram_used_gb": 23.4,
+    "ram_used_gb": 19.8,
+    "kv_cache_precision": "FP8",
+    "batch_size": 4,
+    "concurrency": 2,
+    "gpu_power_limit_watts": 420,
+    "gpu_core_clock_mhz": 2520,
+    "gpu_memory_clock_mhz": 1312,
     "notes": "Test sur 4x GPU identiques",
     "created_at": "2026-04-22 10:00:00"
   }
@@ -355,6 +420,8 @@ Accepte JWT admin ou API key.
 
 ```http
 PUT /gpu/:gpu_id/benchmark/:result_id
+x-api-key: <api_key>
+Content-Type: application/json
 ```
 
 Le body accepte les memes champs que la creation, y compris `gpu_count`.
@@ -372,6 +439,16 @@ Exemple de reponse :
     "tokens_per_second": 260,
     "context_size": 32000,
     "precision": "INT4",
+    "inference_backend": "Ollama",
+    "measurement_type": "prefill",
+    "vram_used_gb": 21.2,
+    "ram_used_gb": 12.4,
+    "kv_cache_precision": "FP16",
+    "batch_size": 1,
+    "concurrency": 1,
+    "gpu_power_limit_watts": 350,
+    "gpu_core_clock_mhz": 2400,
+    "gpu_memory_clock_mhz": 1250,
     "notes": "Valeur corrigee",
     "created_at": "2026-04-22 10:00:00"
   }
@@ -424,7 +501,7 @@ Exemple :
 curl -X POST http://localhost:3000/api/v1/gpu/1/benchmark ^
   -H "Content-Type: application/json" ^
   -H "x-api-key: VOTRE_CLE_API" ^
-  -d "{\"llm_model_id\":2,\"gpu_count\":1,\"tokens_per_second\":142.5,\"context_size\":32000,\"precision\":\"INT4\",\"notes\":\"Ajout service externe\"}"
+  -d "{\"llm_model_id\":2,\"gpu_count\":1,\"tokens_per_second\":142.5,\"context_size\":32000,\"precision\":\"INT4\",\"inference_backend\":\"vLLM\",\"measurement_type\":\"decode\",\"vram_used_gb\":23.4,\"ram_used_gb\":19.8,\"kv_cache_precision\":\"FP8\",\"batch_size\":4,\"concurrency\":2,\"gpu_power_limit_watts\":420,\"gpu_core_clock_mhz\":2520,\"gpu_memory_clock_mhz\":1312,\"notes\":\"Ajout service externe\"}"
 ```
 
 Exemple multi-GPU :
@@ -433,7 +510,7 @@ Exemple multi-GPU :
 curl -X POST http://localhost:3000/api/v1/gpu/1/benchmark ^
   -H "Content-Type: application/json" ^
   -H "x-api-key: VOTRE_CLE_API" ^
-  -d "{\"llm_model_id\":2,\"gpu_count\":4,\"tokens_per_second\":510,\"context_size\":32000,\"precision\":\"INT4\",\"notes\":\"Test sur 4x GPU identiques\"}"
+  -d "{\"llm_model_id\":2,\"gpu_count\":4,\"tokens_per_second\":510,\"context_size\":32000,\"precision\":\"INT4\",\"inference_backend\":\"vLLM\",\"measurement_type\":\"decode\",\"notes\":\"Test sur 4x GPU identiques\"}"
 ```
 
 ### Cas 2: le GPU existe deja mais le modele n'existe pas encore
@@ -468,7 +545,7 @@ Puis creation du benchmark avec l'id du modele :
 curl -X POST http://localhost:3000/api/v1/gpu/1/benchmark ^
   -H "Content-Type: application/json" ^
   -H "x-api-key: VOTRE_CLE_API" ^
-  -d "{\"llm_model_id\":6,\"gpu_count\":1,\"tokens_per_second\":118,\"context_size\":32000,\"precision\":\"FP8\",\"notes\":\"Ajout service externe\"}"
+  -d "{\"llm_model_id\":6,\"gpu_count\":1,\"tokens_per_second\":118,\"context_size\":32000,\"precision\":\"FP8\",\"inference_backend\":\"Ollama\",\"measurement_type\":\"decode\",\"notes\":\"Ajout service externe\"}"
 ```
 
 ### Cas 3: le GPU n'existe pas encore mais le modele existe deja
@@ -528,7 +605,7 @@ Exemple :
 curl -X PUT http://localhost:3000/api/v1/gpu/1/benchmark/4 ^
   -H "Content-Type: application/json" ^
   -H "x-api-key: VOTRE_CLE_API" ^
-  -d "{\"llm_model_id\":2,\"gpu_count\":1,\"tokens_per_second\":149,\"context_size\":32000,\"precision\":\"INT4\",\"notes\":\"Valeur corrigee\"}"
+  -d "{\"llm_model_id\":2,\"gpu_count\":1,\"tokens_per_second\":149,\"context_size\":32000,\"precision\":\"INT4\",\"inference_backend\":\"Ollama\",\"measurement_type\":\"decode\",\"vram_used_gb\":11.8,\"ram_used_gb\":4.2,\"kv_cache_precision\":\"FP16\",\"batch_size\":1,\"concurrency\":1,\"notes\":\"Valeur corrigee\"}"
 ```
 
 ### Cas 6: supprimer un resultat errone
@@ -544,6 +621,9 @@ DELETE /gpu/:gpu_id/benchmark/:result_id
 - utilisez `GET /gpu` et `GET /models` pour eviter les doublons
 - considerez qu'un benchmark est distinct selon `gpu_id`, `gpu_count`, `llm_model_id`, `context_size` et `precision`
 - renseignez `precision` pour refleter la quantization reelle
+- renseignez `inference_backend` et `measurement_type` pour distinguer `decode` et `prefill`
+- renseignez `vram_used_gb` et `ram_used_gb` quand vous avez la telemetrie reelle
+- renseignez `kv_cache_precision` si le backend utilise `FP8` ou une precision speciale pour le cache
 - utilisez `notes` pour garder la trace de la source ou de la configuration
 - gardez `tokens_8b`, `tokens_32b`, `tokens_70b` pour les donnees legacy, pas pour les benchmarks detailles
 

@@ -13,6 +13,14 @@ function renderRowLabel(row) {
     parts.push(row.precision);
   }
 
+  if (row.inference_backend) {
+    parts.push(row.inference_backend);
+  }
+
+  if (row.measurement_type) {
+    parts.push(row.measurement_type);
+  }
+
   return parts.join(" | ");
 }
 
@@ -115,6 +123,148 @@ export function BenchmarkModelCard({
                   <option value="INT4">INT4</option>
                   <option value="INT8">INT8</option>
                 </select>
+              </label>
+
+              <label>
+                <span>Backend</span>
+                <select
+                  value={row.inference_backend}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "inference_backend", event.target.value)
+                  }
+                >
+                  <option value="">Non spécifié</option>
+                  <option value="llama.cpp">llama.cpp</option>
+                  <option value="Ollama">Ollama</option>
+                  <option value="vLLM">vLLM</option>
+                  <option value="exllamav2">exllamav2</option>
+                  <option value="tabbyAPI">tabbyAPI</option>
+                  <option value="SGLang">SGLang</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Type de mesure</span>
+                <select
+                  value={row.measurement_type}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "measurement_type", event.target.value)
+                  }
+                >
+                  <option value="">Non spécifié</option>
+                  <option value="decode">decode</option>
+                  <option value="prefill">prefill</option>
+                  <option value="mixed">mixed</option>
+                </select>
+              </label>
+
+              <label>
+                <span>VRAM utilisée (Go)</span>
+                <input
+                  min="0"
+                  step="0.1"
+                  type="number"
+                  value={row.vram_used_gb}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "vram_used_gb", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                <span>RAM utilisée (Go)</span>
+                <input
+                  min="0"
+                  step="0.1"
+                  type="number"
+                  value={row.ram_used_gb}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "ram_used_gb", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                <span>Précision KV cache</span>
+                <select
+                  value={row.kv_cache_precision}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "kv_cache_precision", event.target.value)
+                  }
+                >
+                  <option value="">Non spécifié</option>
+                  <option value="FP16">FP16</option>
+                  <option value="FP8">FP8</option>
+                  <option value="INT8">INT8</option>
+                  <option value="INT4">INT4</option>
+                  <option value="Non spécifié">Non spécifié</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Batch size</span>
+                <input
+                  min="1"
+                  step="1"
+                  type="number"
+                  value={row.batch_size}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "batch_size", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                <span>Concurrence</span>
+                <input
+                  min="1"
+                  step="1"
+                  type="number"
+                  value={row.concurrency}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "concurrency", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                <span>Power limit GPU (W)</span>
+                <input
+                  min="1"
+                  step="1"
+                  type="number"
+                  value={row.gpu_power_limit_watts}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "gpu_power_limit_watts", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                <span>Core clock GPU (MHz)</span>
+                <input
+                  min="1"
+                  step="1"
+                  type="number"
+                  value={row.gpu_core_clock_mhz}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "gpu_core_clock_mhz", event.target.value)
+                  }
+                />
+              </label>
+
+              <label>
+                <span>Memory clock GPU (MHz)</span>
+                <input
+                  min="1"
+                  step="1"
+                  type="number"
+                  value={row.gpu_memory_clock_mhz}
+                  onChange={(event) =>
+                    onChangeRow(String(model.id), row.clientId, "gpu_memory_clock_mhz", event.target.value)
+                  }
+                />
               </label>
             </div>
 

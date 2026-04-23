@@ -183,6 +183,84 @@ export function GpuForm({
                     onChange={(event) => onNewModelFormChange("max_context_size", event.target.value)}
                   />
                 </label>
+
+                <label>
+                  <span>Coeff KV cache</span>
+                  <input
+                    min="0"
+                    step="0.01"
+                    type="number"
+                    value={newModelForm.analytical_kv_cache_multiplier}
+                    onChange={(event) => onNewModelFormChange("analytical_kv_cache_multiplier", event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  <span>Coeff runtime</span>
+                  <input
+                    min="0"
+                    step="0.01"
+                    type="number"
+                    value={newModelForm.analytical_runtime_memory_multiplier}
+                    onChange={(event) => onNewModelFormChange("analytical_runtime_memory_multiplier", event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  <span>Runtime min</span>
+                  <input
+                    min="0"
+                    step="0.01"
+                    type="number"
+                    value={newModelForm.analytical_runtime_memory_minimum}
+                    onChange={(event) => onNewModelFormChange("analytical_runtime_memory_minimum", event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  <span>Coeff pénalité contexte</span>
+                  <input
+                    min="0"
+                    step="0.01"
+                    type="number"
+                    value={newModelForm.analytical_context_penalty_multiplier}
+                    onChange={(event) => onNewModelFormChange("analytical_context_penalty_multiplier", event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  <span>Plancher contexte</span>
+                  <input
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    type="number"
+                    value={newModelForm.analytical_context_penalty_floor}
+                    onChange={(event) => onNewModelFormChange("analytical_context_penalty_floor", event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  <span>Coeff offload</span>
+                  <input
+                    min="0"
+                    step="0.01"
+                    type="number"
+                    value={newModelForm.analytical_offload_penalty_multiplier}
+                    onChange={(event) => onNewModelFormChange("analytical_offload_penalty_multiplier", event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  <span>Coeff débit</span>
+                  <input
+                    min="0"
+                    step="0.01"
+                    type="number"
+                    value={newModelForm.analytical_throughput_multiplier}
+                    onChange={(event) => onNewModelFormChange("analytical_throughput_multiplier", event.target.value)}
+                  />
+                </label>
               </div>
 
               <label>

@@ -273,6 +273,54 @@ const llmModels = [
   { name: 'Gemma 4 E2B', params: 2, totalParams: 2, maxContextSize: 32768, description: 'Variante edge Gemma 4 issue du tableau de VRAM.' }
 ];
 
+const analyticalProfilesByModelName = {
+  'Qwen3.5-9B': {
+    analyticalKvCacheMultiplier: 0.08,
+    analyticalRuntimeMemoryMultiplier: 0.95,
+    analyticalRuntimeMemoryMinimum: 0.9,
+    analyticalContextPenaltyMultiplier: 1.29,
+    analyticalContextPenaltyFloor: 1,
+    analyticalOffloadPenaltyMultiplier: 0.75,
+    analyticalThroughputMultiplier: 1.62,
+  },
+  'GLM-4.6V-Flash': {
+    analyticalKvCacheMultiplier: 0.14,
+    analyticalRuntimeMemoryMultiplier: 1,
+    analyticalRuntimeMemoryMinimum: 1.1,
+    analyticalContextPenaltyMultiplier: 1.04,
+    analyticalContextPenaltyFloor: 0.84,
+    analyticalOffloadPenaltyMultiplier: 1.08,
+    analyticalThroughputMultiplier: 1.12,
+  },
+  'Nemotron Nano 12B v2': {
+    analyticalKvCacheMultiplier: 0.2,
+    analyticalRuntimeMemoryMultiplier: 1,
+    analyticalRuntimeMemoryMinimum: 1.2,
+    analyticalContextPenaltyMultiplier: 1,
+    analyticalContextPenaltyFloor: 0.78,
+    analyticalOffloadPenaltyMultiplier: 1.7,
+    analyticalThroughputMultiplier: 0.92,
+  },
+  'Gemma 3 12B': {
+    analyticalKvCacheMultiplier: 0.18,
+    analyticalRuntimeMemoryMultiplier: 1.02,
+    analyticalRuntimeMemoryMinimum: 1.2,
+    analyticalContextPenaltyMultiplier: 0.92,
+    analyticalContextPenaltyFloor: 0.72,
+    analyticalOffloadPenaltyMultiplier: 5.2,
+    analyticalThroughputMultiplier: 0.95,
+  },
+  'Phi-4 14B': {
+    analyticalKvCacheMultiplier: 0.22,
+    analyticalRuntimeMemoryMultiplier: 1.05,
+    analyticalRuntimeMemoryMinimum: 1.25,
+    analyticalContextPenaltyMultiplier: 0.88,
+    analyticalContextPenaltyFloor: 0.66,
+    analyticalOffloadPenaltyMultiplier: 4.2,
+    analyticalThroughputMultiplier: 0.92,
+  },
+};
+
 const benchmarkResults = [
   {
     gpuName: 'RTX 5090',
@@ -367,6 +415,7 @@ const benchmarkResults = [
 ];
 
 module.exports = {
+  analyticalProfilesByModelName,
   gpuData,
   llmModels,
   benchmarkResults

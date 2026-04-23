@@ -7,9 +7,12 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "bootstrap": "node src/db/bootstrap.js",
+    "bootstrap:reset": "node src/db/bootstrap.js --reset",
     "seed": "node src/db/seeds.js",
+    "seed:reset": "node src/db/seeds.js --reset",
     "migrate": "node src/db/migrations.js",
-    "test": "node --test --test-concurrency=1 test/auth.api.test.js"
+    "migrate:reset": "node src/db/migrations.js --reset",
+    "test": "node --test --test-concurrency=1 test/auth.api.test.js test/models.api.test.js test/analyticalProfile.utils.test.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

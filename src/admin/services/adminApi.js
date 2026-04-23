@@ -238,6 +238,14 @@ export async function deleteModel(id) {
   });
 }
 
+export async function recomputeModelAnalyticalProfile(id) {
+  return apiRequest(`/api/v1/models/${id}/recompute-analytical-profile`, {
+    method: "POST",
+    body: {},
+    auth: true,
+  });
+}
+
 export async function createBenchmark(gpuId, payload) {
   return apiRequest(`/api/v1/gpu/${gpuId}/benchmark`, {
     method: "POST",

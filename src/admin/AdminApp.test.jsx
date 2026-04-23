@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { AdminApp } from "./AdminApp.jsx";
 
@@ -47,6 +47,13 @@ function createDashboardState() {
       params_billions: "",
       max_context_size: "",
       total_params_billions: "",
+      analytical_kv_cache_multiplier: "",
+      analytical_runtime_memory_multiplier: "",
+      analytical_runtime_memory_minimum: "",
+      analytical_context_penalty_multiplier: "",
+      analytical_context_penalty_floor: "",
+      analytical_offload_penalty_multiplier: "",
+      analytical_throughput_multiplier: "",
       description: "",
     },
     addBenchmarkRow: vi.fn(),
@@ -71,6 +78,7 @@ function createDashboardState() {
     vendorFilter: "all",
     latestCreatedApiKey: "",
     removeModel: vi.fn(),
+    recomputeModelCalibration: vi.fn(),
   };
 }
 
@@ -112,7 +120,7 @@ describe("AdminApp", () => {
     expect(screen.getByRole("button", { name: "Connexion" })).toBeInTheDocument();
   });
 
-  it("affiche le back-office React quand l'utilisateur est authentifié", () => {
+  it("affiche le back-office React avec navigation laterale", () => {
     useAdminAuth.mockReturnValue({
       adminExists: true,
       authenticated: true,
@@ -131,7 +139,11 @@ describe("AdminApp", () => {
 
     expect(screen.getByRole("heading", { name: "GPU LLM Benchmark Back-Office" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Ajouter un GPU" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Accès externe sécurisé" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Navigation administration" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Déconnexion" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Securite Gerer les acces API/i }));
+
+    expect(screen.getByRole("heading", { name: "Accès externe sécurisé" })).toBeInTheDocument();
   });
 });

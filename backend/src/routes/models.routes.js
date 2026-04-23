@@ -5,7 +5,8 @@ const {
   getModelById,
   createModel,
   updateModel,
-  deleteModel
+  deleteModel,
+  recomputeModelAnalyticalProfile,
 } = require('../controllers/models.controller');
 const { authenticateAdminOrApiKey } = require('../middleware/auth.middleware');
 const { validateLLMModel } = require('../middleware/validation.middleware');
@@ -17,6 +18,8 @@ router.get('/:id', getModelById);
 router.post('/', authenticateAdminOrApiKey, validateLLMModel, createModel);
 
 router.put('/:id', authenticateAdminOrApiKey, validateLLMModel, updateModel);
+
+router.post('/:id/recompute-analytical-profile', authenticateAdminOrApiKey, recomputeModelAnalyticalProfile);
 
 router.delete('/:id', authenticateAdminOrApiKey, deleteModel);
 

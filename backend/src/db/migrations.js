@@ -1,6 +1,4 @@
 const db = require('../../config/database');
-const fs = require('fs');
-const path = require('path');
 
 function hasColumn(tableName, columnName) {
   const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
@@ -84,6 +82,13 @@ const createTables = () => {
       params_billions INTEGER,
       total_params_billions INTEGER,
       max_context_size INTEGER,
+      analytical_kv_cache_multiplier REAL,
+      analytical_runtime_memory_multiplier REAL,
+      analytical_runtime_memory_minimum REAL,
+      analytical_context_penalty_multiplier REAL,
+      analytical_context_penalty_floor REAL,
+      analytical_offload_penalty_multiplier REAL,
+      analytical_throughput_multiplier REAL,
       description TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -96,6 +101,16 @@ const createTables = () => {
       tokens_per_second REAL NOT NULL,
       context_size INTEGER,
       precision TEXT,
+      inference_backend TEXT,
+      measurement_type TEXT,
+      vram_used_gb REAL,
+      ram_used_gb REAL,
+      kv_cache_precision TEXT,
+      batch_size INTEGER,
+      concurrency INTEGER,
+      gpu_power_limit_watts INTEGER,
+      gpu_core_clock_mhz INTEGER,
+      gpu_memory_clock_mhz INTEGER,
       notes TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (gpu_id) REFERENCES gpu_benchmarks(id) ON DELETE CASCADE,
@@ -136,8 +151,25 @@ const createTables = () => {
   addColumnIfMissing('gpu_benchmarks', 'price_new_value', 'INTEGER DEFAULT 0');
   addColumnIfMissing('gpu_benchmarks', 'price_used_value', 'INTEGER DEFAULT 0');
   addColumnIfMissing('benchmark_results', 'gpu_count', 'INTEGER NOT NULL DEFAULT 1');
+  addColumnIfMissing('benchmark_results', 'inference_backend', 'TEXT');
+  addColumnIfMissing('benchmark_results', 'measurement_type', 'TEXT');
+  addColumnIfMissing('benchmark_results', 'vram_used_gb', 'REAL');
+  addColumnIfMissing('benchmark_results', 'ram_used_gb', 'REAL');
+  addColumnIfMissing('benchmark_results', 'kv_cache_precision', 'TEXT');
+  addColumnIfMissing('benchmark_results', 'batch_size', 'INTEGER');
+  addColumnIfMissing('benchmark_results', 'concurrency', 'INTEGER');
+  addColumnIfMissing('benchmark_results', 'gpu_power_limit_watts', 'INTEGER');
+  addColumnIfMissing('benchmark_results', 'gpu_core_clock_mhz', 'INTEGER');
+  addColumnIfMissing('benchmark_results', 'gpu_memory_clock_mhz', 'INTEGER');
   addColumnIfMissing('llm_models', 'total_params_billions', 'INTEGER');
   addColumnIfMissing('llm_models', 'max_context_size', 'INTEGER');
+  addColumnIfMissing('llm_models', 'analytical_kv_cache_multiplier', 'REAL');
+  addColumnIfMissing('llm_models', 'analytical_runtime_memory_multiplier', 'REAL');
+  addColumnIfMissing('llm_models', 'analytical_runtime_memory_minimum', 'REAL');
+  addColumnIfMissing('llm_models', 'analytical_context_penalty_multiplier', 'REAL');
+  addColumnIfMissing('llm_models', 'analytical_context_penalty_floor', 'REAL');
+  addColumnIfMissing('llm_models', 'analytical_offload_penalty_multiplier', 'REAL');
+  addColumnIfMissing('llm_models', 'analytical_throughput_multiplier', 'REAL');
   backfillGpuPriceColumns();
 
   console.log('Tables created successfully');
@@ -156,15 +188,20 @@ const dropTables = () => {
   console.log('Tables dropped successfully');
 };
 
-const runMigration = () => {
-  console.log('Running database migrations...');
-  dropTables();
+const runMigration = ({ reset = false } = {}) => {
+  console.log(`Running database migrations${reset ? ' with reset' : ''}...`);
+
+  if (reset) {
+    dropTables();
+  }
+
   createTables();
-  console.log('Migration completed');
+  console.log(`Migration completed${reset ? ' after reset' : ''}`);
 };
 
 if (require.main === module) {
-  runMigration();
+  const reset = process.argv.includes('--reset') || process.env.DB_RESET === '1';
+  runMigration({ reset });
 }
 
 module.exports = { createTables, dropTables, runMigration };

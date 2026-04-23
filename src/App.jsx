@@ -87,6 +87,15 @@ export default function App() {
           vendors={vendors}
         />
         <InsightsSection insights={insights} loading={loading} />
+        <section className="section reveal" aria-label="Distinction benchmarks et simulateur">
+          <div className="card glass status-card">
+            <p>
+              Les sections ci-dessus affichent des <strong>benchmarks mesurés</strong> issus du dataset.
+              Le module ci-dessous est un <strong>simulateur analytique</strong> qui projette un debit
+              estime a partir des metadonnees materiel et modele.
+            </p>
+          </div>
+        </section>
         <PurchaseCalculator gpuData={gpuData} models={models} />
         <StatusSection error={error} loading={loading} />
       </main>

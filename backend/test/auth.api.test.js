@@ -125,3 +125,31 @@ test('une API key invalide est refusee sur les routes d ecriture', async (t) => 
     })
     .expect(403);
 });
+
+test('un admin peut recalculer le coefficient analytique d un modele depuis les benchmarks existants', async (t) => {
+  const dbPath = createTempDatabasePath();
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => disposeTestDatabase(db, dbPath));
+
+  const agent = request.agent(app);
+
+  const loginResponse = await agent
+    .post('/api/v1/auth/login')
+    .send({
+      username: 'admin',
+      password: 'Admin1234',
+    })
+    .expect(200);
+
+  const model = db.prepare('SELECT id FROM llm_models WHERE name = ?').get('DeepSeek R1 32B');
+
+  const response = await agent
+    .post(`/api/v1/models/${model.id}/recompute-analytical-profile`)
+    .set('Authorization', `Bearer ${loginResponse.body.access_token}`)
+    .send({})
+    .expect(200);
+
+  assert.equal(typeof response.body.calibration.analytical_throughput_multiplier, 'number');
+  assert.equal(response.body.calibration.benchmark_count, 1);
+});

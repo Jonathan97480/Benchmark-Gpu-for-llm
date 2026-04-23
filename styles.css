@@ -1247,6 +1247,14 @@ table tbody tr:hover {
   gap: 0.55rem;
 }
 
+.calculator-subnote {
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  background: rgba(103, 232, 249, 0.08);
+  border: 1px solid rgba(103, 232, 249, 0.14);
+  color: #c7f8ff;
+}
+
 .calculator-warnings {
   display: flex;
   flex-direction: column;

@@ -9,6 +9,16 @@ const createBenchmarkResult = (req, res) => {
       tokens_per_second,
       context_size,
       precision,
+      inference_backend,
+      measurement_type,
+      vram_used_gb,
+      ram_used_gb,
+      kv_cache_precision,
+      batch_size,
+      concurrency,
+      gpu_power_limit_watts,
+      gpu_core_clock_mhz,
+      gpu_memory_clock_mhz,
       notes
     } = req.body;
 
@@ -23,9 +33,45 @@ const createBenchmarkResult = (req, res) => {
     }
 
     const result = db.prepare(`
-      INSERT INTO benchmark_results (gpu_id, gpu_count, llm_model_id, tokens_per_second, context_size, precision, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(gpu_id, gpu_count, llm_model_id, tokens_per_second, context_size, precision, notes);
+      INSERT INTO benchmark_results (
+        gpu_id,
+        gpu_count,
+        llm_model_id,
+        tokens_per_second,
+        context_size,
+        precision,
+        inference_backend,
+        measurement_type,
+        vram_used_gb,
+        ram_used_gb,
+        kv_cache_precision,
+        batch_size,
+        concurrency,
+        gpu_power_limit_watts,
+        gpu_core_clock_mhz,
+        gpu_memory_clock_mhz,
+        notes
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      gpu_id,
+      gpu_count,
+      llm_model_id,
+      tokens_per_second,
+      context_size,
+      precision,
+      inference_backend,
+      measurement_type,
+      vram_used_gb,
+      ram_used_gb,
+      kv_cache_precision,
+      batch_size,
+      concurrency,
+      gpu_power_limit_watts,
+      gpu_core_clock_mhz,
+      gpu_memory_clock_mhz,
+      notes
+    );
 
     const benchmark = db.prepare('SELECT * FROM benchmark_results WHERE id = ?').get(result.lastInsertRowid);
 
@@ -48,6 +94,16 @@ const updateBenchmarkResult = (req, res) => {
       tokens_per_second,
       context_size,
       precision,
+      inference_backend,
+      measurement_type,
+      vram_used_gb,
+      ram_used_gb,
+      kv_cache_precision,
+      batch_size,
+      concurrency,
+      gpu_power_limit_watts,
+      gpu_core_clock_mhz,
+      gpu_memory_clock_mhz,
       notes
     } = req.body;
 
@@ -74,6 +130,16 @@ const updateBenchmarkResult = (req, res) => {
     if (tokens_per_second !== undefined) { updateFields.push('tokens_per_second = ?'); params.push(tokens_per_second); }
     if (context_size !== undefined) { updateFields.push('context_size = ?'); params.push(context_size); }
     if (precision !== undefined) { updateFields.push('precision = ?'); params.push(precision); }
+    if (inference_backend !== undefined) { updateFields.push('inference_backend = ?'); params.push(inference_backend); }
+    if (measurement_type !== undefined) { updateFields.push('measurement_type = ?'); params.push(measurement_type); }
+    if (vram_used_gb !== undefined) { updateFields.push('vram_used_gb = ?'); params.push(vram_used_gb); }
+    if (ram_used_gb !== undefined) { updateFields.push('ram_used_gb = ?'); params.push(ram_used_gb); }
+    if (kv_cache_precision !== undefined) { updateFields.push('kv_cache_precision = ?'); params.push(kv_cache_precision); }
+    if (batch_size !== undefined) { updateFields.push('batch_size = ?'); params.push(batch_size); }
+    if (concurrency !== undefined) { updateFields.push('concurrency = ?'); params.push(concurrency); }
+    if (gpu_power_limit_watts !== undefined) { updateFields.push('gpu_power_limit_watts = ?'); params.push(gpu_power_limit_watts); }
+    if (gpu_core_clock_mhz !== undefined) { updateFields.push('gpu_core_clock_mhz = ?'); params.push(gpu_core_clock_mhz); }
+    if (gpu_memory_clock_mhz !== undefined) { updateFields.push('gpu_memory_clock_mhz = ?'); params.push(gpu_memory_clock_mhz); }
     if (notes !== undefined) { updateFields.push('notes = ?'); params.push(notes); }
 
     if (updateFields.length === 0) {

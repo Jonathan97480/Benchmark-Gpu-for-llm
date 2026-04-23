@@ -11,6 +11,7 @@ import {
   fetchGpuById,
   fetchGpuList,
   fetchModels,
+  recomputeModelAnalyticalProfile,
   revokeApiKey,
   updateBenchmark,
   updateGpu,
@@ -29,6 +30,16 @@ function createBenchmarkRow(overrides = {}) {
     tokens_per_second: "",
     context_size: "",
     precision: "",
+    inference_backend: "",
+    measurement_type: "",
+    vram_used_gb: "",
+    ram_used_gb: "",
+    kv_cache_precision: "",
+    batch_size: "",
+    concurrency: "",
+    gpu_power_limit_watts: "",
+    gpu_core_clock_mhz: "",
+    gpu_memory_clock_mhz: "",
     notes: "",
     removed: false,
     ...overrides,
@@ -51,6 +62,16 @@ function buildBenchmarkRowsByModel(models, benchmarkResults = []) {
         tokens_per_second: benchmark.tokens_per_second ?? "",
         context_size: benchmark.context_size ?? "",
         precision: benchmark.precision || "",
+        inference_backend: benchmark.inference_backend || "",
+        measurement_type: benchmark.measurement_type || "",
+        vram_used_gb: benchmark.vram_used_gb ?? "",
+        ram_used_gb: benchmark.ram_used_gb ?? "",
+        kv_cache_precision: benchmark.kv_cache_precision || "",
+        batch_size: benchmark.batch_size ?? "",
+        concurrency: benchmark.concurrency ?? "",
+        gpu_power_limit_watts: benchmark.gpu_power_limit_watts ?? "",
+        gpu_core_clock_mhz: benchmark.gpu_core_clock_mhz ?? "",
+        gpu_memory_clock_mhz: benchmark.gpu_memory_clock_mhz ?? "",
         notes: benchmark.notes || "",
       })
     );
@@ -101,6 +122,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     params_billions: "",
     total_params_billions: "",
     max_context_size: "",
+    analytical_kv_cache_multiplier: "",
+    analytical_runtime_memory_multiplier: "",
+    analytical_runtime_memory_minimum: "",
+    analytical_context_penalty_multiplier: "",
+    analytical_context_penalty_floor: "",
+    analytical_offload_penalty_multiplier: "",
+    analytical_throughput_multiplier: "",
     description: "",
   });
   const [apiKeyForm, setApiKeyForm] = useState({
@@ -153,7 +181,23 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
             benchmarkRowsByModel: buildBenchmarkRowsByModel(
               modelList,
               flattenBenchmarkRows(currentForm.benchmarkRowsByModel)
-                .filter((row) => row.resultId || row.tokens_per_second || row.context_size || row.precision || row.notes)
+                .filter((row) =>
+                  row.resultId ||
+                  row.tokens_per_second ||
+                  row.context_size ||
+                  row.precision ||
+                  row.inference_backend ||
+                  row.measurement_type ||
+                  row.vram_used_gb ||
+                  row.ram_used_gb ||
+                  row.kv_cache_precision ||
+                  row.batch_size ||
+                  row.concurrency ||
+                  row.gpu_power_limit_watts ||
+                  row.gpu_core_clock_mhz ||
+                  row.gpu_memory_clock_mhz ||
+                  row.notes
+                )
                 .map((row) => ({
                   id: row.resultId,
                   llm_model_id: row.llm_model_id,
@@ -161,6 +205,16 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
                   tokens_per_second: row.tokens_per_second,
                   context_size: row.context_size,
                   precision: row.precision,
+                  inference_backend: row.inference_backend,
+                  measurement_type: row.measurement_type,
+                  vram_used_gb: row.vram_used_gb,
+                  ram_used_gb: row.ram_used_gb,
+                  kv_cache_precision: row.kv_cache_precision,
+                  batch_size: row.batch_size,
+                  concurrency: row.concurrency,
+                  gpu_power_limit_watts: row.gpu_power_limit_watts,
+                  gpu_core_clock_mhz: row.gpu_core_clock_mhz,
+                  gpu_memory_clock_mhz: row.gpu_memory_clock_mhz,
                   notes: row.notes,
                 }))
             ),
@@ -292,6 +346,19 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
         tokens_per_second: row.tokens_per_second === "" ? null : Number(row.tokens_per_second),
         context_size: row.context_size === "" ? null : Number(row.context_size),
         precision: row.precision || null,
+        inference_backend: row.inference_backend || null,
+        measurement_type: row.measurement_type || null,
+        vram_used_gb: row.vram_used_gb === "" ? null : Number(row.vram_used_gb),
+        ram_used_gb: row.ram_used_gb === "" ? null : Number(row.ram_used_gb),
+        kv_cache_precision: row.kv_cache_precision || null,
+        batch_size: row.batch_size === "" ? null : Number(row.batch_size),
+        concurrency: row.concurrency === "" ? null : Number(row.concurrency),
+        gpu_power_limit_watts:
+          row.gpu_power_limit_watts === "" ? null : Number(row.gpu_power_limit_watts),
+        gpu_core_clock_mhz:
+          row.gpu_core_clock_mhz === "" ? null : Number(row.gpu_core_clock_mhz),
+        gpu_memory_clock_mhz:
+          row.gpu_memory_clock_mhz === "" ? null : Number(row.gpu_memory_clock_mhz),
         notes: row.notes || null,
       };
 
@@ -394,6 +461,20 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
         total_params_billions:
           newModelForm.total_params_billions === "" ? null : Number(newModelForm.total_params_billions),
         max_context_size: newModelForm.max_context_size === "" ? null : Number(newModelForm.max_context_size),
+        analytical_kv_cache_multiplier:
+          newModelForm.analytical_kv_cache_multiplier === "" ? null : Number(newModelForm.analytical_kv_cache_multiplier),
+        analytical_runtime_memory_multiplier:
+          newModelForm.analytical_runtime_memory_multiplier === "" ? null : Number(newModelForm.analytical_runtime_memory_multiplier),
+        analytical_runtime_memory_minimum:
+          newModelForm.analytical_runtime_memory_minimum === "" ? null : Number(newModelForm.analytical_runtime_memory_minimum),
+        analytical_context_penalty_multiplier:
+          newModelForm.analytical_context_penalty_multiplier === "" ? null : Number(newModelForm.analytical_context_penalty_multiplier),
+        analytical_context_penalty_floor:
+          newModelForm.analytical_context_penalty_floor === "" ? null : Number(newModelForm.analytical_context_penalty_floor),
+        analytical_offload_penalty_multiplier:
+          newModelForm.analytical_offload_penalty_multiplier === "" ? null : Number(newModelForm.analytical_offload_penalty_multiplier),
+        analytical_throughput_multiplier:
+          newModelForm.analytical_throughput_multiplier === "" ? null : Number(newModelForm.analytical_throughput_multiplier),
         description: newModelForm.description.trim() || null,
       });
 
@@ -403,6 +484,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
         params_billions: "",
         total_params_billions: "",
         max_context_size: "",
+        analytical_kv_cache_multiplier: "",
+        analytical_runtime_memory_multiplier: "",
+        analytical_runtime_memory_minimum: "",
+        analytical_context_penalty_multiplier: "",
+        analytical_context_penalty_floor: "",
+        analytical_offload_penalty_multiplier: "",
+        analytical_throughput_multiplier: "",
         description: "",
       });
       await loadDashboardData();
@@ -454,6 +542,29 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       }
 
       setError(modelError.message || "Failed to update model");
+    } finally {
+      setSaving(false);
+    }
+  }, [loadDashboardData, onUnauthorized, showNotification]);
+
+  const recomputeModelCalibration = useCallback(async (modelId) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const response = await recomputeModelAnalyticalProfile(modelId);
+      await loadDashboardData();
+      showNotification(
+        `Coefficient recalculé depuis ${response.calibration?.benchmark_count ?? 0} benchmark(s)`,
+        "success"
+      );
+    } catch (modelError) {
+      if (modelError.status === 401) {
+        await onUnauthorized();
+        return;
+      }
+
+      setError(modelError.message || "Failed to recompute model calibration");
     } finally {
       setSaving(false);
     }
@@ -519,6 +630,7 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     removeApiKey,
     removeGpu,
     removeModel,
+    recomputeModelCalibration,
     resetGpuForm,
     saveGpu,
     saveApiKey,

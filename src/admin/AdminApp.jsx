@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AdminAuthView } from "./components/AdminAuthView.jsx";
 import { ApiKeysPanel } from "./components/ApiKeysPanel.jsx";
 import { GpuForm } from "./components/GpuForm.jsx";
@@ -21,6 +21,36 @@ export function AdminApp() {
       document.title = "GPU LLM Benchmark 2026";
     };
   }, []);
+
+  const [activeSection, setActiveSection] = useState("gpu-editor");
+
+  const sections = useMemo(
+    () => [
+      {
+        id: "gpu-editor",
+        kicker: "Edition",
+        title: "Ajouter ou modifier un GPU",
+      },
+      {
+        id: "gpu-catalog",
+        kicker: "Catalogue",
+        title: "Gerer les GPU",
+      },
+      {
+        id: "models",
+        kicker: "Modeles",
+        title: "Calibrer et maintenir les modeles",
+      },
+      {
+        id: "api-keys",
+        kicker: "Securite",
+        title: "Gerer les acces API",
+      },
+    ],
+    []
+  );
+
+  const activeSectionMeta = sections.find((section) => section.id === activeSection) || sections[0];
 
   if (auth.bootstrapping) {
     return (
@@ -49,88 +79,135 @@ export function AdminApp() {
     <div className="admin-shell">
       <NotificationBar notification={dashboard.notification} />
 
-      <header className="admin-topbar">
-        <div>
-          <p className="admin-kicker">React Admin</p>
-          <h1>GPU LLM Benchmark Back-Office</h1>
-        </div>
-        <div className="admin-inline-actions">
-          <a className="admin-btn admin-btn-secondary" href="/">
-            Voir le frontend public
-          </a>
-          <button className="admin-btn admin-btn-primary" type="button" onClick={auth.logout}>
-            Déconnexion
-          </button>
-        </div>
-      </header>
+      <div className="admin-workspace">
+        <aside className="admin-sidebar">
+          <div className="admin-sidebar-card">
+            <div>
+              <p className="admin-kicker">React Admin</p>
+              <h1>GPU LLM Benchmark Back-Office</h1>
+            </div>
 
-      {dashboard.error ? <div className="admin-banner-error">{dashboard.error}</div> : null}
+            <nav className="admin-nav" aria-label="Navigation administration">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  className={`admin-nav-item${activeSection === section.id ? " is-active" : ""}`}
+                  type="button"
+                  onClick={() => setActiveSection(section.id)}
+                >
+                  <span>{section.kicker}</span>
+                  <strong>{section.title}</strong>
+                </button>
+              ))}
+            </nav>
 
-      <main className="admin-layout">
-        <GpuForm
-          form={dashboard.gpuForm}
-          models={dashboard.models}
-          newModelForm={dashboard.newModelForm}
-          onAddBenchmarkRow={dashboard.addBenchmarkRow}
-          onCancelNewModel={() =>
-            dashboard.setNewModelForm({
-              open: false,
-              name: "",
-              params_billions: "",
-              total_params_billions: "",
-              max_context_size: "",
-              description: "",
-            })
-          }
-          onChangeBenchmarkRow={dashboard.upsertBenchmarkRow}
-          onDeleteBenchmarkRow={dashboard.removeBenchmarkRow}
-          onNewModelFormChange={(field, value) =>
-            dashboard.setNewModelForm((currentForm) => ({
-              ...currentForm,
-              [field]: value,
-            }))
-          }
-          onOpenNewModel={() =>
-            dashboard.setNewModelForm((currentForm) => ({
-              ...currentForm,
-              open: true,
-            }))
-          }
-          onReset={dashboard.resetGpuForm}
-          onSave={dashboard.saveGpu}
-          onSaveModel={dashboard.saveModel}
-          onUpdateField={dashboard.updateGpuField}
-          saving={dashboard.saving}
-        />
+            <div className="admin-sidebar-actions">
+              <a className="admin-btn admin-btn-secondary" href="/">
+                Voir le frontend public
+              </a>
+              <button className="admin-btn admin-btn-primary" type="button" onClick={auth.logout}>
+                Déconnexion
+              </button>
+            </div>
+          </div>
+        </aside>
 
-        <GpuManagementTable
-          gpus={dashboard.filteredGpus}
-          onDelete={dashboard.removeGpu}
-          onEdit={dashboard.startEditGpu}
-          search={dashboard.search}
-          setSearch={dashboard.setSearch}
-          setVendorFilter={dashboard.setVendorFilter}
-          vendorFilter={dashboard.vendorFilter}
-        />
+        <main className="admin-content">
+          <header className="admin-topbar">
+            <div>
+              <p className="admin-kicker">{activeSectionMeta.kicker}</p>
+              <h1>{activeSectionMeta.title}</h1>
+            </div>
+          </header>
 
-        <ModelManagementPanel
-          models={dashboard.models}
-          onDelete={dashboard.removeModel}
-          onUpdate={dashboard.saveExistingModel}
-          saving={dashboard.saving}
-        />
+          {dashboard.error ? <div className="admin-banner-error">{dashboard.error}</div> : null}
 
-        <ApiKeysPanel
-          apiKeyForm={dashboard.apiKeyForm}
-          apiKeys={dashboard.apiKeys}
-          latestCreatedApiKey={dashboard.latestCreatedApiKey}
-          onApiKeyFormChange={(value) => dashboard.setApiKeyForm({ name: value })}
-          onClearLatestApiKey={() => dashboard.setLatestCreatedApiKey("")}
-          onCreateApiKey={dashboard.saveApiKey}
-          onRevokeApiKey={dashboard.removeApiKey}
-          saving={dashboard.saving}
-        />
-      </main>
+          <div className="admin-layout">
+            {activeSection === "gpu-editor" ? (
+              <GpuForm
+                form={dashboard.gpuForm}
+                models={dashboard.models}
+                newModelForm={dashboard.newModelForm}
+                onAddBenchmarkRow={dashboard.addBenchmarkRow}
+                onCancelNewModel={() =>
+                  dashboard.setNewModelForm({
+                    open: false,
+                    name: "",
+                    params_billions: "",
+                    total_params_billions: "",
+                    max_context_size: "",
+                    analytical_kv_cache_multiplier: "",
+                    analytical_runtime_memory_multiplier: "",
+                    analytical_runtime_memory_minimum: "",
+                    analytical_context_penalty_multiplier: "",
+                    analytical_context_penalty_floor: "",
+                    analytical_offload_penalty_multiplier: "",
+                    analytical_throughput_multiplier: "",
+                    description: "",
+                  })
+                }
+                onChangeBenchmarkRow={dashboard.upsertBenchmarkRow}
+                onDeleteBenchmarkRow={dashboard.removeBenchmarkRow}
+                onNewModelFormChange={(field, value) =>
+                  dashboard.setNewModelForm((currentForm) => ({
+                    ...currentForm,
+                    [field]: value,
+                  }))
+                }
+                onOpenNewModel={() =>
+                  dashboard.setNewModelForm((currentForm) => ({
+                    ...currentForm,
+                    open: true,
+                  }))
+                }
+                onReset={dashboard.resetGpuForm}
+                onSave={dashboard.saveGpu}
+                onSaveModel={dashboard.saveModel}
+                onUpdateField={dashboard.updateGpuField}
+                saving={dashboard.saving}
+              />
+            ) : null}
+
+            {activeSection === "gpu-catalog" ? (
+              <GpuManagementTable
+                gpus={dashboard.filteredGpus}
+                onDelete={dashboard.removeGpu}
+                onEdit={(gpuId) => {
+                  dashboard.startEditGpu(gpuId);
+                  setActiveSection("gpu-editor");
+                }}
+                search={dashboard.search}
+                setSearch={dashboard.setSearch}
+                setVendorFilter={dashboard.setVendorFilter}
+                vendorFilter={dashboard.vendorFilter}
+              />
+            ) : null}
+
+            {activeSection === "models" ? (
+              <ModelManagementPanel
+                models={dashboard.models}
+                onDelete={dashboard.removeModel}
+                onRecomputeCalibration={dashboard.recomputeModelCalibration}
+                onUpdate={dashboard.saveExistingModel}
+                saving={dashboard.saving}
+              />
+            ) : null}
+
+            {activeSection === "api-keys" ? (
+              <ApiKeysPanel
+                apiKeyForm={dashboard.apiKeyForm}
+                apiKeys={dashboard.apiKeys}
+                latestCreatedApiKey={dashboard.latestCreatedApiKey}
+                onApiKeyFormChange={(value) => dashboard.setApiKeyForm({ name: value })}
+                onClearLatestApiKey={() => dashboard.setLatestCreatedApiKey("")}
+                onCreateApiKey={dashboard.saveApiKey}
+                onRevokeApiKey={dashboard.removeApiKey}
+                saving={dashboard.saving}
+              />
+            ) : null}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

@@ -65,14 +65,60 @@ function loadFreshBackend(dbPath) {
   `).run('RTX 5090', 'NVIDIA', 'Blackwell', 32, 1792, 0, 0, 0, 'prosumer', 98, 213, 71, 0);
 
   const modelResult = db.prepare(`
-    INSERT INTO llm_models (name, params_billions, total_params_billions, description)
-    VALUES (?, ?, ?, ?)
-  `).run('DeepSeek R1 32B', 32, 32, 'Modele de test');
+    INSERT INTO llm_models (
+      name,
+      params_billions,
+      total_params_billions,
+      analytical_kv_cache_multiplier,
+      analytical_runtime_memory_multiplier,
+      analytical_runtime_memory_minimum,
+      analytical_context_penalty_multiplier,
+      analytical_context_penalty_floor,
+      analytical_offload_penalty_multiplier,
+      analytical_throughput_multiplier,
+      description
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run('DeepSeek R1 32B', 32, 32, null, null, null, null, null, null, null, 'Modele de test');
 
   db.prepare(`
-    INSERT INTO benchmark_results (gpu_id, llm_model_id, tokens_per_second, context_size, precision, notes)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(gpuResult.lastInsertRowid, modelResult.lastInsertRowid, 71, null, null, 'Seed test benchmark');
+    INSERT INTO benchmark_results (
+      gpu_id,
+      llm_model_id,
+      tokens_per_second,
+      context_size,
+      precision,
+      inference_backend,
+      measurement_type,
+      vram_used_gb,
+      ram_used_gb,
+      kv_cache_precision,
+      batch_size,
+      concurrency,
+      gpu_power_limit_watts,
+      gpu_core_clock_mhz,
+      gpu_memory_clock_mhz,
+      notes
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    gpuResult.lastInsertRowid,
+    modelResult.lastInsertRowid,
+    71,
+    null,
+    null,
+    'vLLM',
+    'decode',
+    22.5,
+    18,
+    'FP8',
+    1,
+    1,
+    450,
+    2500,
+    1300,
+    'Seed test benchmark'
+  );
 
   const { app } = require('../../server');
 
