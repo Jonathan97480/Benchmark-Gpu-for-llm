@@ -11,6 +11,7 @@ const authRoutes = require('./src/routes/auth.routes');
 const gpuRoutes = require('./src/routes/gpu.routes');
 const modelsRoutes = require('./src/routes/models.routes');
 const insightsRoutes = require('./src/routes/insights.routes');
+const backupsRoutes = require('./src/routes/backups.routes');
 const { errorHandler } = require('./src/middleware/errorHandler.middleware');
 
 const app = express();
@@ -122,6 +123,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/gpu', gpuRoutes);
 app.use('/api/v1/models', modelsRoutes);
 app.use('/api/v1/insights', insightsRoutes);
+app.use('/api/v1/backups', backupsRoutes);
 
 app.get('/api/v1/stats', (req, res) => {
   try {

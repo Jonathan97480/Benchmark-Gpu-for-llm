@@ -10,7 +10,9 @@
     "build:watch": "vite build --watch",
     "preview": "vite preview",
     "bootstrap:data": "npm --prefix backend run bootstrap",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:price-curves": "vitest run src/components/tables/GpuTable.test.jsx",
+    "dev:seed-fake-prices": "npm --prefix backend run dev:seed-fake-prices"
   },
   "dependencies": {
     "chart.js": "^4.4.3",

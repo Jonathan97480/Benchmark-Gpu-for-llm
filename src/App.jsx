@@ -101,7 +101,13 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        <p>GPU LLM Benchmark 2026, visualisation web React du dépôt Benchmark-Gpu-for-llm.</p>
+        <p>
+          GPU LLM Benchmark 2026, visualisation web React du dépôt Benchmark-Gpu-for-llm. Développé par{" "}
+          <a href="https://portfolio.jon-dev.fr/" target="_blank" rel="noreferrer">
+            jon-dev
+          </a>
+          .
+        </p>
       </footer>
     </div>
   );

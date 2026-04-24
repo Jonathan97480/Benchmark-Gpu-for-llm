@@ -231,3 +231,63 @@ export function createQuantizationChartConfig(benchmarkResults) {
     },
   };
 }
+
+export function createGpuPriceHistoryChartConfig(history, label, color) {
+  if (!history || history.length === 0) {
+    return null;
+  }
+
+  return {
+    type: "line",
+    data: {
+      labels: history.map((entry) =>
+        new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium" }).format(new Date(entry.recorded_at))
+      ),
+      datasets: [
+        {
+          label,
+          data: history.map((entry) => entry.value),
+          borderColor: color,
+          backgroundColor: `${color}33`,
+          pointBackgroundColor: color,
+          pointBorderColor: color,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          borderWidth: 3,
+          fill: true,
+          tension: 0.28,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label(context) {
+              return `${label}: ${formatNumber(context.raw)} EUR`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { color: "rgba(255, 255, 255, 0.06)" },
+          ticks: { color: "#edf2ff" },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: "rgba(255, 255, 255, 0.1)" },
+          ticks: {
+            color: "#9eb1d1",
+            callback(value) {
+              return `${formatNumber(value)} EUR`;
+            },
+          },
+        },
+      },
+    },
+  };
+}

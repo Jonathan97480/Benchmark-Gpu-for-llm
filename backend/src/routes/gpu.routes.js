@@ -4,6 +4,7 @@ const {
   getAllGPUs,
   getPublicBenchmarkDataset,
   getGPUById,
+  getGpuPriceHistory,
   createGPU,
   updateGPU,
   deleteGPU
@@ -20,6 +21,7 @@ const { validateBenchmarkResult } = require('../middleware/validation.middleware
 router.get('/', getAllGPUs);
 
 router.get('/public-dataset', getPublicBenchmarkDataset);
+router.get('/:id/price-history', getGpuPriceHistory);
 
 router.get('/:id', getGPUById);
 

@@ -1,4 +1,3 @@
-import { BenchmarkMatrixTable } from "../tables/BenchmarkMatrixTable.jsx";
 import { GpuTable } from "../tables/GpuTable.jsx";
 import { getBenchmarkForGpuAndModel } from "../../utils/data.js";
 
@@ -26,10 +25,10 @@ export function TablesSection({
     <section className="section reveal" id="tables">
       <div className="section-heading">
         <span className="section-kicker">Exploration</span>
-        <h2>Catalogue GPU et matrice complète des benchmarks</h2>
+        <h2>Catalogue GPU public</h2>
         <p>
-          La vue publique sépare maintenant le catalogue matériel et la matrice GPU × modèle LLM,
-          avec affichage explicite des trous de couverture et de la quantization stockée.
+          Explorez les cartes graphiques, filtrez par constructeur ou segment, puis ouvrez
+          l’historique des prix pour comparer l’évolution du neuf et de l’occasion.
         </p>
       </div>
 
@@ -94,8 +93,8 @@ export function TablesSection({
               <span className="card-kicker">Catalogue public</span>
               <h3>Cartes GPU enrichies par la couverture réelle des benchmarks</h3>
               <p className="table-note">
-                Le catalogue distingue maintenant le prix neuf et le prix occasion quand ces données
-                existent dans la base.
+                Le nom de chaque carte ouvre maintenant un panneau avec deux courbes de prix :
+                commerce et occasion.
               </p>
             </div>
             <div className="legend">
@@ -111,16 +110,6 @@ export function TablesSection({
               Aucun benchmark n&apos;est disponible pour le modèle sélectionné dans la vue actuelle.
             </p>
           )}
-        </article>
-
-        <article className="card glass reveal table-card">
-          <div className="card-header">
-            <div>
-              <span className="card-kicker">Matrice complète</span>
-              <h3>Résultats par GPU et par modèle LLM</h3>
-            </div>
-          </div>
-          <BenchmarkMatrixTable gpus={gpuData} models={models} />
         </article>
       </div>
     </section>

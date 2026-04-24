@@ -312,6 +312,35 @@
   gap: 1rem;
 }
 
+.admin-backup-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-backup-card {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  padding: 1.25rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 22px;
+  background: #f8fafc;
+}
+
+.admin-backup-card h3 {
+  margin: 0.2rem 0 0.35rem;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.admin-backup-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
 .admin-model-card,
 .admin-model-editor,
 .admin-delete-warning {
@@ -591,6 +620,14 @@
   .admin-benchmark-row-meta,
   .admin-model-card-top {
     flex-direction: column;
+  }
+
+  .admin-backup-card {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-backup-meta {
+    justify-content: flex-start;
   }
 
   .admin-shell {

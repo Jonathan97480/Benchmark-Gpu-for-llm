@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AdminAuthView } from "./components/AdminAuthView.jsx";
 import { ApiKeysPanel } from "./components/ApiKeysPanel.jsx";
+import { BackupManagementPanel } from "./components/BackupManagementPanel.jsx";
 import { GpuForm } from "./components/GpuForm.jsx";
 import { GpuManagementTable } from "./components/GpuManagementTable.jsx";
 import { ModelManagementPanel } from "./components/ModelManagementPanel.jsx";
@@ -45,6 +46,11 @@ export function AdminApp() {
         id: "api-keys",
         kicker: "Securite",
         title: "Gerer les acces API",
+      },
+      {
+        id: "backups",
+        kicker: "Backup",
+        title: "Sauvegarder et telecharger le site",
       },
     ],
     []
@@ -102,9 +108,6 @@ export function AdminApp() {
             </nav>
 
             <div className="admin-sidebar-actions">
-              <a className="admin-btn admin-btn-secondary" href="/">
-                Voir le frontend public
-              </a>
               <button className="admin-btn admin-btn-primary" type="button" onClick={auth.logout}>
                 Déconnexion
               </button>
@@ -202,6 +205,15 @@ export function AdminApp() {
                 onClearLatestApiKey={() => dashboard.setLatestCreatedApiKey("")}
                 onCreateApiKey={dashboard.saveApiKey}
                 onRevokeApiKey={dashboard.removeApiKey}
+                saving={dashboard.saving}
+              />
+            ) : null}
+
+            {activeSection === "backups" ? (
+              <BackupManagementPanel
+                backups={dashboard.backups}
+                onCreateBackup={dashboard.saveBackup}
+                onDownloadBackup={dashboard.downloadBackupFile}
                 saving={dashboard.saving}
               />
             ) : null}

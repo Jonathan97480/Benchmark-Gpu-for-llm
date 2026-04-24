@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getBenchmarkForGpuAndModel } from "../../utils/data.js";
 import { formatNumber, formatPrice } from "../../utils/formatters.js";
+import { fetchGpuPriceHistory } from "../../services/dashboardApi.js";
+import { ChartCanvas } from "../common/ChartCanvas.jsx";
+import { createGpuPriceHistoryChartConfig } from "../../utils/chartConfigs.js";
 
 function GpuCountBadge({ count }) {
   return (
@@ -78,8 +81,123 @@ function BenchmarkDetailsPanel({ gpu, onClose }) {
   );
 }
 
+function GpuPriceHistoryPanel({ gpu, onClose }) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadHistory() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await fetchGpuPriceHistory(gpu.id);
+        if (!cancelled) {
+          setHistory(response.history || []);
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(loadError.message);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadHistory();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [gpu.id]);
+
+  const newHistory = useMemo(
+    () =>
+      history
+        .filter((entry) => Number(entry.price_new_value) > 0)
+        .map((entry) => ({ recorded_at: entry.recorded_at, value: Number(entry.price_new_value) })),
+    [history]
+  );
+  const usedHistory = useMemo(
+    () =>
+      history
+        .filter((entry) => Number(entry.price_used_value) > 0)
+        .map((entry) => ({ recorded_at: entry.recorded_at, value: Number(entry.price_used_value) })),
+    [history]
+  );
+
+  return (
+    <div className="benchmark-panel-overlay" role="dialog" aria-modal="true" aria-labelledby="gpu-price-panel-title">
+      <div className="benchmark-panel glass gpu-price-panel">
+        <div className="benchmark-panel-header">
+          <div>
+            <span className="card-kicker">Historique des prix</span>
+            <h3 id="gpu-price-panel-title">{gpu.name}</h3>
+            <p className="table-note">
+              Courbes séparées pour le prix neuf et le prix occasion de cette carte graphique.
+            </p>
+          </div>
+          <button className="benchmark-panel-close" type="button" onClick={onClose} aria-label="Fermer">
+            ×
+          </button>
+        </div>
+
+        {loading ? <p className="empty-state-text">Chargement de l’historique…</p> : null}
+        {error ? <p className="error-text">{error}</p> : null}
+        {!loading && !error && newHistory.length === 0 && usedHistory.length === 0 ? (
+          <p className="empty-state-text">Aucun historique de prix n’est encore disponible pour ce GPU.</p>
+        ) : null}
+
+        {!loading && !error && (newHistory.length > 0 || usedHistory.length > 0) ? (
+          <div className="gpu-price-chart-grid">
+            <article className="gpu-price-chart-card">
+              <div className="card-header">
+                <div>
+                  <span className="card-kicker">Commerce</span>
+                  <h3>Évolution du prix neuf</h3>
+                </div>
+              </div>
+              {newHistory.length > 0 ? (
+                <ChartCanvas
+                  className="chart-container gpu-price-chart"
+                  config={createGpuPriceHistoryChartConfig(newHistory, "Prix neuf", "#67e8f9")}
+                />
+              ) : (
+                <p className="empty-state-text">Pas encore de points enregistrés pour le prix neuf.</p>
+              )}
+            </article>
+
+            <article className="gpu-price-chart-card">
+              <div className="card-header">
+                <div>
+                  <span className="card-kicker">Occasion</span>
+                  <h3>Évolution du prix occasion</h3>
+                </div>
+              </div>
+              {usedHistory.length > 0 ? (
+                <ChartCanvas
+                  className="chart-container gpu-price-chart"
+                  config={createGpuPriceHistoryChartConfig(usedHistory, "Prix occasion", "#22c55e")}
+                />
+              ) : (
+                <p className="empty-state-text">Pas encore de points enregistrés pour le prix occasion.</p>
+              )}
+            </article>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function GpuTable({ selectedModel, setSort, sortedData }) {
   const [detailGpu, setDetailGpu] = useState(null);
+  const [priceHistoryGpu, setPriceHistoryGpu] = useState(null);
 
   function toggleSort(key) {
     setSort((current) =>
@@ -118,7 +236,13 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
                 <tr key={item.name}>
                   <td>
                     <div className="gpu-name-block">
-                      <strong>{item.name}</strong>
+                      <button
+                        className="gpu-name-button"
+                        type="button"
+                        onClick={() => setPriceHistoryGpu(item)}
+                      >
+                        <strong>{item.name}</strong>
+                      </button>
                       {(() => {
                         const countSource = selectedModel
                           ? getBenchmarkForGpuAndModel(item, selectedModel.id) || item.bestBenchmark
@@ -160,6 +284,9 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
       </div>
 
       {detailGpu ? <BenchmarkDetailsPanel gpu={detailGpu} onClose={() => setDetailGpu(null)} /> : null}
+      {priceHistoryGpu ? (
+        <GpuPriceHistoryPanel gpu={priceHistoryGpu} onClose={() => setPriceHistoryGpu(null)} />
+      ) : null}
     </>
   );
 }

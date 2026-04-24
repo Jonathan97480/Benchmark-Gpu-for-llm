@@ -1,4 +1,5 @@
 const db = require('../../config/database');
+const { ensureGpuPriceHistoryEntry } = require('../db/migrations');
 
 const getAllGPUs = (req, res) => {
   try {
@@ -128,6 +129,38 @@ const getGPUById = (req, res) => {
   }
 };
 
+const getGpuPriceHistory = (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const gpu = db.prepare('SELECT id, name, price_new_value, price_used_value FROM gpu_benchmarks WHERE id = ?').get(id);
+
+    if (!gpu) {
+      return res.status(404).json({ error: 'GPU not found' });
+    }
+
+    const history = db.prepare(`
+      SELECT
+        id,
+        gpu_id,
+        price_new_value,
+        price_used_value,
+        recorded_at
+      FROM gpu_price_history
+      WHERE gpu_id = ?
+      ORDER BY recorded_at ASC, id ASC
+    `).all(id);
+
+    res.json({
+      gpu,
+      history,
+    });
+  } catch (error) {
+    console.error('Error fetching GPU price history:', error);
+    res.status(500).json({ error: 'Failed to fetch GPU price history' });
+  }
+};
+
 const createGPU = (req, res) => {
   try {
     const {
@@ -175,6 +208,11 @@ const createGPU = (req, res) => {
     );
 
     const gpu = db.prepare('SELECT * FROM gpu_benchmarks WHERE id = ?').get(result.lastInsertRowid);
+    ensureGpuPriceHistoryEntry(
+      gpu.id,
+      gpu.price_new_value ?? 0,
+      gpu.price_used_value ?? 0
+    );
 
     res.status(201).json({
       message: 'GPU created successfully',
@@ -241,6 +279,11 @@ const updateGPU = (req, res) => {
     `).run(...params);
 
     const gpu = db.prepare('SELECT * FROM gpu_benchmarks WHERE id = ?').get(id);
+    ensureGpuPriceHistoryEntry(
+      gpu.id,
+      gpu.price_new_value ?? 0,
+      gpu.price_used_value ?? 0
+    );
 
     res.json({
       message: 'GPU updated successfully',
@@ -277,6 +320,7 @@ module.exports = {
   getAllGPUs,
   getPublicBenchmarkDataset,
   getGPUById,
+  getGpuPriceHistory,
   createGPU,
   updateGPU,
   deleteGPU

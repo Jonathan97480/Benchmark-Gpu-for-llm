@@ -109,6 +109,40 @@ async function apiRequest(path, options = {}) {
   return data;
 }
 
+async function downloadRequest(path, { auth = false, headers = {}, retry = true } = {}) {
+  let token = getStoredAccessToken();
+
+  if (auth && token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(path, {
+    method: "GET",
+    credentials: "include",
+    headers,
+  });
+
+  if (!response.ok) {
+    if (auth && response.status === 401 && retry) {
+      token = await refreshAccessToken();
+      return downloadRequest(path, {
+        auth,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        retry: false,
+      });
+    }
+
+    const { message } = await readResponseBody(response, "Download failed");
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.blob();
+}
+
 export function clearAdminSession() {
   setStoredAccessToken(null);
 }
@@ -267,4 +301,27 @@ export async function deleteBenchmark(gpuId, benchmarkId) {
     method: "DELETE",
     auth: true,
   });
+}
+
+export async function fetchBackups() {
+  return apiRequest("/api/v1/backups", { auth: true });
+}
+
+export async function createBackup(payload = {}) {
+  return apiRequest("/api/v1/backups", {
+    method: "POST",
+    body: payload,
+    auth: true,
+  });
+}
+
+export async function downloadBackup(fileName) {
+  const blob = await downloadRequest(`/api/v1/backups/${encodeURIComponent(fileName)}/download`, {
+    auth: true,
+  });
+
+  return {
+    blob,
+    fileName,
+  };
 }

@@ -16,3 +16,13 @@ export async function fetchDashboardData() {
     insights: insightsResult.insights || [],
   };
 }
+
+export async function fetchGpuPriceHistory(gpuId) {
+  const response = await fetch(`/api/v1/gpu/${gpuId}/price-history`);
+
+  if (!response.ok) {
+    throw new Error("Impossible de charger l'historique de prix de ce GPU.");
+  }
+
+  return response.json();
+}

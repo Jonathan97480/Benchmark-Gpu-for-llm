@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const db = require('../../config/database');
-const { createTables } = require('./migrations');
+const { createTables, ensureGpuPriceHistoryEntry } = require('./migrations');
 const { analyticalProfilesByModelName, gpuData, llmModels, benchmarkResults } = require('./baseData');
 
 const DEFAULT_ADMIN_USERNAME = process.env.DEFAULT_ADMIN_USERNAME || 'admin';
@@ -93,6 +93,13 @@ const bootstrapDatabase = ({ reset = false } = {}) => {
         gpu.tokens8b,
         gpu.tokens32b,
         gpu.tokens70b
+      );
+
+      const storedGpu = db.prepare('SELECT id, price_new_value, price_used_value FROM gpu_benchmarks WHERE name = ?').get(gpu.name);
+      ensureGpuPriceHistoryEntry(
+        storedGpu.id,
+        storedGpu.price_new_value ?? 0,
+        storedGpu.price_used_value ?? 0
       );
     }
 

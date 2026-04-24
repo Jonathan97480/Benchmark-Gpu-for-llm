@@ -784,6 +784,25 @@ table tbody tr:hover {
   vertical-align: middle;
 }
 
+.gpu-name-button {
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.gpu-name-button strong {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.gpu-name-button:hover strong {
+  color: #9ff4ff;
+}
+
 .gpu-count-badge {
   width: 2.3rem;
   height: 2.3rem;
@@ -916,6 +935,28 @@ table tbody tr:hover {
   min-width: 760px;
 }
 
+.gpu-price-panel {
+  width: min(1180px, 100%);
+}
+
+.gpu-price-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.gpu-price-chart-card {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.gpu-price-chart {
+  height: 320px;
+  margin: 0;
+}
+
 .matrix-empty {
   color: var(--muted);
   font-size: 0.85rem;
@@ -974,6 +1015,10 @@ table tbody tr:hover {
   padding: 3rem;
   color: var(--muted);
   font-size: 0.875rem;
+}
+
+.footer a {
+  color: var(--primary);
 }
 
 .status-card {
@@ -1300,6 +1345,10 @@ table tbody tr:hover {
   }
 
   .calculator-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .gpu-price-chart-grid {
     grid-template-columns: 1fr;
   }
 }

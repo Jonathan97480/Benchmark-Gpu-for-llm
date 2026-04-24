@@ -265,6 +265,43 @@ Exemple de reponse :
 }
 ```
 
+### Historique de prix d'un GPU
+
+```http
+GET /gpu/:id/price-history
+```
+
+Cette route publique expose les points de suivi de prix utilises par le panneau de courbes du catalogue.
+
+Exemple de reponse :
+
+```json
+{
+  "gpu": {
+    "id": 1,
+    "name": "RTX 4090",
+    "price_new_value": 1800,
+    "price_used_value": 1200
+  },
+  "history": [
+    {
+      "id": 41,
+      "gpu_id": 1,
+      "price_new_value": 1850,
+      "price_used_value": 1180,
+      "recorded_at": "2026-04-20T12:00:00.000Z"
+    },
+    {
+      "id": 42,
+      "gpu_id": 1,
+      "price_new_value": 1820,
+      "price_used_value": 1160,
+      "recorded_at": "2026-04-21T12:00:00.000Z"
+    }
+  ]
+}
+```
+
 ### Creer un GPU
 
 Accepte JWT admin ou API key.
@@ -324,6 +361,58 @@ Accepte JWT admin ou API key.
 
 ```http
 DELETE /gpu/:id
+```
+
+## Backups
+
+Ces routes demandent un JWT admin valide.
+
+### Lister les backups
+
+```http
+GET /backups
+Authorization: Bearer <access_token>
+```
+
+Exemple de reponse :
+
+```json
+{
+  "backups": [
+    {
+      "id": "20260424-120000-manual",
+      "file_name": "20260424-120000-manual.tar.gz",
+      "file_size": 154232,
+      "created_at": "2026-04-24T12:00:00.000Z",
+      "reason": "manual",
+      "includes_images": true,
+      "image_directories": ["dist/assets"],
+      "db_file_name": "20260424-120000-manual.db"
+    }
+  ]
+}
+```
+
+### Creer un backup
+
+```http
+POST /backups
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+```json
+{
+  "reason": "manual",
+  "include_images": true
+}
+```
+
+### Telecharger un backup
+
+```http
+GET /backups/:file_name/download
+Authorization: Bearer <access_token>
 ```
 
 ## Resultats de benchmark

@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  createBenchmark,
   createApiKey,
+  createBackup,
+  createBenchmark,
   createGpu,
   createModel,
   deleteBenchmark,
   deleteGpu,
   deleteModel,
+  downloadBackup,
   fetchApiKeys,
+  fetchBackups,
   fetchGpuById,
   fetchGpuList,
   fetchModels,
@@ -105,18 +108,8 @@ function flattenBenchmarkRows(benchmarkRowsByModel) {
   );
 }
 
-export function useAdminDashboard({ authenticated, onUnauthorized }) {
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [notification, setNotification] = useState(null);
-  const [gpus, setGpus] = useState([]);
-  const [models, setModels] = useState([]);
-  const [apiKeys, setApiKeys] = useState([]);
-  const [search, setSearch] = useState("");
-  const [vendorFilter, setVendorFilter] = useState("all");
-  const [gpuForm, setGpuForm] = useState(() => createEmptyGpuForm());
-  const [newModelForm, setNewModelForm] = useState({
+function resetNewModelForm() {
+  return {
     open: false,
     name: "",
     params_billions: "",
@@ -130,15 +123,38 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     analytical_offload_penalty_multiplier: "",
     analytical_throughput_multiplier: "",
     description: "",
-  });
-  const [apiKeyForm, setApiKeyForm] = useState({
-    name: "",
-  });
+  };
+}
+
+export function useAdminDashboard({ authenticated, onUnauthorized }) {
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [notification, setNotification] = useState(null);
+  const [gpus, setGpus] = useState([]);
+  const [models, setModels] = useState([]);
+  const [apiKeys, setApiKeys] = useState([]);
+  const [backups, setBackups] = useState([]);
+  const [search, setSearch] = useState("");
+  const [vendorFilter, setVendorFilter] = useState("all");
+  const [gpuForm, setGpuForm] = useState(() => createEmptyGpuForm());
+  const [newModelForm, setNewModelForm] = useState(resetNewModelForm);
+  const [apiKeyForm, setApiKeyForm] = useState({ name: "" });
   const [latestCreatedApiKey, setLatestCreatedApiKey] = useState("");
 
   const showNotification = useCallback((message, type = "success") => {
     setNotification({ message, type });
   }, []);
+
+  const handleActionError = useCallback(async (actionError, fallbackMessage) => {
+    if (actionError.status === 401) {
+      await onUnauthorized();
+      return true;
+    }
+
+    showNotification(actionError.message || fallbackMessage, "error");
+    return false;
+  }, [onUnauthorized, showNotification]);
 
   useEffect(() => {
     if (!notification) {
@@ -162,10 +178,11 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     setError("");
 
     try {
-      const [gpuResponse, modelResponse, apiKeysResponse] = await Promise.all([
+      const [gpuResponse, modelResponse, apiKeysResponse, backupsResponse] = await Promise.all([
         fetchGpuList(),
         fetchModels(),
         fetchApiKeys(),
+        fetchBackups(),
       ]);
       const gpuList = gpuResponse.gpus || [];
       const modelList = modelResponse.models || [];
@@ -174,6 +191,7 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       setGpus(gpuList);
       setModels(modelList);
       setApiKeys(keyList);
+      setBackups(backupsResponse.backups || []);
       setGpuForm((currentForm) => {
         if (currentForm.id) {
           return {
@@ -281,16 +299,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       showNotification("GPU chargé pour modification", "info");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (loadError) {
-      if (loadError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(loadError, "Failed to load GPU")) {
         return;
       }
-
-      setError(loadError.message || "Failed to load GPU");
     } finally {
       setSaving(false);
     }
-  }, [models, onUnauthorized, showNotification]);
+  }, [handleActionError, models, showNotification]);
 
   const upsertBenchmarkRow = useCallback((modelId, clientId, field, value) => {
     setGpuForm((currentForm) => ({
@@ -416,16 +431,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       resetGpuForm();
       showNotification(gpuForm.id ? "GPU modifié avec succès" : "GPU ajouté avec succès");
     } catch (saveError) {
-      if (saveError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(saveError, "Failed to save GPU")) {
         return;
       }
-
-      setError(saveError.message || "Failed to save GPU");
     } finally {
       setSaving(false);
     }
-  }, [gpuForm, loadDashboardData, onUnauthorized, resetGpuForm, showNotification]);
+  }, [gpuForm, handleActionError, loadDashboardData, resetGpuForm, showNotification]);
 
   const removeGpu = useCallback(async (gpuId) => {
     setSaving(true);
@@ -439,16 +451,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       }
       showNotification("GPU supprimé avec succès");
     } catch (deleteError) {
-      if (deleteError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(deleteError, "Failed to delete GPU")) {
         return;
       }
-
-      setError(deleteError.message || "Failed to delete GPU");
     } finally {
       setSaving(false);
     }
-  }, [gpuForm.id, loadDashboardData, onUnauthorized, resetGpuForm, showNotification]);
+  }, [gpuForm.id, handleActionError, loadDashboardData, resetGpuForm, showNotification]);
 
   const saveModel = useCallback(async () => {
     setSaving(true);
@@ -478,34 +487,17 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
         description: newModelForm.description.trim() || null,
       });
 
-      setNewModelForm({
-        open: false,
-        name: "",
-        params_billions: "",
-        total_params_billions: "",
-        max_context_size: "",
-        analytical_kv_cache_multiplier: "",
-        analytical_runtime_memory_multiplier: "",
-        analytical_runtime_memory_minimum: "",
-        analytical_context_penalty_multiplier: "",
-        analytical_context_penalty_floor: "",
-        analytical_offload_penalty_multiplier: "",
-        analytical_throughput_multiplier: "",
-        description: "",
-      });
+      setNewModelForm(resetNewModelForm());
       await loadDashboardData();
       showNotification("Modèle ajouté avec succès");
     } catch (modelError) {
-      if (modelError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(modelError, "Failed to save model")) {
         return;
       }
-
-      setError(modelError.message || "Failed to save model");
     } finally {
       setSaving(false);
     }
-  }, [loadDashboardData, newModelForm, onUnauthorized, showNotification]);
+  }, [handleActionError, loadDashboardData, newModelForm, showNotification]);
 
   const removeModel = useCallback(async (modelId) => {
     setSaving(true);
@@ -516,16 +508,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       await loadDashboardData();
       showNotification("Modèle supprimé avec succès");
     } catch (modelError) {
-      if (modelError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(modelError, "Failed to delete model")) {
         return;
       }
-
-      setError(modelError.message || "Failed to delete model");
     } finally {
       setSaving(false);
     }
-  }, [loadDashboardData, onUnauthorized, showNotification]);
+  }, [handleActionError, loadDashboardData, showNotification]);
 
   const saveExistingModel = useCallback(async (modelId, payload) => {
     setSaving(true);
@@ -536,16 +525,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       await loadDashboardData();
       showNotification("Modèle mis à jour avec succès");
     } catch (modelError) {
-      if (modelError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(modelError, "Failed to update model")) {
         return;
       }
-
-      setError(modelError.message || "Failed to update model");
     } finally {
       setSaving(false);
     }
-  }, [loadDashboardData, onUnauthorized, showNotification]);
+  }, [handleActionError, loadDashboardData, showNotification]);
 
   const recomputeModelCalibration = useCallback(async (modelId) => {
     setSaving(true);
@@ -559,16 +545,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
         "success"
       );
     } catch (modelError) {
-      if (modelError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(modelError, "Failed to recompute model calibration")) {
         return;
       }
-
-      setError(modelError.message || "Failed to recompute model calibration");
     } finally {
       setSaving(false);
     }
-  }, [loadDashboardData, onUnauthorized, showNotification]);
+  }, [handleActionError, loadDashboardData, showNotification]);
 
   const saveApiKey = useCallback(async () => {
     setSaving(true);
@@ -584,16 +567,13 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       await loadDashboardData();
       showNotification("Clé API créée avec succès");
     } catch (apiKeyError) {
-      if (apiKeyError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(apiKeyError, "Failed to create API key")) {
         return;
       }
-
-      setError(apiKeyError.message || "Failed to create API key");
     } finally {
       setSaving(false);
     }
-  }, [apiKeyForm.name, loadDashboardData, onUnauthorized, showNotification]);
+  }, [apiKeyForm.name, handleActionError, loadDashboardData, showNotification]);
 
   const removeApiKey = useCallback(async (apiKeyId) => {
     setSaving(true);
@@ -604,20 +584,61 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
       await loadDashboardData();
       showNotification("Clé API révoquée");
     } catch (apiKeyError) {
-      if (apiKeyError.status === 401) {
-        await onUnauthorized();
+      if (await handleActionError(apiKeyError, "Failed to revoke API key")) {
         return;
       }
-
-      setError(apiKeyError.message || "Failed to revoke API key");
     } finally {
       setSaving(false);
     }
-  }, [loadDashboardData, onUnauthorized, showNotification]);
+  }, [handleActionError, loadDashboardData, showNotification]);
+
+  const saveBackup = useCallback(async () => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const response = await createBackup({ include_images: true });
+      await loadDashboardData();
+      showNotification(`Backup créé: ${response.backup.file_name}`, "success");
+    } catch (backupError) {
+      if (await handleActionError(backupError, "Failed to create backup")) {
+        return;
+      }
+    } finally {
+      setSaving(false);
+    }
+  }, [handleActionError, loadDashboardData, showNotification]);
+
+  const downloadBackupFile = useCallback(async (fileName) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const { blob } = await downloadBackup(fileName);
+      const objectUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(objectUrl);
+      showNotification(`Téléchargement lancé: ${fileName}`, "info");
+    } catch (backupError) {
+      if (await handleActionError(backupError, "Failed to download backup")) {
+        return;
+      }
+    } finally {
+      setSaving(false);
+    }
+  }, [handleActionError, showNotification]);
 
   return {
+    addBenchmarkRow,
     apiKeyForm,
     apiKeys,
+    backups,
+    downloadBackupFile,
     error,
     filteredGpus,
     gpuForm,
@@ -626,15 +647,16 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     models,
     newModelForm,
     notification,
-    removeBenchmarkRow,
     removeApiKey,
+    removeBenchmarkRow,
     removeGpu,
     removeModel,
     recomputeModelCalibration,
     resetGpuForm,
-    saveGpu,
     saveApiKey,
+    saveBackup,
     saveExistingModel,
+    saveGpu,
     saveModel,
     saving,
     search,
@@ -648,6 +670,5 @@ export function useAdminDashboard({ authenticated, onUnauthorized }) {
     updateGpuField,
     upsertBenchmarkRow,
     vendorFilter,
-    addBenchmarkRow,
   };
 }

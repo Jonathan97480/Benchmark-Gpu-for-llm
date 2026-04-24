@@ -1,4 +1,5 @@
 const db = require('../../config/database');
+const { createPreMigrationBackup } = require('../utils/backup.utils');
 
 function hasColumn(tableName, columnName) {
   const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
@@ -40,6 +41,48 @@ function backfillGpuPriceColumns() {
   `);
 }
 
+function ensureGpuPriceHistoryEntry(gpuId, priceNewValue, priceUsedValue) {
+  const existingEntry = db.prepare(`
+    SELECT id
+    FROM gpu_price_history
+    WHERE gpu_id = ?
+      AND date(recorded_at) = date('now')
+    LIMIT 1
+  `).get(gpuId);
+
+  if (existingEntry) {
+    db.prepare(`
+      UPDATE gpu_price_history
+      SET
+        price_new_value = ?,
+        price_used_value = ?
+      WHERE id = ?
+    `).run(priceNewValue, priceUsedValue, existingEntry.id);
+    return;
+  }
+
+  db.prepare(`
+    INSERT INTO gpu_price_history (
+      gpu_id,
+      price_new_value,
+      price_used_value,
+      recorded_at
+    )
+    VALUES (?, ?, ?, date('now'))
+  `).run(gpuId, priceNewValue, priceUsedValue);
+}
+
+function backfillGpuPriceHistory() {
+  const rows = db.prepare(`
+    SELECT id, COALESCE(price_new_value, 0) AS price_new_value, COALESCE(price_used_value, 0) AS price_used_value
+    FROM gpu_benchmarks
+  `).all();
+
+  for (const row of rows) {
+    ensureGpuPriceHistoryEntry(row.id, row.price_new_value, row.price_used_value);
+  }
+}
+
 const createTables = () => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
@@ -75,6 +118,19 @@ const createTables = () => {
     CREATE INDEX IF NOT EXISTS idx_gpu_tier ON gpu_benchmarks(tier);
     CREATE INDEX IF NOT EXISTS idx_gpu_score ON gpu_benchmarks(score DESC);
     CREATE INDEX IF NOT EXISTS idx_gpu_vram ON gpu_benchmarks(vram);
+
+    CREATE TABLE IF NOT EXISTS gpu_price_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      gpu_id INTEGER NOT NULL,
+      price_new_value INTEGER DEFAULT 0,
+      price_used_value INTEGER DEFAULT 0,
+      recorded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (gpu_id) REFERENCES gpu_benchmarks(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_gpu_price_history_gpu_date
+      ON gpu_price_history(gpu_id, recorded_at DESC);
 
     CREATE TABLE IF NOT EXISTS llm_models (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -171,6 +227,7 @@ const createTables = () => {
   addColumnIfMissing('llm_models', 'analytical_offload_penalty_multiplier', 'REAL');
   addColumnIfMissing('llm_models', 'analytical_throughput_multiplier', 'REAL');
   backfillGpuPriceColumns();
+  backfillGpuPriceHistory();
 
   console.log('Tables created successfully');
 };
@@ -180,6 +237,7 @@ const dropTables = () => {
     DROP TABLE IF EXISTS refresh_tokens;
     DROP TABLE IF EXISTS api_keys;
     DROP TABLE IF EXISTS benchmark_results;
+    DROP TABLE IF EXISTS gpu_price_history;
     DROP TABLE IF EXISTS llm_models;
     DROP TABLE IF EXISTS gpu_benchmarks;
     DROP TABLE IF EXISTS users;
@@ -188,8 +246,15 @@ const dropTables = () => {
   console.log('Tables dropped successfully');
 };
 
-const runMigration = ({ reset = false } = {}) => {
+const runMigration = async ({ reset = false } = {}) => {
   console.log(`Running database migrations${reset ? ' with reset' : ''}...`);
+
+  if (!reset) {
+    const backup = await createPreMigrationBackup();
+    if (backup) {
+      console.log(`Pre-migration backup created: ${backup.file_name}`);
+    }
+  }
 
   if (reset) {
     dropTables();
@@ -201,7 +266,10 @@ const runMigration = ({ reset = false } = {}) => {
 
 if (require.main === module) {
   const reset = process.argv.includes('--reset') || process.env.DB_RESET === '1';
-  runMigration({ reset });
+  runMigration({ reset }).catch((error) => {
+    console.error('Migration failed:', error);
+    process.exitCode = 1;
+  });
 }
 
-module.exports = { createTables, dropTables, runMigration };
+module.exports = { createTables, dropTables, ensureGpuPriceHistoryEntry, runMigration };

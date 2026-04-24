@@ -54,6 +54,7 @@ Scripts destructifs explicites :
 - `npm run migrate:reset` : supprime puis recree les tables
 - `npm run bootstrap:reset` : vide les donnees metier puis reinjecte le dataset par defaut
 - `npm run seed:reset` : alias de `bootstrap:reset`
+- `npm run dev:seed-fake-prices` : ajoute de faux points d'historique de prix GPU pour la visualisation en dev
 
 Pour une mise a jour de production, utilisez seulement :
 
@@ -127,14 +128,36 @@ cd backend
 npm test
 ```
 
+Tests cibles en developpement :
+
+```bash
+npm run test:price-curves
+cd backend && npm run test:backup
+```
+
 Les tests frontend couvrent aussi le simulateur analytique du calculateur dans `src/utils/calculator.test.js`.
 Les tests backend couvrent maintenant :
 
 - l'authentification admin et API key
 - les routes API des modeles
+- l'endpoint public `GET /gpu/:id/price-history`
+- le systeme de backup admin, creation, listing et telechargement
 - les nouvelles colonnes analytiques en base SQLite
 - la validation des nouveaux champs analytiques
 - la preservation des donnees sur `migrate` et `bootstrap` sans reset
+
+Le test unitaire des courbes de prix est dans [GpuTable.test.jsx](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/src/components/tables/GpuTable.test.jsx).
+Le test backend du backup et de l'API prix est dans [backup.api.test.js](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/backend/test/backup.api.test.js).
+
+## Donnees fake de prix
+
+Pour alimenter le panneau public des courbes en developpement :
+
+```bash
+npm run dev:seed-fake-prices
+```
+
+Le script appelle [seedFakePriceHistory.js](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/backend/src/db/seedFakePriceHistory.js), recree un historique faux mais plausible pour chaque GPU et reste bloque en production sauf usage explicite de `--force`.
 
 ## Calculateur analytique
 
