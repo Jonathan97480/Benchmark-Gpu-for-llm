@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">GPU LLM Benchmark</title>
+  <desc id="desc">Benchmark GPU pour LLM open source.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#08111f"/>
+      <stop offset="55%" stop-color="#12213f"/>
+      <stop offset="100%" stop-color="#03101a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="180" cy="120" r="180" fill="#22c55e" opacity="0.12"/>
+  <circle cx="1040" cy="520" r="220" fill="#3b82f6" opacity="0.12"/>
+  <circle cx="900" cy="100" r="140" fill="#ef4444" opacity="0.12"/>
+
+  <rect x="78" y="84" width="138" height="138" rx="28" fill="url(#accent)"/>
+  <rect x="92" y="98" width="110" height="110" rx="20" fill="#08111f"/>
+  <rect x="112" y="126" width="48" height="32" rx="6" fill="#22c55e"/>
+  <circle cx="178" cy="142" r="9" fill="#3b82f6"/>
+  <circle cx="178" cy="176" r="9" fill="#ef4444"/>
+
+  <text x="78" y="316" fill="#dbeafe" font-size="68" font-weight="800" font-family="Inter, Arial, sans-serif">
+    GPU LLM Benchmark
+  </text>
+  <text x="78" y="386" fill="#9eb1d1" font-size="34" font-weight="500" font-family="Inter, Arial, sans-serif">
+    Comparez les GPU pour l'inference LLM open source
+  </text>
+  <text x="78" y="442" fill="#9eb1d1" font-size="28" font-weight="500" font-family="Inter, Arial, sans-serif">
+    Benchmarks, catalogue public, calculateur et suivi des prix
+  </text>
+
+  <rect x="78" y="492" width="270" height="54" rx="27" fill="#ffffff14" stroke="#ffffff22"/>
+  <text x="112" y="527" fill="#d1fae5" font-size="26" font-weight="700" font-family="Inter, Arial, sans-serif">
+    gpubenchmark.jon-dev.fr
+  </text>
+</svg>

@@ -6,6 +6,8 @@ import { PurchaseCalculator } from "./components/calculator/PurchaseCalculator.j
 import { StatusSection } from "./components/sections/StatusSection.jsx";
 import { useDashboardData } from "./hooks/useDashboardData.js";
 import { useReveal } from "./hooks/useReveal.js";
+import { applyPublicSeo, seoDefaults } from "./utils/seo.js";
+import { useEffect } from "react";
 
 export default function App() {
   const {
@@ -45,6 +47,14 @@ export default function App() {
     sort.direction,
     selectedModelId,
   ]);
+
+  useEffect(() => {
+    applyPublicSeo({
+      title: seoDefaults.title,
+      description: seoDefaults.description,
+      path: "/",
+    });
+  }, []);
 
   return (
     <div className="app-shell">

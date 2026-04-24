@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getBenchmarkForGpuAndModel } from "../../utils/data.js";
+import { getBenchmarkForGpuAndModel, getGpuPath } from "../../utils/data.js";
 import { formatNumber, formatPrice } from "../../utils/formatters.js";
 import { fetchGpuPriceHistory } from "../../services/dashboardApi.js";
 import { ChartCanvas } from "../common/ChartCanvas.jsx";
@@ -253,6 +253,11 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
                     </div>
                     <br />
                     <span className={`badge ${item.tier}`}>{item.tier}</span>
+                    <div className="gpu-detail-link-row">
+                      <a className="gpu-detail-link" href={getGpuPath(item)}>
+                        Voir la fiche GPU
+                      </a>
+                    </div>
                   </td>
                   <td>{item.vendor}</td>
                   <td>{item.architecture}</td>

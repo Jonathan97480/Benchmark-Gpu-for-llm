@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { normalizePublicDataset, resolveModelAnalyticalProfile } from "./data.js";
+import {
+  findGpuBySlug,
+  getGpuPath,
+  normalizePublicDataset,
+  resolveModelAnalyticalProfile,
+  slugifyGpuName,
+} from "./data.js";
 
 describe("normalizePublicDataset", () => {
   it("applique les hypotheses documentees pour les modeles MoE et les GPU incomplets", () => {
@@ -42,5 +48,19 @@ describe("normalizePublicDataset", () => {
     expect(profile.kvCacheMultiplier).toBe(0.08);
     expect(profile.contextPenaltyFloor).toBe(1);
     expect(profile.throughputMultiplier).toBe(1.62);
+  });
+
+  it("genere des slugs stables pour les pages GPU publiques", () => {
+    expect(slugifyGpuName("Radeon AI PRO R9700")).toBe("radeon-ai-pro-r9700");
+    expect(getGpuPath({ name: "RTX 4090" })).toBe("/gpu/rtx-4090");
+    expect(
+      findGpuBySlug(
+        [
+          { name: "RTX 4090" },
+          { name: "Arc A770" },
+        ],
+        "arc-a770"
+      )?.name
+    ).toBe("Arc A770");
   });
 });

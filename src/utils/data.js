@@ -13,6 +13,23 @@ export function sortData(data, sort) {
   });
 }
 
+export function slugifyGpuName(name) {
+  return String(name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function getGpuPath(gpu) {
+  return `/gpu/${slugifyGpuName(gpu?.name)}`;
+}
+
+export function findGpuBySlug(gpus, slug) {
+  return gpus.find((gpu) => slugifyGpuName(gpu.name) === slug) || null;
+}
+
 const GPU_METADATA_ASSUMPTIONS = {
   "Radeon AI PRO R9700": {
     bandwidth: 960,

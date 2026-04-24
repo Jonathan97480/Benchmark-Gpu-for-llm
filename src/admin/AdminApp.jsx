@@ -8,6 +8,7 @@ import { ModelManagementPanel } from "./components/ModelManagementPanel.jsx";
 import { NotificationBar } from "./components/NotificationBar.jsx";
 import { useAdminAuth } from "./hooks/useAdminAuth.js";
 import { useAdminDashboard } from "./hooks/useAdminDashboard.js";
+import { applyAdminSeo, applyPublicSeo, seoDefaults } from "../utils/seo.js";
 
 export function AdminApp() {
   const auth = useAdminAuth();
@@ -17,9 +18,13 @@ export function AdminApp() {
   });
 
   useEffect(() => {
-    document.title = "Admin | GPU LLM Benchmark";
+    applyAdminSeo();
     return () => {
-      document.title = "GPU LLM Benchmark 2026";
+      applyPublicSeo({
+        title: seoDefaults.title,
+        description: seoDefaults.description,
+        path: "/",
+      });
     };
   }, []);
 

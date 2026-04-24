@@ -7,9 +7,9 @@ export const tierColors = {
 };
 
 export const vendorColors = {
-  NVIDIA: "#67e8f9",
-  AMD: "#8b5cf6",
-  Intel: "#22c55e",
+  NVIDIA: "#22c55e",
+  AMD: "#ef4444",
+  Intel: "#3b82f6",
 };
 
 export function createModelPerformanceChartConfig(gpus, selectedModel) {

@@ -32,6 +32,37 @@ body {
   overflow-x: hidden;
 }
 
+.js #seo-static-content {
+  display: none;
+}
+
+#seo-static-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: var(--text);
+}
+
+#seo-static-content section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+}
+
+#seo-static-content h1,
+#seo-static-content h2,
+#seo-static-content h3 {
+  margin-top: 0;
+}
+
+#seo-static-content p,
+#seo-static-content li,
+#seo-static-content a {
+  color: var(--text);
+}
+
 .bg-grid {
   position: fixed;
   inset: 0;
@@ -803,6 +834,22 @@ table tbody tr:hover {
   color: #9ff4ff;
 }
 
+.gpu-detail-link-row {
+  margin-top: 0.45rem;
+}
+
+.gpu-detail-link {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.gpu-detail-link:hover {
+  color: var(--primary);
+  border-bottom-color: rgba(103, 232, 249, 0.6);
+}
+
 .gpu-count-badge {
   width: 2.3rem;
   height: 2.3rem;
@@ -955,6 +1002,57 @@ table tbody tr:hover {
 .gpu-price-chart {
   height: 320px;
   margin: 0;
+}
+
+.gpu-detail-shell {
+  padding-top: 2rem;
+}
+
+.gpu-detail-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.gpu-detail-copy h1 {
+  margin: 0 0 1rem;
+  font-size: 3rem;
+  line-height: 1.1;
+}
+
+.gpu-detail-copy p {
+  max-width: none;
+  margin: 0 0 1.5rem;
+}
+
+.gpu-detail-stats {
+  display: grid;
+  gap: 1rem;
+}
+
+.gpu-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.gpu-summary-card {
+  padding: 1.1rem 1.15rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+}
+
+.gpu-summary-card strong {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--text);
+}
+
+.gpu-summary-card p {
+  margin: 0;
+  max-width: none;
 }
 
 .matrix-empty {
@@ -1349,6 +1447,11 @@ table tbody tr:hover {
   }
 
   .gpu-price-chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gpu-detail-hero,
+  .gpu-summary-grid {
     grid-template-columns: 1fr;
   }
 }
