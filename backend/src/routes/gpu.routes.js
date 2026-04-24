@@ -5,12 +5,15 @@ const {
   getPublicBenchmarkDataset,
   getGPUById,
   getGpuPriceHistory,
+  createGpuPriceHistoryEntry,
+  updateGpuPriceHistoryEntry,
+  deleteGpuPriceHistoryEntry,
   createGPU,
   updateGPU,
   deleteGPU
 } = require('../controllers/gpu.controller');
 const { authenticateAdminOrApiKey } = require('../middleware/auth.middleware');
-const { validateGPU } = require('../middleware/validation.middleware');
+const { validateGPU, validateGpuPriceHistory } = require('../middleware/validation.middleware');
 const {
   createBenchmarkResult,
   updateBenchmarkResult,
@@ -22,6 +25,9 @@ router.get('/', getAllGPUs);
 
 router.get('/public-dataset', getPublicBenchmarkDataset);
 router.get('/:id/price-history', getGpuPriceHistory);
+router.post('/:id/price-history', authenticateAdminOrApiKey, validateGpuPriceHistory, createGpuPriceHistoryEntry);
+router.put('/:id/price-history/:history_id', authenticateAdminOrApiKey, validateGpuPriceHistory, updateGpuPriceHistoryEntry);
+router.delete('/:id/price-history/:history_id', authenticateAdminOrApiKey, deleteGpuPriceHistoryEntry);
 
 router.get('/:id', getGPUById);
 

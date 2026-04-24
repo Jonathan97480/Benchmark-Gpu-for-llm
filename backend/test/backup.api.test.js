@@ -62,6 +62,103 @@ test('GET /api/v1/gpu/:id/price-history expose l’historique de prix du GPU', a
   assert.equal(response.body.history[0].price_new_value, 2290);
 });
 
+test('POST /api/v1/gpu/:id/price-history cree un point d’historique de prix', async (t) => {
+  const dbPath = createTempDatabasePath();
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => disposeTestDatabase(db, dbPath));
+
+  const accessToken = await loginAsAdmin(app);
+  const gpu = db.prepare('SELECT id FROM gpu_benchmarks WHERE name = ?').get('RTX 5090');
+
+  const response = await request(app)
+    .post(`/api/v1/gpu/${gpu.id}/price-history`)
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({
+      price_new_value: 2310,
+      price_used_value: 0,
+      recorded_at: '2026-04-24T12:00:00.000Z',
+    })
+    .expect(201);
+
+  assert.equal(response.body.history_entry.gpu_id, gpu.id);
+  assert.equal(response.body.history_entry.price_new_value, 2310);
+  assert.match(response.body.history_entry.recorded_at, /2026-04-24/);
+});
+
+test('PUT /api/v1/gpu/:id/price-history/:history_id met a jour un point d’historique de prix', async (t) => {
+  const dbPath = createTempDatabasePath();
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => disposeTestDatabase(db, dbPath));
+
+  const accessToken = await loginAsAdmin(app);
+  const gpu = db.prepare('SELECT id FROM gpu_benchmarks WHERE name = ?').get('RTX 5090');
+  const insert = db.prepare(`
+    INSERT INTO gpu_price_history (gpu_id, price_new_value, price_used_value, recorded_at)
+    VALUES (?, ?, ?, ?)
+  `).run(gpu.id, 2290, 0, '2026-04-22T12:00:00.000Z');
+
+  const response = await request(app)
+    .put(`/api/v1/gpu/${gpu.id}/price-history/${insert.lastInsertRowid}`)
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({
+      price_new_value: 2275,
+      price_used_value: 1990,
+      recorded_at: '2026-04-25T12:00:00.000Z',
+    })
+    .expect(200);
+
+  assert.equal(response.body.history_entry.price_new_value, 2275);
+  assert.equal(response.body.history_entry.price_used_value, 1990);
+
+  const storedEntry = db.prepare('SELECT * FROM gpu_price_history WHERE id = ?').get(insert.lastInsertRowid);
+  assert.equal(storedEntry.price_new_value, 2275);
+  assert.equal(storedEntry.price_used_value, 1990);
+});
+
+test('DELETE /api/v1/gpu/:id/price-history/:history_id supprime un point d’historique de prix', async (t) => {
+  const dbPath = createTempDatabasePath();
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => disposeTestDatabase(db, dbPath));
+
+  const accessToken = await loginAsAdmin(app);
+  const gpu = db.prepare('SELECT id FROM gpu_benchmarks WHERE name = ?').get('RTX 5090');
+  const insert = db.prepare(`
+    INSERT INTO gpu_price_history (gpu_id, price_new_value, price_used_value, recorded_at)
+    VALUES (?, ?, ?, ?)
+  `).run(gpu.id, 2290, 0, '2026-04-22T12:00:00.000Z');
+
+  await request(app)
+    .delete(`/api/v1/gpu/${gpu.id}/price-history/${insert.lastInsertRowid}`)
+    .set('Authorization', `Bearer ${accessToken}`)
+    .expect(200);
+
+  const storedEntry = db.prepare('SELECT * FROM gpu_price_history WHERE id = ?').get(insert.lastInsertRowid);
+  assert.equal(storedEntry, undefined);
+});
+
+test('POST /api/v1/gpu/:id/price-history refuse une payload invalide', async (t) => {
+  const dbPath = createTempDatabasePath();
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => disposeTestDatabase(db, dbPath));
+
+  const accessToken = await loginAsAdmin(app);
+  const gpu = db.prepare('SELECT id FROM gpu_benchmarks WHERE name = ?').get('RTX 5090');
+
+  const response = await request(app)
+    .post(`/api/v1/gpu/${gpu.id}/price-history`)
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({
+      price_new_value: -1,
+    })
+    .expect(400);
+
+  assert.match(response.body.error, /must be greater than or equal to 0/i);
+});
+
 test('POST /api/v1/backups cree une archive et GET /api/v1/backups la liste', async (t) => {
   const dbPath = createTempDatabasePath();
   const backupDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gpu-backup-test-'));

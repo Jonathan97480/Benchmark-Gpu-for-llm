@@ -161,6 +161,145 @@ const getGpuPriceHistory = (req, res) => {
   }
 };
 
+const createGpuPriceHistoryEntry = (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      price_new_value = 0,
+      price_used_value = 0,
+      recorded_at
+    } = req.body;
+
+    const gpu = db.prepare('SELECT id, name FROM gpu_benchmarks WHERE id = ?').get(id);
+
+    if (!gpu) {
+      return res.status(404).json({ error: 'GPU not found' });
+    }
+
+    const result = db.prepare(`
+      INSERT INTO gpu_price_history (
+        gpu_id,
+        price_new_value,
+        price_used_value,
+        recorded_at
+      )
+      VALUES (?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))
+    `).run(
+      id,
+      price_new_value,
+      price_used_value,
+      recorded_at ?? null
+    );
+
+    const historyEntry = db.prepare(`
+      SELECT id, gpu_id, price_new_value, price_used_value, recorded_at
+      FROM gpu_price_history
+      WHERE id = ?
+    `).get(result.lastInsertRowid);
+
+    res.status(201).json({
+      message: 'GPU price history entry created successfully',
+      history_entry: historyEntry
+    });
+  } catch (error) {
+    console.error('Error creating GPU price history entry:', error);
+    res.status(500).json({ error: 'Failed to create GPU price history entry' });
+  }
+};
+
+const updateGpuPriceHistoryEntry = (req, res) => {
+  try {
+    const { id, history_id } = req.params;
+    const {
+      price_new_value,
+      price_used_value,
+      recorded_at
+    } = req.body;
+
+    const existingEntry = db.prepare(`
+      SELECT id, gpu_id
+      FROM gpu_price_history
+      WHERE id = ? AND gpu_id = ?
+    `).get(history_id, id);
+
+    if (!existingEntry) {
+      return res.status(404).json({ error: 'GPU price history entry not found' });
+    }
+
+    const updateFields = [];
+    const params = [];
+
+    if (price_new_value !== undefined) {
+      updateFields.push('price_new_value = ?');
+      params.push(price_new_value);
+    }
+
+    if (price_used_value !== undefined) {
+      updateFields.push('price_used_value = ?');
+      params.push(price_used_value);
+    }
+
+    if (recorded_at !== undefined) {
+      updateFields.push('recorded_at = ?');
+      params.push(recorded_at);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    params.push(history_id, id);
+
+    db.prepare(`
+      UPDATE gpu_price_history
+      SET ${updateFields.join(', ')}
+      WHERE id = ? AND gpu_id = ?
+    `).run(...params);
+
+    const historyEntry = db.prepare(`
+      SELECT id, gpu_id, price_new_value, price_used_value, recorded_at
+      FROM gpu_price_history
+      WHERE id = ?
+    `).get(history_id);
+
+    res.json({
+      message: 'GPU price history entry updated successfully',
+      history_entry: historyEntry
+    });
+  } catch (error) {
+    console.error('Error updating GPU price history entry:', error);
+    res.status(500).json({ error: 'Failed to update GPU price history entry' });
+  }
+};
+
+const deleteGpuPriceHistoryEntry = (req, res) => {
+  try {
+    const { id, history_id } = req.params;
+
+    const existingEntry = db.prepare(`
+      SELECT id, gpu_id
+      FROM gpu_price_history
+      WHERE id = ? AND gpu_id = ?
+    `).get(history_id, id);
+
+    if (!existingEntry) {
+      return res.status(404).json({ error: 'GPU price history entry not found' });
+    }
+
+    db.prepare(`
+      DELETE FROM gpu_price_history
+      WHERE id = ? AND gpu_id = ?
+    `).run(history_id, id);
+
+    res.json({
+      message: 'GPU price history entry deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting GPU price history entry:', error);
+    res.status(500).json({ error: 'Failed to delete GPU price history entry' });
+  }
+};
+
 const createGPU = (req, res) => {
   try {
     const {
@@ -321,6 +460,9 @@ module.exports = {
   getPublicBenchmarkDataset,
   getGPUById,
   getGpuPriceHistory,
+  createGpuPriceHistoryEntry,
+  updateGpuPriceHistoryEntry,
+  deleteGpuPriceHistoryEntry,
   createGPU,
   updateGPU,
   deleteGPU

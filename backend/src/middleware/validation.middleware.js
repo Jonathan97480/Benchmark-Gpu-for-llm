@@ -137,11 +137,28 @@ const validateApiKeyCreate = (req, res, next) => {
   next();
 };
 
+const validateGpuPriceHistory = (req, res, next) => {
+  const schema = Joi.object({
+    price_new_value: Joi.number().integer().min(0).default(0),
+    price_used_value: Joi.number().integer().min(0).default(0),
+    recorded_at: Joi.date().iso().allow(null)
+  }).or('price_new_value', 'price_used_value');
+
+  const { error } = schema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  next();
+};
+
 module.exports = {
   validateRegistration,
   validateLogin,
   validateGPU,
   validateLLMModel,
   validateBenchmarkResult,
-  validateApiKeyCreate
+  validateApiKeyCreate,
+  validateGpuPriceHistory
 };

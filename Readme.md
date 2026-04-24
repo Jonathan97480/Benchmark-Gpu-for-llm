@@ -141,6 +141,7 @@ Les tests backend couvrent maintenant :
 - l'authentification admin et API key
 - les routes API des modeles
 - l'endpoint public `GET /gpu/:id/price-history`
+- les routes d'ecriture `POST/PUT/DELETE /gpu/:id/price-history`
 - le systeme de backup admin, creation, listing et telechargement
 - les nouvelles colonnes analytiques en base SQLite
 - la validation des nouveaux champs analytiques

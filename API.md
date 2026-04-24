@@ -302,6 +302,52 @@ Exemple de reponse :
 }
 ```
 
+### Ajouter un point d'historique de prix
+
+Accepte JWT admin ou API key.
+
+```http
+POST /gpu/:id/price-history
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+ou :
+
+```http
+POST /gpu/:id/price-history
+x-api-key: <api_key>
+Content-Type: application/json
+```
+
+```json
+{
+  "price_new_value": 1820,
+  "price_used_value": 1160,
+  "recorded_at": "2026-04-21T12:00:00.000Z"
+}
+```
+
+`recorded_at` est optionnel. Si omis, le backend utilise l'horodatage courant.
+
+### Modifier un point d'historique de prix
+
+Accepte JWT admin ou API key.
+
+```http
+PUT /gpu/:id/price-history/:history_id
+```
+
+Le body accepte les memes champs que la creation.
+
+### Supprimer un point d'historique de prix
+
+Accepte JWT admin ou API key.
+
+```http
+DELETE /gpu/:id/price-history/:history_id
+```
+
 ### Creer un GPU
 
 Accepte JWT admin ou API key.
