@@ -1,5 +1,5 @@
 import { GpuTable } from "../tables/GpuTable.jsx";
-import { getBenchmarkForGpuAndModel } from "../../utils/data.js";
+import { getBenchmarkForGpuAndModel, getModelPath } from "../../utils/data.js";
 
 export function TablesSection({
   gpuData,
@@ -96,6 +96,15 @@ export function TablesSection({
                 Le nom de chaque carte ouvre maintenant un panneau avec deux courbes de prix :
                 commerce et occasion.
               </p>
+              {selectedModel ? (
+                <p className="table-note">
+                  Modèle en avant :
+                  {" "}
+                  <a className="gpu-detail-link" href={getModelPath(selectedModel)}>
+                    {selectedModel.name}
+                  </a>
+                </p>
+              ) : null}
             </div>
             <div className="legend">
               <span><i className="dot dot-budget"></i>Budget</span>

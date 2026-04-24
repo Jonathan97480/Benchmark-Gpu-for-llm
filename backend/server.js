@@ -237,6 +237,70 @@ function buildGpuStaticContent(gpu) {
   `;
 }
 
+function buildVendorStaticContent(vendor, vendorGpus) {
+  const items = vendorGpus
+    .slice(0, 10)
+    .map((gpu) => `
+      <li>
+        <a href="/gpu/${slugifyGpuName(gpu.name)}">${escapeHtml(gpu.name)}</a>
+        · ${escapeHtml(gpu.architecture)}
+        · ${escapeHtml(formatNumber(gpu.vram))} Go VRAM
+        · ${escapeHtml(formatNumber(gpu.coverageCount || 0))} benchmark(s)
+      </li>
+    `)
+    .join('');
+
+  return `
+    <section>
+      <h1>${escapeHtml(vendor)}</h1>
+      <p>Catalogue public des GPU ${escapeHtml(vendor)} avec repères techniques, fiches indexables et benchmarks LLM disponibles.</p>
+    </section>
+    <section>
+      <h2>Cartes ${escapeHtml(vendor)} dans le catalogue</h2>
+      ${items ? `<ul>${items}</ul>` : '<p>Aucune carte disponible pour ce vendor.</p>'}
+    </section>
+    <section>
+      <p><a href="/">Retour au benchmark GPU LLM</a></p>
+    </section>
+  `;
+}
+
+function buildModelStaticContent(model, benchmarks) {
+  const items = benchmarks
+    .slice(0, 10)
+    .map((benchmark) => `
+      <li>
+        ${escapeHtml(benchmark.gpu_name)}
+        · ${escapeHtml(formatNumber(benchmark.tokens_per_second))} t/s
+        ${benchmark.precision ? ` en ${escapeHtml(benchmark.precision)}` : ''}
+        ${benchmark.context_size ? ` · contexte ${escapeHtml(formatNumber(benchmark.context_size))}` : ''}
+      </li>
+    `)
+    .join('');
+
+  return `
+    <section>
+      <h1>${escapeHtml(model.name)}</h1>
+      <p>Benchmarks GPU disponibles pour ${escapeHtml(model.name)}, avec classement des cartes, débit mesuré et contexte d'execution quand il est disponible.</p>
+    </section>
+    <section>
+      <h2>Repères modèle</h2>
+      <ul>
+        <li>Paramètres actifs : ${escapeHtml(formatNumber(model.params_billions || 0))}B</li>
+        <li>Paramètres totaux : ${escapeHtml(formatNumber(model.total_params_billions || model.params_billions || 0))}B</li>
+        <li>Contexte max : ${model.max_context_size ? `${escapeHtml(formatNumber(model.max_context_size))} tokens` : 'Non précisé'}</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Benchmarks GPU disponibles</h2>
+      ${items ? `<ul>${items}</ul>` : '<p>Aucun benchmark GPU n&apos;est encore disponible pour ce modèle.</p>'}
+    </section>
+    <section>
+      <p><a href="/">Retour au benchmark GPU LLM</a></p>
+    </section>
+  `;
+}
+
 function getHomeJsonLd() {
   return {
     '@context': 'https://schema.org',
@@ -282,12 +346,40 @@ function getGpuJsonLd(gpu, pathName) {
   };
 }
 
+function getVendorJsonLd(vendor, pathName) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${vendor} | GPU LLM Benchmark`,
+    url: `${PUBLIC_SITE_URL}${pathName}`,
+    description: `Catalogue public ${vendor} : GPU, benchmarks LLM et repères de prix sur GPU LLM Benchmark.`,
+    inLanguage: 'fr',
+  };
+}
+
+function getModelJsonLd(model, pathName) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: `${model.name} | Benchmark LLM`,
+    name: model.name,
+    url: `${PUBLIC_SITE_URL}${pathName}`,
+    description: `${model.name} : benchmarks GPU disponibles, débit mesuré, contexte max et cartes compatibles sur GPU LLM Benchmark.`,
+    inLanguage: 'fr',
+  };
+}
+
 app.get('/sitemap.xml', (req, res) => {
   try {
     const db = require('./config/database');
     const gpus = db.prepare(`
       SELECT name
       FROM gpu_benchmarks
+      ORDER BY name ASC
+    `).all();
+    const models = db.prepare(`
+      SELECT name
+      FROM llm_models
       ORDER BY name ASC
     `).all();
 
@@ -297,6 +389,16 @@ app.get('/sitemap.xml', (req, res) => {
         changefreq: 'weekly',
         priority: '1.0',
       },
+      ...['NVIDIA', 'AMD', 'Intel'].map((vendor) => ({
+        loc: `${PUBLIC_SITE_URL}/vendor/${slugifyGpuName(vendor)}`,
+        changefreq: 'weekly',
+        priority: '0.7',
+      })),
+      ...models.map((model) => ({
+        loc: `${PUBLIC_SITE_URL}/model/${slugifyGpuName(model.name)}`,
+        changefreq: 'weekly',
+        priority: '0.7',
+      })),
       ...gpus.map((gpu) => ({
         loc: `${PUBLIC_SITE_URL}/gpu/${slugifyGpuName(gpu.name)}`,
         changefreq: 'weekly',
@@ -379,6 +481,113 @@ app.get(['/gpu/:slug', '/gpu/:slug/*'], (req, res) => {
     }));
   } catch (error) {
     console.error('Error serving GPU SEO page:', error);
+    res.status(500).send(renderSeoHtml({
+      title: DEFAULT_TITLE,
+      description: DEFAULT_DESCRIPTION,
+      canonicalUrl: `${PUBLIC_SITE_URL}/`,
+      jsonLd: getHomeJsonLd(),
+      staticContent: buildHomeStaticContent(),
+    }));
+  }
+});
+
+app.get(['/vendor/:slug', '/vendor/:slug/*'], (req, res) => {
+  try {
+    const db = require('./config/database');
+    const gpus = db.prepare(`
+      SELECT *,
+        (SELECT COUNT(*) FROM benchmark_results br WHERE br.gpu_id = gpu_benchmarks.id) AS coverageCount
+      FROM gpu_benchmarks
+      ORDER BY score DESC, name ASC
+    `).all();
+    const vendor = ['NVIDIA', 'AMD', 'Intel'].find((entry) => slugifyGpuName(entry) === req.params.slug);
+
+    if (!vendor) {
+      res.status(404).send(renderSeoHtml({
+        title: 'Vendor introuvable | GPU LLM Benchmark',
+        description: 'Le constructeur demandé est introuvable sur GPU LLM Benchmark.',
+        canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+        robots: 'noindex, follow',
+        jsonLd: getHomeJsonLd(),
+        staticContent: `
+          <section>
+            <h1>Vendor introuvable</h1>
+            <p>Le constructeur demandé n'existe pas dans le catalogue public.</p>
+            <p><a href="/">Retour au catalogue public</a></p>
+          </section>
+        `,
+      }));
+      return;
+    }
+
+    const vendorGpus = gpus.filter((gpu) => gpu.vendor === vendor);
+
+    res.send(renderSeoHtml({
+      title: `${vendor} | Catalogue GPU LLM`,
+      description: `Catalogue public ${vendor} : cartes graphiques, benchmarks LLM, scores et repères de prix sur GPU LLM Benchmark.`,
+      canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+      jsonLd: getVendorJsonLd(vendor, req.path),
+      staticContent: buildVendorStaticContent(vendor, vendorGpus),
+    }));
+  } catch (error) {
+    console.error('Error serving vendor SEO page:', error);
+    res.status(500).send(renderSeoHtml({
+      title: DEFAULT_TITLE,
+      description: DEFAULT_DESCRIPTION,
+      canonicalUrl: `${PUBLIC_SITE_URL}/`,
+      jsonLd: getHomeJsonLd(),
+      staticContent: buildHomeStaticContent(),
+    }));
+  }
+});
+
+app.get(['/model/:slug', '/model/:slug/*'], (req, res) => {
+  try {
+    const db = require('./config/database');
+    const models = db.prepare(`
+      SELECT *
+      FROM llm_models
+      ORDER BY name ASC
+    `).all();
+    const model = models.find((entry) => slugifyGpuName(entry.name) === req.params.slug);
+
+    if (!model) {
+      res.status(404).send(renderSeoHtml({
+        title: 'Modèle introuvable | GPU LLM Benchmark',
+        description: 'Le modèle LLM demandé est introuvable sur GPU LLM Benchmark.',
+        canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+        robots: 'noindex, follow',
+        jsonLd: getHomeJsonLd(),
+        staticContent: `
+          <section>
+            <h1>Modèle introuvable</h1>
+            <p>Le modèle demandé n'existe pas dans le catalogue public.</p>
+            <p><a href="/">Retour au catalogue public</a></p>
+          </section>
+        `,
+      }));
+      return;
+    }
+
+    const benchmarks = db.prepare(`
+      SELECT
+        br.*,
+        g.name AS gpu_name
+      FROM benchmark_results br
+      JOIN gpu_benchmarks g ON g.id = br.gpu_id
+      WHERE br.llm_model_id = ?
+      ORDER BY br.tokens_per_second DESC
+    `).all(model.id);
+
+    res.send(renderSeoHtml({
+      title: `${model.name} | Benchmark LLM`,
+      description: `${model.name} : benchmarks GPU disponibles, débit mesuré, contexte max et cartes compatibles sur GPU LLM Benchmark.`,
+      canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+      jsonLd: getModelJsonLd(model, req.path),
+      staticContent: buildModelStaticContent(model, benchmarks),
+    }));
+  } catch (error) {
+    console.error('Error serving model SEO page:', error);
     res.status(500).send(renderSeoHtml({
       title: DEFAULT_TITLE,
       description: DEFAULT_DESCRIPTION,

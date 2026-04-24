@@ -1197,6 +1197,14 @@ table tbody tr:hover {
   border: 1px solid var(--border);
 }
 
+.chart-legend-link {
+  text-decoration: none;
+}
+
+.chart-legend-link:hover {
+  border-color: rgba(103, 232, 249, 0.4);
+}
+
 .chart-legend-color {
   width: 16px;
   height: 16px;

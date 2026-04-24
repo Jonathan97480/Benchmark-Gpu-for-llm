@@ -112,6 +112,8 @@ Les tests backend valident deja :
 - [x] ajouter `canonical`, Open Graph, Twitter Card et JSON-LD
 - [x] mettre `noindex` sur `/admin`
 - [x] creer des pages publiques indexables par GPU
+- [x] creer des pages publiques indexables par vendor : NVIDIA, AMD, Intel
+- [x] creer des pages publiques indexables par modele LLM
 - [x] mettre en place un prerender HTML cote serveur pour la home et les fiches GPU
 - [x] definir des `title` et `meta description` uniques pour la home et les fiches GPU
 

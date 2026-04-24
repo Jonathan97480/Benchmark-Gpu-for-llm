@@ -80,6 +80,8 @@ test('GET /sitemap.xml expose les URLs publiques des fiches GPU', async (t) => {
     .expect(200);
 
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/<\/loc>/);
+  assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/vendor\/nvidia<\/loc>/);
+  assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/model\/deepseek-r1-32b<\/loc>/);
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/gpu\/rtx-5090<\/loc>/);
 });
 
@@ -103,6 +105,50 @@ test('GET /gpu/:slug renvoie une page HTML prerendue pour le SEO', async (t) => 
   assert.match(response.text, /<title>RTX 5090 \| Benchmark GPU LLM<\/title>/);
   assert.match(response.text, /<h1>RTX 5090<\/h1>/);
   assert.match(response.text, /Benchmarks LLM disponibles/);
+});
+
+test('GET /vendor/:slug renvoie une page HTML prerendue pour le SEO vendor', async (t) => {
+  const dbPath = createTempDatabasePath();
+  process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
+  clearModules();
+
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => {
+    delete process.env.PUBLIC_SITE_URL;
+    clearModules();
+    disposeTestDatabase(db, dbPath);
+  });
+
+  const response = await request(app)
+    .get('/vendor/nvidia')
+    .expect(200);
+
+  assert.match(response.text, /<title>NVIDIA \| Catalogue GPU LLM<\/title>/);
+  assert.match(response.text, /<h1>NVIDIA<\/h1>/);
+  assert.match(response.text, /Cartes NVIDIA dans le catalogue/);
+});
+
+test('GET /model/:slug renvoie une page HTML prerendue pour le SEO model', async (t) => {
+  const dbPath = createTempDatabasePath();
+  process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
+  clearModules();
+
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => {
+    delete process.env.PUBLIC_SITE_URL;
+    clearModules();
+    disposeTestDatabase(db, dbPath);
+  });
+
+  const response = await request(app)
+    .get('/model/deepseek-r1-32b')
+    .expect(200);
+
+  assert.match(response.text, /<title>DeepSeek R1 32B \| Benchmark LLM<\/title>/);
+  assert.match(response.text, /<h1>DeepSeek R1 32B<\/h1>/);
+  assert.match(response.text, /Benchmarks GPU disponibles/);
 });
 
 test('POST /api/v1/gpu/:id/price-history cree un point d’historique de prix', async (t) => {

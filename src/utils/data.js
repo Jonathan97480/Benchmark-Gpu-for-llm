@@ -26,8 +26,43 @@ export function getGpuPath(gpu) {
   return `/gpu/${slugifyGpuName(gpu?.name)}`;
 }
 
+export function slugifyVendorName(vendor) {
+  return String(vendor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function getVendorPath(vendor) {
+  return `/vendor/${slugifyVendorName(vendor)}`;
+}
+
+export function slugifyModelName(name) {
+  return String(name || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function getModelPath(model) {
+  return `/model/${slugifyModelName(model?.name)}`;
+}
+
 export function findGpuBySlug(gpus, slug) {
   return gpus.find((gpu) => slugifyGpuName(gpu.name) === slug) || null;
+}
+
+export function findVendorBySlug(gpus, slug) {
+  const vendor = getVendors(gpus).find((item) => slugifyVendorName(item) === slug);
+  return vendor || null;
+}
+
+export function findModelBySlug(models, slug) {
+  return models.find((model) => slugifyModelName(model.name) === slug) || null;
 }
 
 const GPU_METADATA_ASSUMPTIONS = {

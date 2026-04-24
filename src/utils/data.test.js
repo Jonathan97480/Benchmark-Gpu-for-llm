@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
   findGpuBySlug,
+  findModelBySlug,
+  findVendorBySlug,
   getGpuPath,
+  getModelPath,
+  getVendorPath,
   normalizePublicDataset,
   resolveModelAnalyticalProfile,
   slugifyGpuName,
+  slugifyModelName,
+  slugifyVendorName,
 } from "./data.js";
 
 describe("normalizePublicDataset", () => {
@@ -62,5 +68,16 @@ describe("normalizePublicDataset", () => {
         "arc-a770"
       )?.name
     ).toBe("Arc A770");
+    expect(slugifyVendorName("NVIDIA")).toBe("nvidia");
+    expect(getVendorPath("AMD")).toBe("/vendor/amd");
+    expect(findVendorBySlug([{ vendor: "NVIDIA" }, { vendor: "AMD" }], "amd")).toBe("AMD");
+    expect(slugifyModelName("DeepSeek R1 32B")).toBe("deepseek-r1-32b");
+    expect(getModelPath({ name: "Llama 3.1 8B" })).toBe("/model/llama-3-1-8b");
+    expect(
+      findModelBySlug(
+        [{ name: "DeepSeek R1 32B" }, { name: "Gemma 4 26B (MoE)" }],
+        "gemma-4-26b-moe"
+      )?.name
+    ).toBe("Gemma 4 26B (MoE)");
   });
 });
