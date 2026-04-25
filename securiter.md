@@ -132,7 +132,6 @@ Les tests backend valident deja :
 - [ ] creer une page categorie indexable pour le calculateur si elle apporte une vraie intention SEO
 - [ ] verifier les redirections canoniques entre versions avec et sans slash final
 - [ ] verifier qu'une seule version du domaine repond en indexable : `https://gpubenchmark.jon-dev.fr/`
-- [ ] reduire le poids JS initial pour ameliorer les Core Web Vitals
 - [ ] optimiser les polices, images et chargements bloquants
 - [ ] ajouter des attributs `alt` pertinents sur toutes les images utiles au contenu
 - [ ] verifier l'accessibilite de base : contrastes, titres, labels, structure

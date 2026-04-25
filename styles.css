@@ -1208,6 +1208,27 @@ table tbody tr:hover {
   transform: translateY(-2px);
 }
 
+.route-loading-shell {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+}
+
+.route-loading-card,
+.deferred-section-card {
+  text-align: center;
+}
+
+.route-loading-card h1,
+.deferred-section-card h2 {
+  margin: 0 0 1rem;
+}
+
+.route-loading-card p,
+.deferred-section-card p {
+  max-width: 720px;
+}
+
 .status-card {
   text-align: center;
 }

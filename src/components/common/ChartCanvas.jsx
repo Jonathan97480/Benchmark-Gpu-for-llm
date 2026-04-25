@@ -1,16 +1,34 @@
 import { useEffect, useRef } from "react";
-import Chart from "chart.js/auto";
 
 export function ChartCanvas({ config, className = "chart-container" }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    if (!canvasRef.current || !config) {
-      return undefined;
+    let chart = null;
+    let cancelled = false;
+
+    async function loadChart() {
+      if (!canvasRef.current || !config) {
+        return;
+      }
+
+      const { default: Chart } = await import("chart.js/auto");
+
+      if (cancelled || !canvasRef.current) {
+        return;
+      }
+
+      chart = new Chart(canvasRef.current, config);
     }
 
-    const chart = new Chart(canvasRef.current, config);
-    return () => chart.destroy();
+    loadChart();
+
+    return () => {
+      cancelled = true;
+      if (chart) {
+        chart.destroy();
+      }
+    };
   }, [config]);
 
   return (
