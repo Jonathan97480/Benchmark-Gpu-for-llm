@@ -29,7 +29,7 @@ const DEFAULT_OG_IMAGE = `${PUBLIC_SITE_URL}/og-image.svg`;
 const DEFAULT_LASTMOD = new Date().toISOString().split('T')[0];
 
 const scriptSrc = ["'self'"];
-const styleSrc = ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"];
+const styleSrc = ["'self'", "'unsafe-inline'"];
 const connectSrc = ["'self'"];
 
 if (!isProduction) {
@@ -44,7 +44,7 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc,
       styleSrc,
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+      fontSrc: ["'self'", "data:"],
       imgSrc: ["'self'", "data:"],
       connectSrc,
       frameSrc: ["'none'"],

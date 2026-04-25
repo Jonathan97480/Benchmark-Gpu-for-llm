@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "@fontsource-variable/space-grotesk";
 import AppRouter from "./AppRouter.jsx";
 import "../styles.css";
 

@@ -15,6 +15,7 @@
     "dev:seed-fake-prices": "npm --prefix backend run dev:seed-fake-prices"
   },
   "dependencies": {
+    "@fontsource-variable/space-grotesk": "^5.2.10",
     "chart.js": "^4.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
