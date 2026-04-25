@@ -642,6 +642,43 @@ function getUsageJsonLd(title, pathName, description) {
   };
 }
 
+function getCanonicalRedirectTarget(pathname) {
+  if (!pathname || pathname === '/' || !pathname.endsWith('/')) {
+    return null;
+  }
+
+  const normalizedPath = pathname.replace(/\/+$/, '');
+  const redirectablePrefixes = [
+    '/gpu/',
+    '/vendor/',
+    '/model/',
+    '/comparatifs/',
+    '/usages/',
+  ];
+
+  if (
+    normalizedPath === '/faq' ||
+    normalizedPath === '/guides/choisir-gpu-llm' ||
+    redirectablePrefixes.some((prefix) => normalizedPath.startsWith(prefix))
+  ) {
+    return normalizedPath;
+  }
+
+  return null;
+}
+
+app.use((req, res, next) => {
+  const redirectTarget = getCanonicalRedirectTarget(req.path);
+
+  if (!redirectTarget) {
+    next();
+    return;
+  }
+
+  const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  res.redirect(301, `${redirectTarget}${query}`);
+});
+
 app.get('/sitemap.xml', (req, res) => {
   try {
     const db = require('./config/database');

@@ -221,6 +221,27 @@ test('GET /faq renvoie une FAQ prerendue pour le SEO', async (t) => {
   assert.match(response.text, /Questions fréquentes/);
 });
 
+test('GET /faq/ redirige vers l’URL canonique sans slash final', async (t) => {
+  const dbPath = createTempDatabasePath();
+  process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
+  clearModules();
+
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => {
+    delete process.env.PUBLIC_SITE_URL;
+    clearModules();
+    disposeTestDatabase(db, dbPath);
+  });
+
+  const response = await request(app)
+    .get('/faq/')
+    .redirects(0)
+    .expect(301);
+
+  assert.equal(response.headers.location, '/faq');
+});
+
 test('GET /comparatifs/gpu/:slug renvoie un comparatif dynamique prerendue depuis la base', async (t) => {
   const dbPath = createTempDatabasePath();
   process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
