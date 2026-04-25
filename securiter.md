@@ -134,8 +134,6 @@ Les tests backend valident deja :
 - [ ] verifier qu'une seule version du domaine repond en indexable : `https://gpubenchmark.jon-dev.fr/`
 - [ ] optimiser les polices, images et chargements bloquants
 - [ ] ajouter des attributs `alt` pertinents sur toutes les images utiles au contenu
-- [ ] verifier l'accessibilite de base : contrastes, titres, labels, structure
-- [ ] verifier que toutes les pages publiques repondent en `200`
 - [ ] corriger les eventuels contenus dupliques
 - [ ] definir une strategie mots-cles en francais
 - [ ] reecrire les textes pour cibler des requetes concretes : benchmark GPU LLM, carte graphique IA, GPU pour Llama

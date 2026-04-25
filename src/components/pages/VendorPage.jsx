@@ -71,7 +71,7 @@ export function VendorPage({ gpuData, slug }) {
   if (!vendor) {
     return (
       <PublicPageShell>
-        <main className="main-content">
+        <main className="main-content" id="main-content" tabIndex="-1">
           <section className="section reveal visible">
             <div className="card glass">
               <span className="section-kicker">404</span>
@@ -89,7 +89,7 @@ export function VendorPage({ gpuData, slug }) {
 
   return (
     <PublicPageShell>
-      <main className="main-content gpu-detail-shell">
+      <main className="main-content gpu-detail-shell" id="main-content" tabIndex="-1">
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
             <div className="gpu-detail-copy">
@@ -173,15 +173,16 @@ export function VendorPage({ gpuData, slug }) {
             ) : (
               <div className="table-wrap">
                 <table className="benchmark-details-table">
+                  <caption className="sr-only">Catalogue des GPU {vendor} avec mémoire, bande passante, prix et benchmarks</caption>
                   <thead>
                     <tr>
-                      <th>GPU</th>
-                      <th>Architecture</th>
-                      <th>VRAM</th>
-                      <th>Bande passante</th>
-                      <th>Prix neuf</th>
-                      <th>Prix occasion</th>
-                      <th>Benchmarks</th>
+                      <th scope="col">GPU</th>
+                      <th scope="col">Architecture</th>
+                      <th scope="col">VRAM</th>
+                      <th scope="col">Bande passante</th>
+                      <th scope="col">Prix neuf</th>
+                      <th scope="col">Prix occasion</th>
+                      <th scope="col">Benchmarks</th>
                     </tr>
                   </thead>
                   <tbody>

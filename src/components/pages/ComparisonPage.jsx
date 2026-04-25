@@ -232,7 +232,7 @@ export function ComparisonPage({ gpuData, mode, slug }) {
   if (!comparison) {
     return (
       <PublicPageShell>
-        <main className="main-content">
+        <main className="main-content" id="main-content" tabIndex="-1">
           <section className="section reveal visible">
             <div className="card glass">
               <span className="section-kicker">404</span>
@@ -250,7 +250,7 @@ export function ComparisonPage({ gpuData, mode, slug }) {
 
   return (
     <PublicPageShell>
-      <main className="main-content gpu-detail-shell">
+      <main className="main-content gpu-detail-shell" id="main-content" tabIndex="-1">
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
             <div className="gpu-detail-copy">
@@ -293,17 +293,18 @@ export function ComparisonPage({ gpuData, mode, slug }) {
 
             <div className="table-wrap">
               <table className="benchmark-details-table">
+                <caption className="sr-only">Résumé tabulaire du comparatif</caption>
                 <thead>
                   <tr>
-                    <th>Critère</th>
-                    <th>Repère 1</th>
-                    <th>Repère 2</th>
+                    <th scope="col">Critère</th>
+                    <th scope="col">Repère 1</th>
+                    <th scope="col">Repère 2</th>
                   </tr>
                 </thead>
                 <tbody>
                   {comparison.tableRows.map((row) => (
                     <tr key={row.metric}>
-                      <td>{row.metric}</td>
+                      <th scope="row">{row.metric}</th>
                       <td>{row.left}</td>
                       <td>{row.right}</td>
                     </tr>

@@ -34,7 +34,7 @@ function getCurrentPath() {
 
 function RouteSkeleton() {
   return (
-    <main className="main-content route-loading-shell">
+    <main className="main-content route-loading-shell" id="main-content" tabIndex="-1">
       <section className="section">
         <div className="card glass route-loading-card">
           <span className="section-kicker">Chargement</span>

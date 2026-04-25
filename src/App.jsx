@@ -92,7 +92,7 @@ export default function App() {
         quantizations={quantizations}
       />
 
-      <main className="main-content">
+      <main className="main-content" id="main-content" tabIndex="-1">
         <Suspense
           fallback={
             <SectionSkeleton

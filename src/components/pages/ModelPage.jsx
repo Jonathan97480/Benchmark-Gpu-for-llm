@@ -89,7 +89,7 @@ export function ModelPage({ gpuData, models, slug }) {
   if (!model) {
     return (
       <PublicPageShell>
-        <main className="main-content">
+        <main className="main-content" id="main-content" tabIndex="-1">
           <section className="section reveal visible">
             <div className="card glass">
               <span className="section-kicker">404</span>
@@ -107,7 +107,7 @@ export function ModelPage({ gpuData, models, slug }) {
 
   return (
     <PublicPageShell>
-      <main className="main-content gpu-detail-shell">
+      <main className="main-content gpu-detail-shell" id="main-content" tabIndex="-1">
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
             <div className="gpu-detail-copy">
@@ -191,13 +191,14 @@ export function ModelPage({ gpuData, models, slug }) {
             ) : (
               <div className="table-wrap">
                 <table className="benchmark-details-table">
+                  <caption className="sr-only">Classement des GPU disponibles pour {model.name}</caption>
                   <thead>
                     <tr>
-                      <th>GPU</th>
-                      <th>Vendor</th>
-                      <th>Débit</th>
-                      <th>Précision</th>
-                      <th>Contexte</th>
+                      <th scope="col">GPU</th>
+                      <th scope="col">Vendor</th>
+                      <th scope="col">Débit</th>
+                      <th scope="col">Précision</th>
+                      <th scope="col">Contexte</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -235,13 +236,14 @@ export function ModelPage({ gpuData, models, slug }) {
             ) : (
               <div className="table-wrap">
                 <table className="benchmark-details-table">
+                  <caption className="sr-only">Benchmarks détaillés disponibles pour {model.name}</caption>
                   <thead>
                     <tr>
-                      <th>GPU</th>
-                      <th>Débit</th>
-                      <th>Précision</th>
-                      <th>Contexte</th>
-                      <th>Notes</th>
+                      <th scope="col">GPU</th>
+                      <th scope="col">Débit</th>
+                      <th scope="col">Précision</th>
+                      <th scope="col">Contexte</th>
+                      <th scope="col">Notes</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -52,14 +52,15 @@ function BenchmarkDetailsPanel({ gpu, onClose }) {
 
         <div className="table-wrap">
           <table className="benchmark-details-table">
+            <caption className="sr-only">Benchmarks détaillés disponibles pour {gpu.name}</caption>
             <thead>
               <tr>
-                <th>Modèle</th>
-                <th>GPU</th>
-                <th>Débit</th>
-                <th>Précision</th>
-                <th>Contexte</th>
-                <th>Notes</th>
+                <th scope="col">Modèle</th>
+                <th scope="col">GPU</th>
+                <th scope="col">Débit</th>
+                <th scope="col">Précision</th>
+                <th scope="col">Contexte</th>
+                <th scope="col">Notes</th>
               </tr>
             </thead>
             <tbody>
@@ -199,6 +200,24 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
   const [detailGpu, setDetailGpu] = useState(null);
   const [priceHistoryGpu, setPriceHistoryGpu] = useState(null);
 
+  useEffect(() => {
+    if (!detailGpu && !priceHistoryGpu) {
+      return undefined;
+    }
+
+    function handleKeyDown(event) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      setDetailGpu(null);
+      setPriceHistoryGpu(null);
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [detailGpu, priceHistoryGpu]);
+
   function toggleSort(key) {
     setSort((current) =>
       current.key === key
@@ -211,19 +230,22 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
     <>
       <div className="table-wrap">
         <table className="catalog-table">
+          <caption className="sr-only">
+            Catalogue public des GPU avec vendor, architecture, mémoire, prix et couverture benchmark
+          </caption>
           <thead>
             <tr>
-              <th onClick={() => toggleSort("name")}>Carte</th>
-              <th onClick={() => toggleSort("vendor")}>Vendor</th>
-              <th onClick={() => toggleSort("architecture")}>Architecture</th>
-              <th onClick={() => toggleSort("vram")}>VRAM</th>
-              <th onClick={() => toggleSort("bandwidth")}>Bande passante</th>
-              <th onClick={() => toggleSort("coverageCount")}>Benchmarks</th>
-              <th onClick={() => toggleSort("averageTokens")}>Moyenne mesurée</th>
-              <th>{selectedModel ? selectedModel.name : "Résultat modèle sélectionné"}</th>
-              <th onClick={() => toggleSort("priceNewValue")}>Prix neuf</th>
-              <th onClick={() => toggleSort("priceUsedValue")}>Prix occasion</th>
-              <th onClick={() => toggleSort("score")}>Score</th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("name")}>Carte</button></th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("vendor")}>Vendor</button></th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("architecture")}>Architecture</button></th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("vram")}>VRAM</button></th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("bandwidth")}>Bande passante</button></th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("coverageCount")}>Benchmarks</button></th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("averageTokens")}>Moyenne mesurée</button></th>
+              <th scope="col">{selectedModel ? selectedModel.name : "Résultat modèle sélectionné"}</th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("priceNewValue")}>Prix neuf</button></th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("priceUsedValue")}>Prix occasion</button></th>
+              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("score")}>Score</button></th>
             </tr>
           </thead>
           <tbody>
@@ -234,7 +256,7 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
             ) : (
               sortedData.map((item) => (
                 <tr key={item.name}>
-                  <td>
+                  <th scope="row">
                     <div className="gpu-name-block">
                       <button
                         className="gpu-name-button"
@@ -258,7 +280,7 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
                         Voir la fiche GPU
                       </a>
                     </div>
-                  </td>
+                  </th>
                   <td>{item.vendor}</td>
                   <td>{item.architecture}</td>
                   <td>{formatNumber(item.vram)} Go</td>

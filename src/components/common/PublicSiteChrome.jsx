@@ -34,6 +34,9 @@ export function PublicSiteFooter() {
 export function PublicPageShell({ children, showHeader = true, showFooter = true }) {
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        Aller au contenu principal
+      </a>
       <div className="bg-orb orb-1"></div>
       <div className="bg-orb orb-2"></div>
       <div className="bg-grid"></div>

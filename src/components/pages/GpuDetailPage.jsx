@@ -206,7 +206,7 @@ export function GpuDetailPage({ gpuData, slug }) {
   if (!gpu) {
     return (
       <PublicPageShell>
-        <main className="main-content">
+        <main className="main-content" id="main-content" tabIndex="-1">
           <section className="section reveal visible">
             <div className="card glass">
               <span className="section-kicker">404</span>
@@ -224,7 +224,7 @@ export function GpuDetailPage({ gpuData, slug }) {
 
   return (
     <PublicPageShell>
-      <main className="main-content gpu-detail-shell">
+      <main className="main-content gpu-detail-shell" id="main-content" tabIndex="-1">
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
             <div className="gpu-detail-copy">
@@ -338,14 +338,15 @@ export function GpuDetailPage({ gpuData, slug }) {
             ) : (
               <div className="table-wrap">
                 <table className="benchmark-details-table">
+                  <caption className="sr-only">Benchmarks LLM détaillés disponibles pour {gpu.name}</caption>
                   <thead>
                     <tr>
-                      <th>Modèle</th>
-                      <th>GPU</th>
-                      <th>Débit</th>
-                      <th>Précision</th>
-                      <th>Contexte</th>
-                      <th>Notes</th>
+                      <th scope="col">Modèle</th>
+                      <th scope="col">GPU</th>
+                      <th scope="col">Débit</th>
+                      <th scope="col">Précision</th>
+                      <th scope="col">Contexte</th>
+                      <th scope="col">Notes</th>
                     </tr>
                   </thead>
                   <tbody>

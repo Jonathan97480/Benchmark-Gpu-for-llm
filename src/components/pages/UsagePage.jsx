@@ -205,7 +205,7 @@ export function UsagePage({ gpuData, slug }) {
   if (!usage) {
     return (
       <PublicPageShell>
-        <main className="main-content">
+        <main className="main-content" id="main-content" tabIndex="-1">
           <section className="section reveal visible">
             <div className="card glass">
               <span className="section-kicker">404</span>
@@ -223,7 +223,7 @@ export function UsagePage({ gpuData, slug }) {
 
   return (
     <PublicPageShell>
-      <main className="main-content gpu-detail-shell">
+      <main className="main-content gpu-detail-shell" id="main-content" tabIndex="-1">
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
             <div className="gpu-detail-copy">
@@ -266,17 +266,18 @@ export function UsagePage({ gpuData, slug }) {
 
             <div className="table-wrap">
               <table className="benchmark-details-table">
+                <caption className="sr-only">Sélection de GPU pour cet usage</caption>
                 <thead>
                   <tr>
-                    <th>GPU</th>
-                    <th>Repère 1</th>
-                    <th>Repère 2</th>
+                    <th scope="col">GPU</th>
+                    <th scope="col">Repère 1</th>
+                    <th scope="col">Repère 2</th>
                   </tr>
                 </thead>
                 <tbody>
                   {usage.tableRows.map((row) => (
                     <tr key={row.metric}>
-                      <td>{row.metric}</td>
+                      <th scope="row">{row.metric}</th>
                       <td>{row.left}</td>
                       <td>{row.right}</td>
                     </tr>

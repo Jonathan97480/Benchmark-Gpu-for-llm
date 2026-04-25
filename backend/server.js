@@ -467,8 +467,23 @@ function getSitemapComparisonPairs(gpus) {
   return [...uniquePairs.values()];
 }
 
-function getSitemapUsageSlugs() {
-  return ['local-ai', 'budget', 'entreprise'];
+function getSitemapUsageSlugs(gpus) {
+  const tested = gpus.filter((gpu) => Number(gpu.coverageCount) > 0);
+  const usageSlugs = [];
+
+  if (tested.some((gpu) => Number(gpu.vram) >= 16)) {
+    usageSlugs.push('local-ai');
+  }
+
+  if (tested.some((gpu) => getKnownGpuPrice(gpu) > 0)) {
+    usageSlugs.push('budget');
+  }
+
+  if (tested.some((gpu) => gpu.tier === 'enterprise' || Number(gpu.vram) >= 80)) {
+    usageSlugs.push('entreprise');
+  }
+
+  return usageSlugs;
 }
 
 function buildUsageStaticContent(title, intro, cards, helpText, guideLabel) {
@@ -705,7 +720,7 @@ app.get('/sitemap.xml', (req, res) => {
       ORDER BY vram ASC
     `).all();
     const gpuComparisonPairs = getSitemapComparisonPairs(gpus);
-    const usagePages = getSitemapUsageSlugs();
+    const usagePages = getSitemapUsageSlugs(gpus);
 
     const urls = [
       {

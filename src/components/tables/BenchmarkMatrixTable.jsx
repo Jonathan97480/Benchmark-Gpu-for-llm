@@ -33,11 +33,12 @@ export function BenchmarkMatrixTable({ gpus, models }) {
   return (
     <div className="table-wrap matrix-wrap">
       <table className="matrix-table">
+        <caption className="sr-only">Matrice des benchmarks GPU par modèle LLM</caption>
         <thead>
           <tr>
-            <th>GPU</th>
+            <th scope="col">GPU</th>
             {models.map((model) => (
-              <th key={model.id}>
+              <th key={model.id} scope="col">
                 {model.name}
                 <br />
                 <span className="th-subtle">
@@ -50,14 +51,14 @@ export function BenchmarkMatrixTable({ gpus, models }) {
         <tbody>
           {gpus.map((gpu) => (
             <tr key={gpu.id}>
-              <td>
+              <th scope="row">
                 <div className="gpu-name-block">
                   <strong>{gpu.name}</strong>
                   <GpuCountBadge count={gpu.bestBenchmark?.gpu_count || 1} />
                 </div>
                 <br />
                 <span className={`badge ${gpu.tier}`}>{gpu.tier}</span>
-              </td>
+              </th>
               {models.map((model) => (
                 <td key={`${gpu.id}-${model.id}`}>
                   <BenchmarkCell benchmark={getBenchmarkForGpuAndModel(gpu, model.id)} />
