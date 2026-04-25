@@ -6,6 +6,7 @@ import { GuidePage } from "./components/pages/GuidePage.jsx";
 import { GpuDetailPage } from "./components/pages/GpuDetailPage.jsx";
 import { ModelPage } from "./components/pages/ModelPage.jsx";
 import { ComparisonPage } from "./components/pages/ComparisonPage.jsx";
+import { UsagePage } from "./components/pages/UsagePage.jsx";
 import { VendorPage } from "./components/pages/VendorPage.jsx";
 import { useDashboardData } from "./hooks/useDashboardData.js";
 import "./admin/admin.css";
@@ -32,6 +33,11 @@ function ModelRoute({ slug }) {
 function ComparisonRoute({ mode, slug }) {
   const dashboardData = useDashboardData();
   return <ComparisonPage gpuData={dashboardData.gpuData} mode={mode} slug={slug} />;
+}
+
+function UsageRoute({ slug }) {
+  const dashboardData = useDashboardData();
+  return <UsagePage gpuData={dashboardData.gpuData} slug={slug} />;
 }
 
 export default function AppRouter() {
@@ -70,6 +76,11 @@ export default function AppRouter() {
   if (pathname.startsWith("/comparatifs/vram/")) {
     const slug = pathname.replace(/^\/comparatifs\/vram\//, "").replace(/\/$/, "");
     return <ComparisonRoute mode="vram" slug={slug} />;
+  }
+
+  if (pathname.startsWith("/usages/")) {
+    const slug = pathname.replace(/^\/usages\//, "").replace(/\/$/, "");
+    return <UsageRoute slug={slug} />;
   }
 
   if (pathname === "/guides/choisir-gpu-llm" || pathname === "/guides/choisir-gpu-llm/") {

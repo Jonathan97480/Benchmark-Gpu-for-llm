@@ -435,6 +435,42 @@ function buildVramComparisonStaticContent(targetVram, candidates) {
   `;
 }
 
+function getKnownGpuPrice(gpu) {
+  return Number(gpu.price_used_value) || Number(gpu.price_new_value) || Number(gpu.price_value) || 0;
+}
+
+function buildUsageStaticContent(title, intro, cards, helpText, guideLabel) {
+  const items = cards
+    .map((gpu) => `
+      <li>
+        <a href="/gpu/${slugifyGpuName(gpu.name)}">${escapeHtml(gpu.name)}</a>
+        · ${escapeHtml(formatNumber(gpu.vram))} Go VRAM
+        · ${escapeHtml(formatNumber(gpu.bandwidth))} Go/s
+        · ${escapeHtml(formatNumber(gpu.coverageCount || 0))} benchmark(s)
+        ${getKnownGpuPrice(gpu) > 0 ? `· ${escapeHtml(formatPrice(getKnownGpuPrice(gpu)))}` : ''}
+      </li>
+    `)
+    .join('');
+
+  return `
+    <section>
+      <h1>${escapeHtml(title)}</h1>
+      <p>${escapeHtml(intro)}</p>
+    </section>
+    <section>
+      <h2>Cartes a regarder</h2>
+      <ul>${items}</ul>
+    </section>
+    <section>
+      <h2>Comment lire cette selection</h2>
+      <p>${escapeHtml(helpText)}</p>
+    </section>
+    <section>
+      <p><a href="/guides/choisir-gpu-llm">${escapeHtml(guideLabel)}</a></p>
+    </section>
+  `;
+}
+
 function getHomeJsonLd() {
   return {
     '@context': 'https://schema.org',
@@ -551,6 +587,18 @@ function getFaqJsonLd(pathName) {
 }
 
 function getComparisonJsonLd(title, pathName, description) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    name: title,
+    url: `${PUBLIC_SITE_URL}${pathName}`,
+    description,
+    inLanguage: 'fr',
+  };
+}
+
+function getUsageJsonLd(title, pathName, description) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -981,6 +1029,108 @@ app.get(['/comparatifs/vram/:slug', '/comparatifs/vram/:slug/'], (req, res) => {
     }));
   } catch (error) {
     console.error('Error serving VRAM comparison SEO page:', error);
+    res.status(500).send(renderSeoHtml({
+      title: DEFAULT_TITLE,
+      description: DEFAULT_DESCRIPTION,
+      canonicalUrl: `${PUBLIC_SITE_URL}/`,
+      jsonLd: getHomeJsonLd(),
+      staticContent: buildHomeStaticContent(),
+    }));
+  }
+});
+
+app.get(['/usages/:slug', '/usages/:slug/'], (req, res) => {
+  try {
+    const db = require('./config/database');
+    const slug = req.params.slug;
+
+    const allGpus = db.prepare(`
+      SELECT *,
+        (SELECT COUNT(*) FROM benchmark_results br WHERE br.gpu_id = gpu_benchmarks.id) AS coverageCount
+      FROM gpu_benchmarks
+      ORDER BY score DESC, name ASC
+    `).all();
+    const tested = allGpus.filter((gpu) => Number(gpu.coverageCount) > 0);
+
+    let title = '';
+    let description = '';
+    let selected = [];
+    let intro = '';
+    let helpText = '';
+    let guideLabel = '';
+
+    if (slug === 'local-ai') {
+      selected = [...tested]
+        .filter((gpu) => Number(gpu.vram) >= 16)
+        .sort((left, right) => Number(right.coverageCount) - Number(left.coverageCount) || Number(right.score) - Number(left.score));
+      title = 'Quels GPU regarder pour du local AI';
+      description = 'Sélection dynamique des GPU pertinents pour le local AI à partir des cartes réellement benchmarkées dans la base : VRAM, prix et couverture benchmark.';
+      intro = "Cette page met en avant les cartes les plus pertinentes pour une machine locale sérieuse, en s'appuyant uniquement sur les GPU réellement présents dans la base et sur leur couverture benchmark.";
+      helpText = "Commencez par les cartes qui cumulent assez de VRAM et plusieurs benchmarks. Ensuite, vérifiez leur prix observé et ouvrez les fiches pour voir les modèles testés et les débits réellement mesurés.";
+      guideLabel = "Lire le guide pour choisir un GPU de local AI";
+    } else if (slug === 'budget') {
+      selected = [...tested]
+        .filter((gpu) => getKnownGpuPrice(gpu) > 0)
+        .sort((left, right) => getKnownGpuPrice(left) - getKnownGpuPrice(right) || Number(right.coverageCount) - Number(left.coverageCount));
+      title = 'Quels GPU regarder avec un budget serré';
+      description = 'Sélection dynamique des GPU avec prix renseigné et benchmarks disponibles pour repérer les cartes les plus intéressantes quand le budget compte vraiment.';
+      intro = "Cette page isole les cartes dont le prix est réellement renseigné dans la base pour vous aider à comparer les options les plus accessibles sans sortir du concret.";
+      helpText = "Ne regardez pas seulement le prix. Une carte un peu plus chère mais mieux couverte par les benchmarks peut être plus sûre qu'une carte bon marché dont on sait encore très peu de choses en usage LLM.";
+      guideLabel = "Lire le guide pour choisir un GPU avec budget serré";
+    } else if (slug === 'entreprise') {
+      selected = [...tested]
+        .filter((gpu) => gpu.tier === 'enterprise' || Number(gpu.vram) >= 80)
+        .sort((left, right) => Number(right.vram) - Number(left.vram) || Number(right.bandwidth) - Number(left.bandwidth));
+      title = 'Quels GPU regarder pour un usage entreprise';
+      description = 'Sélection dynamique des GPU orientés entreprise ou très haute capacité mémoire, à partir des cartes réellement présentes dans la base.';
+      intro = "Cette sélection vise les cartes qui deviennent pertinentes dès qu'on dépasse le poste local classique et qu'on cherche davantage de marge mémoire ou une catégorie matérielle plus lourde.";
+      helpText = "Dans cette catégorie, la VRAM reste le premier filtre, mais elle ne suffit pas. Regardez aussi la bande passante, les benchmarks déjà disponibles et le type d'usage réel avant d'arbitrer.";
+      guideLabel = "Lire le guide pour choisir un GPU orienté entreprise";
+    } else {
+      res.status(404).send(renderSeoHtml({
+        title: 'Page usage introuvable | GPU LLM Benchmark',
+        description: 'La page usage demandée est introuvable sur GPU LLM Benchmark.',
+        canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+        robots: 'noindex, follow',
+        jsonLd: getHomeJsonLd(),
+        staticContent: `
+          <section>
+            <h1>Page usage introuvable</h1>
+            <p>La page demandée n'est pas disponible.</p>
+            <p><a href="/">Retour au benchmark</a></p>
+          </section>
+        `,
+      }));
+      return;
+    }
+
+    if (selected.length === 0) {
+      res.status(404).send(renderSeoHtml({
+        title: 'Page usage introuvable | GPU LLM Benchmark',
+        description: 'La page usage demandée est introuvable sur GPU LLM Benchmark.',
+        canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+        robots: 'noindex, follow',
+        jsonLd: getHomeJsonLd(),
+        staticContent: `
+          <section>
+            <h1>Page usage introuvable</h1>
+            <p>Les données actuelles ne permettent pas encore de construire cette page.</p>
+            <p><a href="/">Retour au benchmark</a></p>
+          </section>
+        `,
+      }));
+      return;
+    }
+
+    res.send(renderSeoHtml({
+      title,
+      description,
+      canonicalUrl: `${PUBLIC_SITE_URL}/usages/${slug}`,
+      jsonLd: getUsageJsonLd(title, `/usages/${slug}`, description),
+      staticContent: buildUsageStaticContent(title, intro, selected.slice(0, 8), helpText, guideLabel),
+    }));
+  } catch (error) {
+    console.error('Error serving usage SEO page:', error);
     res.status(500).send(renderSeoHtml({
       title: DEFAULT_TITLE,
       description: DEFAULT_DESCRIPTION,

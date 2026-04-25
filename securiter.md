@@ -140,7 +140,6 @@ Les tests backend valident deja :
 - [ ] corriger les eventuels contenus dupliques
 - [ ] definir une strategie mots-cles en francais
 - [ ] reecrire les textes pour cibler des requetes concretes : benchmark GPU LLM, carte graphique IA, GPU pour Llama
-- [ ] ajouter eventuellement des pages par usage : local AI, inference, budget, entreprise
 - [ ] preparer un plan de soumission manuelle dans Google Search Console pour la home, les pages vendor, la FAQ et le guide
 - [ ] verifier dans Search Console les pages exclues, canonicals choisis par Google et problemes d'indexation
 - [ ] suivre les requetes reelles qui generent impressions et clics pour iterer sur les titles/descriptions

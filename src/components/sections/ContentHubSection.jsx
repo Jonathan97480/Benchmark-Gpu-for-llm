@@ -72,6 +72,23 @@ function buildContentCards(gpuData) {
     });
   }
 
+  cards.push(
+    {
+      href: "/usages/local-ai",
+      kicker: "Usage",
+      title: "GPU pour local AI",
+      description:
+        "Une sélection dynamique des cartes les plus pertinentes pour monter une machine locale crédible.",
+    },
+    {
+      href: "/usages/budget",
+      kicker: "Usage",
+      title: "GPU avec budget serré",
+      description:
+        "Une page utile pour repérer les cartes dont le prix est connu et qui gardent un usage LLM plausible.",
+    }
+  );
+
   return cards;
 }
 
