@@ -26,6 +26,7 @@ const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL || 'https://gpubenchmark.jon
 const DEFAULT_TITLE = 'GPU LLM Benchmark 2026';
 const DEFAULT_DESCRIPTION = 'Benchmark GPU pour LLM open source : comparez les cartes graphiques, les vendeurs et les performances mesurées pour choisir le bon matériel IA.';
 const DEFAULT_OG_IMAGE = `${PUBLIC_SITE_URL}/og-image.svg`;
+const DEFAULT_LASTMOD = new Date().toISOString().split('T')[0];
 
 const scriptSrc = ["'self'"];
 const styleSrc = ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"];
@@ -148,6 +149,14 @@ function injectStaticContent(html, staticContent) {
   );
 }
 
+function buildJsonLdScripts(jsonLd) {
+  const entries = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+  return entries
+    .filter(Boolean)
+    .map((entry) => `<script type="application/ld+json">\n${JSON.stringify(entry, null, 2)}\n</script>`)
+    .join('\n');
+}
+
 function renderSeoHtml({
   title = DEFAULT_TITLE,
   description = DEFAULT_DESCRIPTION,
@@ -160,19 +169,19 @@ function renderSeoHtml({
   let html = getHtmlTemplate();
 
   html = html.replace(/<title>.*?<\/title>/, `<title>${escapeHtml(title)}</title>`);
-  html = html.replace(/<meta name="description"[\s\S]*?\/>/, `<meta name="description" content="${escapeHtml(description)}" />`);
-  html = html.replace(/<meta name="robots"[\s\S]*?\/>/, `<meta name="robots" content="${escapeHtml(robots)}" />`);
-  html = html.replace(/<link rel="canonical"[\s\S]*?>/, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`);
-  html = html.replace(/<meta property="og:title"[\s\S]*?\/>/, `<meta property="og:title" content="${escapeHtml(title)}" />`);
-  html = html.replace(/<meta property="og:description"[\s\S]*?\/>/, `<meta property="og:description" content="${escapeHtml(description)}" />`);
-  html = html.replace(/<meta property="og:url"[\s\S]*?\/>/, `<meta property="og:url" content="${escapeHtml(canonicalUrl)}" />`);
-  html = html.replace(/<meta property="og:image"[\s\S]*?\/>/, `<meta property="og:image" content="${escapeHtml(ogImage)}" />`);
-  html = html.replace(/<meta name="twitter:title"[\s\S]*?\/>/, `<meta name="twitter:title" content="${escapeHtml(title)}" />`);
-  html = html.replace(/<meta name="twitter:description"[\s\S]*?\/>/, `<meta name="twitter:description" content="${escapeHtml(description)}" />`);
-  html = html.replace(/<meta name="twitter:image"[\s\S]*?\/>/, `<meta name="twitter:image" content="${escapeHtml(ogImage)}" />`);
+  html = html.replace(/<meta[^>]*name="description"[^>]*>/, `<meta name="description" content="${escapeHtml(description)}" />`);
+  html = html.replace(/<meta[^>]*name="robots"[^>]*>/, `<meta name="robots" content="${escapeHtml(robots)}" />`);
+  html = html.replace(/<link[^>]*rel="canonical"[^>]*>/, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`);
+  html = html.replace(/<meta[^>]*property="og:title"[^>]*>/, `<meta property="og:title" content="${escapeHtml(title)}" />`);
+  html = html.replace(/<meta[^>]*property="og:description"[^>]*>/, `<meta property="og:description" content="${escapeHtml(description)}" />`);
+  html = html.replace(/<meta[^>]*property="og:url"[^>]*>/, `<meta property="og:url" content="${escapeHtml(canonicalUrl)}" />`);
+  html = html.replace(/<meta[^>]*property="og:image"[^>]*>/, `<meta property="og:image" content="${escapeHtml(ogImage)}" />`);
+  html = html.replace(/<meta[^>]*name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(title)}" />`);
+  html = html.replace(/<meta[^>]*name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(description)}" />`);
+  html = html.replace(/<meta[^>]*name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImage)}" />`);
   html = html.replace(
     /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2)}\n</script>`
+    buildJsonLdScripts(jsonLd)
   );
   html = injectStaticContent(html, staticContent);
 
@@ -183,15 +192,25 @@ function buildHomeStaticContent() {
   return `
     <section>
       <h1>GPU LLM Benchmark</h1>
-      <p>Comparez les GPU pour l'inference LLM open source, visualisez les benchmarks disponibles, le catalogue public, le calculateur et le suivi des prix.</p>
+      <p>Choisissez plus facilement un GPU pour vos usages LLM en comparant les performances mesurées, la mémoire disponible et l'écart entre prix neuf et occasion.</p>
     </section>
     <section>
-      <h2>Ce que propose le site</h2>
+      <h2>Ce que vous pouvez faire ici</h2>
       <ul>
-        <li>Catalogue GPU par vendor avec filtres</li>
-        <li>Benchmarks reels par modele LLM</li>
-        <li>Historique des prix neuf et occasion</li>
-        <li>Calculateur analytique pour l'inference locale</li>
+        <li>Comparer les cartes par vendor, VRAM, bande passante et score</li>
+        <li>Voir les benchmarks reels par modele LLM</li>
+        <li>Suivre l'evolution des prix neuf et occasion</li>
+        <li>Estimer un usage local avec le calculateur analytique</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Commencer selon votre besoin</h2>
+      <ul>
+        <li><a href="/guides/choisir-gpu-llm">Lire le guide pour choisir un GPU</a></li>
+        <li><a href="/faq">Consulter la FAQ</a></li>
+        <li><a href="/vendor/nvidia">Voir les cartes NVIDIA</a></li>
+        <li><a href="/vendor/amd">Voir les cartes AMD</a></li>
+        <li><a href="/vendor/intel">Voir les cartes Intel</a></li>
       </ul>
     </section>
   `;
@@ -214,10 +233,10 @@ function buildGpuStaticContent(gpu) {
   return `
     <section>
       <h1>${escapeHtml(gpu.name)}</h1>
-      <p>${escapeHtml(gpu.vendor)} ${escapeHtml(gpu.architecture)} avec ${escapeHtml(formatNumber(gpu.vram))} Go de VRAM, ${escapeHtml(formatNumber(gpu.bandwidth))} Go/s de bande passante et un score catalogue de ${escapeHtml(formatNumber(gpu.score))}/100.</p>
+      <p>${escapeHtml(gpu.vendor)} ${escapeHtml(gpu.architecture)} avec ${escapeHtml(formatNumber(gpu.vram))} Go de VRAM et ${escapeHtml(formatNumber(gpu.bandwidth))} Go/s de bande passante. Cette fiche vous aide a voir rapidement si la carte est credibile pour vos modeles, votre budget et votre type d'usage.</p>
     </section>
     <section>
-      <h2>Repères rapides</h2>
+      <h2>Repères utiles avant d'acheter</h2>
       <ul>
         <li>Vendor : ${escapeHtml(gpu.vendor)}</li>
         <li>Architecture : ${escapeHtml(gpu.architecture)}</li>
@@ -232,7 +251,7 @@ function buildGpuStaticContent(gpu) {
       ${benchmarks ? `<ul>${benchmarks}</ul>` : '<p>Aucun benchmark LLM n&apos;est encore disponible pour cette carte.</p>'}
     </section>
     <section>
-      <p><a href="/">Retour au benchmark GPU LLM</a></p>
+      <p><a href="/vendor/${slugifyGpuName(gpu.vendor)}">Comparer avec les autres cartes ${escapeHtml(gpu.vendor)}</a></p>
     </section>
   `;
 }
@@ -253,14 +272,14 @@ function buildVendorStaticContent(vendor, vendorGpus) {
   return `
     <section>
       <h1>${escapeHtml(vendor)}</h1>
-      <p>Catalogue public des GPU ${escapeHtml(vendor)} avec repères techniques, fiches indexables et benchmarks LLM disponibles.</p>
+      <p>Retrouvez ici les cartes ${escapeHtml(vendor)} presentes dans le catalogue avec leurs caracteristiques, leurs benchmarks LLM et des repères de prix pour comparer les references les plus interessantes.</p>
     </section>
     <section>
       <h2>Cartes ${escapeHtml(vendor)} dans le catalogue</h2>
       ${items ? `<ul>${items}</ul>` : '<p>Aucune carte disponible pour ce vendor.</p>'}
     </section>
     <section>
-      <p><a href="/">Retour au benchmark GPU LLM</a></p>
+      <p><a href="/guides/choisir-gpu-llm">Lire le guide pour savoir quelle carte ${escapeHtml(vendor)} choisir</a></p>
     </section>
   `;
 }
@@ -281,10 +300,10 @@ function buildModelStaticContent(model, benchmarks) {
   return `
     <section>
       <h1>${escapeHtml(model.name)}</h1>
-      <p>Benchmarks GPU disponibles pour ${escapeHtml(model.name)}, avec classement des cartes, débit mesuré et contexte d'execution quand il est disponible.</p>
+      <p>Cette page rassemble les resultats observes pour ${escapeHtml(model.name)} afin de voir quelles cartes s'en sortent le mieux, a quel debit, et dans quelles conditions de test.</p>
     </section>
     <section>
-      <h2>Repères modèle</h2>
+      <h2>Ce qu'il faut regarder pour ce modele</h2>
       <ul>
         <li>Paramètres actifs : ${escapeHtml(formatNumber(model.params_billions || 0))}B</li>
         <li>Paramètres totaux : ${escapeHtml(formatNumber(model.total_params_billions || model.params_billions || 0))}B</li>
@@ -296,7 +315,122 @@ function buildModelStaticContent(model, benchmarks) {
       ${items ? `<ul>${items}</ul>` : '<p>Aucun benchmark GPU n&apos;est encore disponible pour ce modèle.</p>'}
     </section>
     <section>
-      <p><a href="/">Retour au benchmark GPU LLM</a></p>
+      <p><a href="/guides/choisir-gpu-llm">Voir comment choisir une carte adaptee a ce modele</a></p>
+    </section>
+  `;
+}
+
+function buildGuideStaticContent() {
+  return `
+    <section>
+      <h1>Comment choisir un GPU pour LLM</h1>
+      <p>Ce guide vous aide a arbitrer entre VRAM, débit reel et budget pour eviter d'acheter une carte mal dimensionnee pour vos modèles et votre usage.</p>
+    </section>
+    <section>
+      <h2>Les critères à prioriser</h2>
+      <ul>
+        <li>VRAM disponible pour charger le modèle et la taille de contexte visée</li>
+        <li>Débit observé en tokens par seconde sur des benchmarks comparables</li>
+        <li>Prix neuf et prix occasion analysés séparément</li>
+        <li>Différence entre usage local, workstation et déploiement plus lourd</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Ou aller ensuite</h2>
+      <ul>
+        <li><a href="/faq">Lire la FAQ si vous debutez</a></li>
+        <li><a href="/vendor/nvidia">Comparer les cartes NVIDIA</a></li>
+        <li><a href="/vendor/amd">Comparer les cartes AMD</a></li>
+        <li><a href="/vendor/intel">Comparer les cartes Intel</a></li>
+      </ul>
+    </section>
+  `;
+}
+
+function buildFaqStaticContent() {
+  return `
+    <section>
+      <h1>FAQ GPU LLM Benchmark</h1>
+      <p>Retrouvez ici les réponses aux questions qui reviennent le plus souvent quand on compare des cartes pour faire tourner des LLM en local ou en workstation.</p>
+    </section>
+    <section>
+      <h2>Questions fréquentes</h2>
+      <dl>
+        <dt>Comment choisir un GPU pour un LLM ?</dt>
+        <dd>Il faut d'abord dimensionner la VRAM, puis comparer les benchmarks mesurés et enfin arbitrer avec l'historique de prix.</dd>
+        <dt>Le calculateur remplace-t-il un benchmark ?</dt>
+        <dd>Non. Le calculateur fournit une estimation analytique, alors que le catalogue affiche des mesures stockées en base.</dd>
+        <dt>Pourquoi séparer prix neuf et prix occasion ?</dt>
+        <dd>Parce que la compétitivité d'une même carte peut changer fortement selon le marché observé.</dd>
+      </dl>
+    </section>
+    <section>
+      <p><a href="/guides/choisir-gpu-llm">Lire le guide si vous hesitez entre plusieurs cartes</a></p>
+    </section>
+  `;
+}
+
+function parseVramComparisonSlug(slug) {
+  const match = String(slug || '').match(/^(\d+)go$/i);
+  return match ? Number(match[1]) : null;
+}
+
+function buildGpuPairComparisonStaticContent(leftGpu, rightGpu, leftBenchmark, rightBenchmark) {
+  const throughputGain = leftBenchmark && rightBenchmark
+    ? Math.round(((rightBenchmark.tokens_per_second - leftBenchmark.tokens_per_second) / leftBenchmark.tokens_per_second) * 100)
+    : null;
+
+  return `
+    <section>
+      <h1>${escapeHtml(leftGpu.name)} vs ${escapeHtml(rightGpu.name)} pour LLM</h1>
+      <p>Ce comparatif est genere a partir des cartes presentes dans la base et des benchmarks disponibles au moment de la visite. Le but est de voir ce que vous gagnez vraiment en memoire, en debit et en souplesse d'usage avant d'arbitrer un achat.</p>
+    </section>
+    <section>
+      <h2>Ce qu'il faut retenir</h2>
+      <ul>
+        <li>${escapeHtml(leftGpu.name)} : ${escapeHtml(formatNumber(leftGpu.vram))} Go de VRAM, ${escapeHtml(formatNumber(leftGpu.bandwidth))} Go/s, score ${escapeHtml(formatNumber(leftGpu.score))}/100</li>
+        <li>${escapeHtml(rightGpu.name)} : ${escapeHtml(formatNumber(rightGpu.vram))} Go de VRAM, ${escapeHtml(formatNumber(rightGpu.bandwidth))} Go/s, score ${escapeHtml(formatNumber(rightGpu.score))}/100</li>
+        <li>Benchmark commun : ${leftBenchmark ? escapeHtml(leftBenchmark.model_name) : 'Aucun'} · ${leftBenchmark ? `${escapeHtml(formatNumber(leftBenchmark.tokens_per_second))} t/s` : '—'} vs ${rightBenchmark ? `${escapeHtml(formatNumber(rightBenchmark.tokens_per_second))} t/s` : '—'}</li>
+      </ul>
+      ${throughputGain !== null ? `<p>Sur le benchmark commun disponible, ${escapeHtml(rightGpu.name)} apporte environ ${escapeHtml(formatNumber(throughputGain))} % de debit supplementaire face a ${escapeHtml(leftGpu.name)}.</p>` : ''}
+    </section>
+    <section>
+      <h2>Quel choix selon votre usage</h2>
+      <p>Le bon choix depend du type de modele vise, du niveau de marge memoire souhaite et du prix reel auquel vous trouvez chaque carte. S'il n'existe qu'un faible nombre de benchmarks communs, utilisez aussi les fiches detaillees pour verifier les modeles deja mesures sur chacune.</p>
+    </section>
+    <section>
+      <p><a href="/gpu/${slugifyGpuName(leftGpu.name)}">Voir la fiche ${escapeHtml(leftGpu.name)}</a> · <a href="/gpu/${slugifyGpuName(rightGpu.name)}">Voir la fiche ${escapeHtml(rightGpu.name)}</a></p>
+    </section>
+  `;
+}
+
+function buildVramComparisonStaticContent(targetVram, candidates) {
+  const items = candidates
+    .map((gpu) => `
+      <li>
+        <a href="/gpu/${slugifyGpuName(gpu.name)}">${escapeHtml(gpu.name)}</a>
+        · ${escapeHtml(formatNumber(gpu.bandwidth))} Go/s
+        · ${gpu.price_new_value || gpu.price_used_value || gpu.price_value ? escapeHtml(formatPrice(gpu.price_new_value || gpu.price_used_value || gpu.price_value)) : 'prix non renseigne'}
+        · ${escapeHtml(formatNumber(gpu.coverageCount || 0))} benchmark(s)
+      </li>
+    `)
+    .join('');
+
+  return `
+    <section>
+      <h1>Quel GPU ${escapeHtml(formatNumber(targetVram))} Go choisir pour LLM</h1>
+      <p>Cette page regroupe automatiquement les cartes de ${escapeHtml(formatNumber(targetVram))} Go presentes dans la base. C'est utile quand vous voulez comparer des references qui jouent dans la meme categorie memoire, sans melanger des cartes trop differentes.</p>
+    </section>
+    <section>
+      <h2>Cartes ${escapeHtml(formatNumber(targetVram))} Go a comparer</h2>
+      <ul>${items}</ul>
+    </section>
+    <section>
+      <h2>Comment choisir entre elles</h2>
+      <p>Commencez par repérer les cartes qui ont à la fois un prix renseigné et une couverture benchmark suffisante. Ensuite, ouvrez leurs fiches pour verifier les modeles testes, la precision utilisee et le debit observe avant de decider laquelle correspond le mieux a votre usage.</p>
+    </section>
+    <section>
+      <p><a href="/guides/choisir-gpu-llm">Lire le guide pour choisir une carte ${escapeHtml(formatNumber(targetVram))} Go</a></p>
     </section>
   `;
 }
@@ -369,6 +503,65 @@ function getModelJsonLd(model, pathName) {
   };
 }
 
+function getGuideJsonLd(pathName) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'Comment choisir un GPU pour LLM',
+    name: 'Guide GPU LLM',
+    url: `${PUBLIC_SITE_URL}${pathName}`,
+    description: "Guide pratique pour choisir un GPU pour l'inference LLM : VRAM, débit mesuré, prix neuf et occasion.",
+    inLanguage: 'fr',
+  };
+}
+
+function getFaqJsonLd(pathName) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    url: `${PUBLIC_SITE_URL}${pathName}`,
+    inLanguage: 'fr',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Comment choisir un GPU pour un LLM ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: "Il faut d'abord dimensionner la VRAM, puis comparer les benchmarks mesurés et enfin arbitrer avec l'historique de prix.",
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Le calculateur remplace-t-il un benchmark ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: "Non. Le calculateur fournit une estimation analytique, alors que le catalogue affiche des mesures stockées en base.",
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Pourquoi séparer prix neuf et prix occasion ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: "Parce que la compétitivité d'une même carte peut changer fortement selon le marché observé.",
+        },
+      },
+    ],
+  };
+}
+
+function getComparisonJsonLd(title, pathName, description) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    name: title,
+    url: `${PUBLIC_SITE_URL}${pathName}`,
+    description,
+    inLanguage: 'fr',
+  };
+}
+
 app.get('/sitemap.xml', (req, res) => {
   try {
     const db = require('./config/database');
@@ -388,21 +581,37 @@ app.get('/sitemap.xml', (req, res) => {
         loc: `${PUBLIC_SITE_URL}/`,
         changefreq: 'weekly',
         priority: '1.0',
+        lastmod: DEFAULT_LASTMOD,
+      },
+      {
+        loc: `${PUBLIC_SITE_URL}/guides/choisir-gpu-llm`,
+        changefreq: 'monthly',
+        priority: '0.8',
+        lastmod: DEFAULT_LASTMOD,
+      },
+      {
+        loc: `${PUBLIC_SITE_URL}/faq`,
+        changefreq: 'monthly',
+        priority: '0.7',
+        lastmod: DEFAULT_LASTMOD,
       },
       ...['NVIDIA', 'AMD', 'Intel'].map((vendor) => ({
         loc: `${PUBLIC_SITE_URL}/vendor/${slugifyGpuName(vendor)}`,
         changefreq: 'weekly',
         priority: '0.7',
+        lastmod: DEFAULT_LASTMOD,
       })),
       ...models.map((model) => ({
         loc: `${PUBLIC_SITE_URL}/model/${slugifyGpuName(model.name)}`,
         changefreq: 'weekly',
         priority: '0.7',
+        lastmod: DEFAULT_LASTMOD,
       })),
       ...gpus.map((gpu) => ({
         loc: `${PUBLIC_SITE_URL}/gpu/${slugifyGpuName(gpu.name)}`,
         changefreq: 'weekly',
         priority: '0.8',
+        lastmod: DEFAULT_LASTMOD,
       })),
     ];
 
@@ -410,6 +619,7 @@ app.get('/sitemap.xml', (req, res) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((entry) => `  <url>
     <loc>${entry.loc}</loc>
+    <lastmod>${entry.lastmod}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
   </url>`).join('\n')}
@@ -588,6 +798,189 @@ app.get(['/model/:slug', '/model/:slug/*'], (req, res) => {
     }));
   } catch (error) {
     console.error('Error serving model SEO page:', error);
+    res.status(500).send(renderSeoHtml({
+      title: DEFAULT_TITLE,
+      description: DEFAULT_DESCRIPTION,
+      canonicalUrl: `${PUBLIC_SITE_URL}/`,
+      jsonLd: getHomeJsonLd(),
+      staticContent: buildHomeStaticContent(),
+    }));
+  }
+});
+
+app.get(['/guides/choisir-gpu-llm', '/guides/choisir-gpu-llm/'], (req, res) => {
+  res.send(renderSeoHtml({
+    title: 'Choisir un GPU pour LLM | Guide d\'achat',
+    description: "Guide pratique pour choisir un GPU pour l'inference LLM : VRAM, débit mesuré, prix neuf, occasion et lecture du benchmark public.",
+    canonicalUrl: `${PUBLIC_SITE_URL}/guides/choisir-gpu-llm`,
+    jsonLd: getGuideJsonLd('/guides/choisir-gpu-llm'),
+    staticContent: buildGuideStaticContent(),
+  }));
+});
+
+app.get(['/faq', '/faq/'], (req, res) => {
+  res.send(renderSeoHtml({
+    title: 'FAQ GPU LLM Benchmark',
+    description: 'Questions fréquentes sur le benchmark GPU LLM : choix d’une carte graphique, lecture des benchmarks, prix neuf et occasion, calculateur et pages publiques.',
+    canonicalUrl: `${PUBLIC_SITE_URL}/faq`,
+    jsonLd: getFaqJsonLd('/faq'),
+    staticContent: buildFaqStaticContent(),
+  }));
+});
+
+app.get(['/comparatifs/gpu/:slug', '/comparatifs/gpu/:slug/'], (req, res) => {
+  try {
+    const db = require('./config/database');
+    const slug = req.params.slug;
+    const [leftSlug, rightSlug] = String(slug || '').split('-vs-');
+
+    if (!leftSlug || !rightSlug) {
+      res.status(404).send(renderSeoHtml({
+        title: 'Comparatif introuvable | GPU LLM Benchmark',
+        description: 'Le comparatif demandé est introuvable sur GPU LLM Benchmark.',
+        canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+        robots: 'noindex, follow',
+        jsonLd: getHomeJsonLd(),
+        staticContent: `
+          <section>
+            <h1>Comparatif introuvable</h1>
+            <p>Le comparatif demandé n'est pas disponible.</p>
+            <p><a href="/">Retour au benchmark</a></p>
+          </section>
+        `,
+      }));
+      return;
+    }
+
+    const gpus = db.prepare(`
+      SELECT *
+      FROM gpu_benchmarks
+      ORDER BY name ASC
+    `).all();
+    const leftGpu = gpus.find((gpu) => slugifyGpuName(gpu.name) === leftSlug);
+    const rightGpu = gpus.find((gpu) => slugifyGpuName(gpu.name) === rightSlug);
+
+    if (!leftGpu || !rightGpu) {
+      res.status(404).send(renderSeoHtml({
+        title: 'Comparatif introuvable | GPU LLM Benchmark',
+        description: 'Le comparatif demandé est introuvable sur GPU LLM Benchmark.',
+        canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+        robots: 'noindex, follow',
+        jsonLd: getHomeJsonLd(),
+        staticContent: `
+          <section>
+            <h1>Comparatif introuvable</h1>
+            <p>Le comparatif demandé n'est pas disponible.</p>
+            <p><a href="/">Retour au benchmark</a></p>
+          </section>
+        `,
+      }));
+      return;
+    }
+
+    const benchmarks = db.prepare(`
+      SELECT br.*, lm.name AS model_name
+      FROM benchmark_results br
+      JOIN llm_models lm ON lm.id = br.llm_model_id
+      WHERE br.gpu_id IN (?, ?)
+      ORDER BY br.tokens_per_second DESC
+    `).all(leftGpu.id, rightGpu.id);
+
+    const leftBenchmarks = benchmarks.filter((entry) => entry.gpu_id === leftGpu.id);
+    const rightBenchmarks = benchmarks.filter((entry) => entry.gpu_id === rightGpu.id);
+    const leftBenchmark = leftBenchmarks.find((entry) =>
+      rightBenchmarks.some((candidate) => candidate.model_name === entry.model_name && candidate.precision === entry.precision)
+    ) || null;
+    const rightBenchmark = leftBenchmark
+      ? rightBenchmarks.find((entry) => entry.model_name === leftBenchmark.model_name && entry.precision === leftBenchmark.precision) || null
+      : null;
+
+    res.send(renderSeoHtml({
+      title: `${leftGpu.name} vs ${rightGpu.name} pour LLM`,
+      description: `Comparatif entre ${leftGpu.name} et ${rightGpu.name} pour LLM : VRAM, bande passante, prix et benchmarks réellement disponibles dans la base.`,
+      canonicalUrl: `${PUBLIC_SITE_URL}/comparatifs/gpu/${slug}`,
+      jsonLd: getComparisonJsonLd(
+        `${leftGpu.name} vs ${rightGpu.name} pour LLM`,
+        `/comparatifs/gpu/${slug}`,
+        `Comparatif entre ${leftGpu.name} et ${rightGpu.name} pour LLM : VRAM, bande passante, prix et benchmarks réellement disponibles dans la base.`
+      ),
+      staticContent: buildGpuPairComparisonStaticContent(leftGpu, rightGpu, leftBenchmark, rightBenchmark),
+    }));
+  } catch (error) {
+    console.error('Error serving comparison SEO page:', error);
+    res.status(500).send(renderSeoHtml({
+      title: DEFAULT_TITLE,
+      description: DEFAULT_DESCRIPTION,
+      canonicalUrl: `${PUBLIC_SITE_URL}/`,
+      jsonLd: getHomeJsonLd(),
+      staticContent: buildHomeStaticContent(),
+    }));
+  }
+});
+
+app.get(['/comparatifs/vram/:slug', '/comparatifs/vram/:slug/'], (req, res) => {
+  try {
+    const db = require('./config/database');
+    const slug = req.params.slug;
+    const targetVram = parseVramComparisonSlug(slug);
+
+    if (!targetVram) {
+      res.status(404).send(renderSeoHtml({
+        title: 'Comparatif introuvable | GPU LLM Benchmark',
+        description: 'Le comparatif demandé est introuvable sur GPU LLM Benchmark.',
+        canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+        robots: 'noindex, follow',
+        jsonLd: getHomeJsonLd(),
+        staticContent: `
+          <section>
+            <h1>Comparatif introuvable</h1>
+            <p>Le comparatif demandé n'est pas disponible.</p>
+            <p><a href="/">Retour au benchmark</a></p>
+          </section>
+        `,
+      }));
+      return;
+    }
+
+    const candidates = db.prepare(`
+      SELECT *,
+        (SELECT COUNT(*) FROM benchmark_results br WHERE br.gpu_id = gpu_benchmarks.id) AS coverageCount
+      FROM gpu_benchmarks
+      WHERE vram = ?
+      ORDER BY score DESC, name ASC
+    `).all(targetVram);
+
+    if (candidates.length === 0) {
+      res.status(404).send(renderSeoHtml({
+        title: 'Comparatif introuvable | GPU LLM Benchmark',
+        description: 'Le comparatif demandé est introuvable sur GPU LLM Benchmark.',
+        canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
+        robots: 'noindex, follow',
+        jsonLd: getHomeJsonLd(),
+        staticContent: `
+          <section>
+            <h1>Comparatif introuvable</h1>
+            <p>Le comparatif demandé n'est pas disponible.</p>
+            <p><a href="/">Retour au benchmark</a></p>
+          </section>
+        `,
+      }));
+      return;
+    }
+
+    res.send(renderSeoHtml({
+      title: `Quel GPU ${targetVram} Go choisir pour LLM`,
+      description: `Comparatif des GPU ${targetVram} Go présents dans la base : VRAM, prix, bande passante et benchmarks disponibles pour mieux choisir une carte LLM.`,
+      canonicalUrl: `${PUBLIC_SITE_URL}/comparatifs/vram/${slug}`,
+      jsonLd: getComparisonJsonLd(
+        `Quel GPU ${targetVram} Go choisir pour LLM`,
+        `/comparatifs/vram/${slug}`,
+        `Comparatif des GPU ${targetVram} Go présents dans la base : VRAM, prix, bande passante et benchmarks disponibles pour mieux choisir une carte LLM.`
+      ),
+      staticContent: buildVramComparisonStaticContent(targetVram, candidates),
+    }));
+  } catch (error) {
+    console.error('Error serving VRAM comparison SEO page:', error);
     res.status(500).send(renderSeoHtml({
       title: DEFAULT_TITLE,
       description: DEFAULT_DESCRIPTION,

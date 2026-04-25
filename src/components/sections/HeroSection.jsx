@@ -11,7 +11,9 @@ export function HeroSection({ gpuData, models, totals, quantizations }) {
         <div className="topbar-links">
           <a href="#dashboard">Dashboard</a>
           <a href="#tables">Tableaux</a>
+          <a href="#guides">Guides</a>
           <a href="#insights">Insights</a>
+          <a href="/faq">FAQ</a>
           <a href="#calculator" className="admin-link">Calculateur</a>
         </div>
       </nav>
@@ -28,6 +30,7 @@ export function HeroSection({ gpuData, models, totals, quantizations }) {
           <div className="hero-actions">
             <a className="btn btn-primary" href="#dashboard">Voir le dashboard</a>
             <a className="btn btn-secondary" href="#calculator">Ouvrir le calculateur</a>
+            <a className="btn btn-secondary" href="/guides/choisir-gpu-llm">Lire le guide</a>
           </div>
         </div>
 

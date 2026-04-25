@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { applyPublicSeo } from "../../utils/seo.js";
 import { findVendorBySlug, getGpuPath, getVendorPath } from "../../utils/data.js";
+import { Breadcrumbs } from "../common/Breadcrumbs.jsx";
 import { formatNumber, formatPrice } from "../../utils/formatters.js";
 
 export function VendorPage({ gpuData, slug }) {
@@ -11,6 +12,16 @@ export function VendorPage({ gpuData, slug }) {
         .filter((gpu) => gpu.vendor === vendor)
         .sort((left, right) => right.score - left.score || right.coverageCount - left.coverageCount),
     [gpuData, vendor]
+  );
+  const breadcrumbs = useMemo(
+    () =>
+      vendor
+        ? [
+            { href: "/", label: "Accueil" },
+            { href: getVendorPath(vendor), label: vendor },
+          ]
+        : [],
+    [vendor]
   );
 
   useEffect(() => {
@@ -27,8 +38,34 @@ export function VendorPage({ gpuData, slug }) {
       title: `${vendor} | Catalogue GPU LLM`,
       description: `Catalogue public ${vendor} : cartes graphiques, benchmarks LLM, scores et repères de prix sur GPU LLM Benchmark.`,
       path: getVendorPath(vendor),
+      jsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "GPU LLM Benchmark",
+          url: "https://gpubenchmark.jon-dev.fr",
+          description:
+            "Benchmark GPU pour LLM open source : comparez les cartes graphiques, les vendeurs et les performances mesurées pour choisir le bon matériel IA.",
+          inLanguage: "fr",
+          publisher: {
+            "@type": "Organization",
+            name: "jon-dev",
+            url: "https://portfolio.jon-dev.fr/",
+          },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: breadcrumbs.map((item, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: item.label,
+            item: `https://gpubenchmark.jon-dev.fr${item.href}`,
+          })),
+        },
+      ],
     });
-  }, [vendor]);
+  }, [breadcrumbs, vendor]);
 
   if (!vendor) {
     return (
@@ -62,6 +99,7 @@ export function VendorPage({ gpuData, slug }) {
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
             <div className="gpu-detail-copy">
+              <Breadcrumbs items={breadcrumbs} />
               <span className="section-kicker">Vendor</span>
               <h1>{vendor}</h1>
               <p>
@@ -102,8 +140,37 @@ export function VendorPage({ gpuData, slug }) {
           <div className="card glass">
             <div className="card-header">
               <div>
+                <span className="card-kicker">Repères</span>
+                <h2>Ce qu’il faut regarder chez {vendor}</h2>
+              </div>
+            </div>
+            <p className="page-intro">
+              Toutes les cartes {vendor} ne répondent pas au même besoin. Certaines sont intéressantes pour charger
+              un modèle plus grand grâce à la VRAM, d’autres pour maximiser le débit sur des modèles plus compacts.
+              Utilisez cette page pour repérer rapidement les écarts de mémoire, de bande passante, de prix et de couverture benchmark.
+            </p>
+            <div className="content-link-grid">
+              <a className="content-link-card" href="/guides/choisir-gpu-llm">
+                Lire le guide pour choisir un GPU
+              </a>
+              <a className="content-link-card" href="/faq">
+                Ouvrir la FAQ benchmark GPU LLM
+              </a>
+              {vendorGpus.slice(0, 4).map((gpu) => (
+                <a className="content-link-card" href={getGpuPath(gpu)} key={gpu.id}>
+                  Examiner {gpu.name} en détail
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section reveal visible">
+          <div className="card glass">
+            <div className="card-header">
+              <div>
                 <span className="card-kicker">Catalogue {vendor}</span>
-                <h3>Cartes graphiques {vendor} indexables</h3>
+                <h3>Cartes graphiques {vendor} disponibles</h3>
               </div>
             </div>
 

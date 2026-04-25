@@ -110,52 +110,41 @@ Les tests backend valident deja :
 - [x] ajouter `robots.txt`
 - [x] generer `sitemap.xml`
 - [x] ajouter `canonical`, Open Graph, Twitter Card et JSON-LD
+- [x] ajouter une image de partage social propre pour Google, Discord, X et LinkedIn
 - [x] mettre `noindex` sur `/admin`
 - [x] creer des pages publiques indexables par GPU
 - [x] creer des pages publiques indexables par vendor : NVIDIA, AMD, Intel
 - [x] creer des pages publiques indexables par modele LLM
+- [x] creer des pages editoriales utiles : comparatifs, guides d'achat, explication du calculateur
+- [x] ajouter une section FAQ indexable
 - [x] mettre en place un prerender HTML cote serveur pour la home et les fiches GPU
 - [x] definir des `title` et `meta description` uniques pour la home et les fiches GPU
+- [x] creer des URLs lisibles de type `/gpu/rtx-4090`, `/vendor/nvidia`, `/model/llama-3-1-8b`
+- [x] gerer des pages publiques introuvables avec reponse `404` et `noindex`
 
 ### Checklist complete
 
-- definir l'URL canonique de production en `https` et la garder stable
-- ajouter `robots.txt` a la racine
-- generer un `sitemap.xml` et le soumettre dans Google Search Console
-- creer un compte Google Search Console et verifier le domaine
-- ajouter une balise `rel="canonical"` sur les pages publiques
-- ajouter les metas Open Graph : `og:title`, `og:description`, `og:url`, `og:image`, `og:type`
-- ajouter les metas Twitter Card
-- ajouter une image de partage social propre pour Google, Discord, X et LinkedIn
-- ajouter des donnees structurees JSON-LD adaptees : `WebSite`, `Organization`, possiblement `Dataset`
-- mettre `noindex, nofollow` sur l'administration `/admin`
-- verifier que les routes admin ne sont pas listees dans le sitemap
-- creer de vraies pages indexables par GPU au lieu d'un simple panneau modal
-- creer des pages indexables par vendor : NVIDIA, AMD, Intel
-- creer des pages indexables par modele LLM si c'est pertinent
-- creer des pages editoriales utiles : comparatifs, guides d'achat, explication du calculateur
-- donner a chaque page publique un `title` unique
-- donner a chaque page publique une `meta description` unique
-- utiliser un seul `h1` clair par page
-- structurer le contenu avec `h2`, `h3` et texte explicatif reel
-- ajouter du contenu textuel crawlable autour des tableaux et graphiques
-- ajouter du maillage interne entre GPU, vendors, modeles, guides et calculateur
-- creer des URLs lisibles de type `/gpu/rtx-4090`
-- gerer des slugs propres et stables
-- prevoir des pages 404 et redirections propres si les URLs changent
-- passer le site en SSR, SSG ou prerender pour ameliorer l'indexation
-- verifier que le contenu principal existe dans le HTML initial ou via prerender
-- reduire le poids JS initial pour ameliorer les Core Web Vitals
-- optimiser les polices, images et chargements bloquants
-- ajouter favicon, icones et manifest propres
-- verifier l'accessibilite de base : contrastes, titres, labels, structure
-- verifier que toutes les pages publiques repondent en `200`
-- corriger les eventuels contenus dupliques
-- definir une strategie mots-cles en francais
-- reecrire les textes pour cibler des requetes concretes : benchmark GPU LLM, carte graphique IA, GPU pour Llama
-- ajouter une section FAQ indexable
-- ajouter eventuellement des pages par usage : local AI, inference, budget, entreprise
-- mesurer l'indexation reelle dans Search Console apres mise en ligne
-- surveiller couverture, clics, impressions et erreurs d'exploration
-- mettre en place une routine de mise a jour du sitemap quand de nouvelles pages publiques arrivent
-- prevoir une strategie de backlinks et de partage externe
+- [ ] generer un `sitemap.xml` et le soumettre dans Google Search Console
+- [ ] creer un compte Google Search Console et verifier le domaine
+- [ ] verifier que les routes admin ne sont pas listees dans le sitemap
+- [ ] ajouter du contenu textuel crawlable autour des tableaux et graphiques
+- [ ] prevoir des redirections propres si les URLs changent
+- [ ] creer une page categorie indexable pour le calculateur si elle apporte une vraie intention SEO
+- [ ] verifier les redirections canoniques entre versions avec et sans slash final
+- [ ] verifier qu'une seule version du domaine repond en indexable : `https://gpubenchmark.jon-dev.fr/`
+- [ ] reduire le poids JS initial pour ameliorer les Core Web Vitals
+- [ ] optimiser les polices, images et chargements bloquants
+- [ ] ajouter des attributs `alt` pertinents sur toutes les images utiles au contenu
+- [ ] verifier l'accessibilite de base : contrastes, titres, labels, structure
+- [ ] verifier que toutes les pages publiques repondent en `200`
+- [ ] corriger les eventuels contenus dupliques
+- [ ] definir une strategie mots-cles en francais
+- [ ] reecrire les textes pour cibler des requetes concretes : benchmark GPU LLM, carte graphique IA, GPU pour Llama
+- [ ] ajouter eventuellement des pages par usage : local AI, inference, budget, entreprise
+- [ ] preparer un plan de soumission manuelle dans Google Search Console pour la home, les pages vendor, la FAQ et le guide
+- [ ] verifier dans Search Console les pages exclues, canonicals choisis par Google et problemes d'indexation
+- [ ] suivre les requetes reelles qui generent impressions et clics pour iterer sur les titles/descriptions
+- [ ] mesurer l'indexation reelle dans Search Console apres mise en ligne
+- [ ] surveiller couverture, clics, impressions et erreurs d'exploration
+- [ ] mettre en place une routine de mise a jour du sitemap quand de nouvelles pages publiques arrivent
+- [ ] prevoir une strategie de backlinks et de partage externe

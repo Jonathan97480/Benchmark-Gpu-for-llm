@@ -2,6 +2,7 @@ import { HeroSection } from "./components/sections/HeroSection.jsx";
 import { DashboardSection } from "./components/sections/DashboardSection.jsx";
 import { TablesSection } from "./components/sections/TablesSection.jsx";
 import { InsightsSection } from "./components/sections/InsightsSection.jsx";
+import { ContentHubSection } from "./components/sections/ContentHubSection.jsx";
 import { PurchaseCalculator } from "./components/calculator/PurchaseCalculator.jsx";
 import { StatusSection } from "./components/sections/StatusSection.jsx";
 import { useDashboardData } from "./hooks/useDashboardData.js";
@@ -96,6 +97,7 @@ export default function App() {
           vendor={vendor}
           vendors={vendors}
         />
+        <ContentHubSection gpuData={gpuData} />
         <InsightsSection insights={insights} loading={loading} />
         <section className="section reveal" aria-label="Distinction benchmarks et simulateur">
           <div className="card glass status-card">

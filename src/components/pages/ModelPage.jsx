@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { applyPublicSeo } from "../../utils/seo.js";
-import { findModelBySlug, getGpuPath, getModelPath } from "../../utils/data.js";
+import { findModelBySlug, getGpuPath, getModelPath, getVendorPath } from "../../utils/data.js";
+import { Breadcrumbs } from "../common/Breadcrumbs.jsx";
 import { formatNumber } from "../../utils/formatters.js";
 
 export function ModelPage({ gpuData, models, slug }) {
@@ -26,6 +27,20 @@ export function ModelPage({ gpuData, models, slug }) {
       .filter((gpu) => gpu.benchmark)
       .sort((left, right) => right.benchmark.tokens_per_second - left.benchmark.tokens_per_second);
   }, [gpuData, model]);
+  const breadcrumbs = useMemo(
+    () =>
+      model
+        ? [
+            { href: "/", label: "Accueil" },
+            { href: getModelPath(model), label: model.name },
+          ]
+        : [],
+    [model]
+  );
+  const topVendors = useMemo(
+    () => [...new Set(rankedGpus.map((gpu) => gpu.vendor))].slice(0, 3),
+    [rankedGpus]
+  );
 
   useEffect(() => {
     if (!model) {
@@ -41,8 +56,34 @@ export function ModelPage({ gpuData, models, slug }) {
       title: `${model.name} | Benchmark LLM`,
       description: `${model.name} : benchmarks GPU disponibles, débit mesuré, contexte max et cartes compatibles sur GPU LLM Benchmark.`,
       path: getModelPath(model),
+      jsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "GPU LLM Benchmark",
+          url: "https://gpubenchmark.jon-dev.fr",
+          description:
+            "Benchmark GPU pour LLM open source : comparez les cartes graphiques, les vendeurs et les performances mesurées pour choisir le bon matériel IA.",
+          inLanguage: "fr",
+          publisher: {
+            "@type": "Organization",
+            name: "jon-dev",
+            url: "https://portfolio.jon-dev.fr/",
+          },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: breadcrumbs.map((item, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: item.label,
+            item: `https://gpubenchmark.jon-dev.fr${item.href}`,
+          })),
+        },
+      ],
     });
-  }, [model]);
+  }, [breadcrumbs, model]);
 
   if (!model) {
     return (
@@ -76,6 +117,7 @@ export function ModelPage({ gpuData, models, slug }) {
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
             <div className="gpu-detail-copy">
+              <Breadcrumbs items={breadcrumbs} />
               <span className="section-kicker">Modèle LLM</span>
               <h1>{model.name}</h1>
               <p>
@@ -108,6 +150,35 @@ export function ModelPage({ gpuData, models, slug }) {
                 <strong>{formatNumber(model.testedGpuCount)}</strong>
                 <span>{model.max_context_size ? `${formatNumber(model.max_context_size)} tokens max` : "contexte max non précisé"}</span>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section reveal visible">
+          <div className="card glass">
+            <div className="card-header">
+              <div>
+                <span className="card-kicker">Contexte</span>
+                <h2>Comment lire les résultats pour {model.name}</h2>
+              </div>
+            </div>
+            <p className="page-intro">
+              Pour ce modèle, le plus utile est de comparer les cartes sur un terrain identique: même LLM, même précision
+              et taille de contexte proche de votre usage. Une carte très rapide sur un test court n’est pas forcément la
+              meilleure si vous visez des contextes longs, un budget serré ou une machine locale silencieuse.
+            </p>
+            <div className="content-link-grid">
+              <a className="content-link-card" href="/guides/choisir-gpu-llm">
+                Lire le guide d'achat GPU LLM
+              </a>
+              <a className="content-link-card" href="/faq">
+                Ouvrir la FAQ benchmark GPU LLM
+              </a>
+              {topVendors.map((vendor) => (
+                <a className="content-link-card" href={getVendorPath(vendor)} key={vendor}>
+                  Explorer les GPU {vendor}
+                </a>
+              ))}
             </div>
           </div>
         </section>

@@ -4,6 +4,28 @@ const DEFAULT_DESCRIPTION =
   "Benchmark GPU pour LLM open source : comparez les cartes graphiques, les vendeurs et les performances mesurées pour choisir le bon matériel IA.";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.svg`;
 
+function normalizeJsonLdEntries(jsonLd, description) {
+  const defaultWebsite = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "GPU LLM Benchmark",
+    url: SITE_URL,
+    description,
+    inLanguage: "fr",
+    publisher: {
+      "@type": "Organization",
+      name: "jon-dev",
+      url: "https://portfolio.jon-dev.fr/",
+    },
+  };
+
+  if (!jsonLd) {
+    return [defaultWebsite];
+  }
+
+  return Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+}
+
 function ensureMeta(selector, attributeName, attributeValue) {
   let element = document.head.querySelector(selector);
 
@@ -28,17 +50,16 @@ function ensureLink(selector, relValue) {
   return element;
 }
 
-function ensureJsonLdScript() {
-  let element = document.head.querySelector('script[data-seo-json-ld="website"]');
+function replaceJsonLdScripts(entries) {
+  document.head.querySelectorAll('script[data-seo-json-ld]').forEach((element) => element.remove());
 
-  if (!element) {
-    element = document.createElement("script");
+  entries.forEach((entry, index) => {
+    const element = document.createElement("script");
     element.type = "application/ld+json";
-    element.dataset.seoJsonLd = "website";
+    element.dataset.seoJsonLd = String(index);
+    element.textContent = JSON.stringify(entry, null, 2);
     document.head.appendChild(element);
-  }
-
-  return element;
+  });
 }
 
 export function applyPublicSeo({
@@ -46,6 +67,7 @@ export function applyPublicSeo({
   description = DEFAULT_DESCRIPTION,
   path = "/",
   image = DEFAULT_OG_IMAGE,
+  jsonLd,
 } = {}) {
   const canonicalUrl = new URL(path, SITE_URL).toString();
 
@@ -65,23 +87,7 @@ export function applyPublicSeo({
   ensureMeta('meta[name="twitter:image"]', "name", "twitter:image").setAttribute("content", image);
   ensureLink('link[rel="canonical"]', "canonical").setAttribute("href", canonicalUrl);
 
-  ensureJsonLdScript().textContent = JSON.stringify(
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: "GPU LLM Benchmark",
-      url: SITE_URL,
-      description,
-      inLanguage: "fr",
-      publisher: {
-        "@type": "Organization",
-        name: "jon-dev",
-        url: "https://portfolio.jon-dev.fr/",
-      },
-    },
-    null,
-    2
-  );
+  replaceJsonLdScripts(normalizeJsonLdEntries(jsonLd, description));
 }
 
 export function applyAdminSeo() {
@@ -97,10 +103,7 @@ export function applyAdminSeo() {
   );
   ensureLink('link[rel="canonical"]', "canonical").setAttribute("href", `${SITE_URL}/admin`);
 
-  const jsonLd = document.head.querySelector('script[data-seo-json-ld="website"]');
-  if (jsonLd) {
-    jsonLd.remove();
-  }
+  document.head.querySelectorAll('script[data-seo-json-ld]').forEach((element) => element.remove());
 }
 
 export const seoDefaults = {
