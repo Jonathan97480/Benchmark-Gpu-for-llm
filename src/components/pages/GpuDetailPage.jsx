@@ -5,6 +5,7 @@ import { fetchGpuPriceHistory } from "../../services/dashboardApi.js";
 import { createGpuPriceHistoryChartConfig } from "../../utils/chartConfigs.js";
 import { ChartCanvas } from "../common/ChartCanvas.jsx";
 import { Breadcrumbs } from "../common/Breadcrumbs.jsx";
+import { PublicPageShell } from "../common/PublicSiteChrome.jsx";
 import { formatNumber, formatPrice } from "../../utils/formatters.js";
 
 function GpuPriceHistorySection({ gpu }) {
@@ -204,10 +205,7 @@ export function GpuDetailPage({ gpuData, slug }) {
 
   if (!gpu) {
     return (
-      <div className="app-shell">
-        <div className="bg-orb orb-1"></div>
-        <div className="bg-orb orb-2"></div>
-        <div className="bg-grid"></div>
+      <PublicPageShell>
         <main className="main-content">
           <section className="section reveal visible">
             <div className="card glass">
@@ -220,16 +218,12 @@ export function GpuDetailPage({ gpuData, slug }) {
             </div>
           </section>
         </main>
-      </div>
+      </PublicPageShell>
     );
   }
 
   return (
-    <div className="app-shell">
-      <div className="bg-orb orb-1"></div>
-      <div className="bg-orb orb-2"></div>
-      <div className="bg-grid"></div>
-
+    <PublicPageShell>
       <main className="main-content gpu-detail-shell">
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
@@ -372,6 +366,6 @@ export function GpuDetailPage({ gpuData, slug }) {
           </div>
         </section>
       </main>
-    </div>
+    </PublicPageShell>
   );
 }

@@ -144,5 +144,4 @@ Les tests backend valident deja :
 - [ ] suivre les requetes reelles qui generent impressions et clics pour iterer sur les titles/descriptions
 - [ ] mesurer l'indexation reelle dans Search Console apres mise en ligne
 - [ ] surveiller couverture, clics, impressions et erreurs d'exploration
-- [ ] mettre en place une routine de mise a jour du sitemap quand de nouvelles pages publiques arrivent
 - [ ] prevoir une strategie de backlinks et de partage externe

@@ -3,11 +3,10 @@ import { HeroMetrics } from "../dashboard/HeroMetrics.jsx";
 export function HeroSection({ gpuData, models, totals, quantizations }) {
   return (
     <header className="hero reveal">
-      <nav className="topbar glass">
-        <div className="brand">
-          <span className="brand-mark"></span>
-          <span>GPU LLM Benchmark</span>
-        </div>
+      <nav className="topbar glass" aria-label="Navigation principale">
+        <a className="brand" href="/" aria-label="GPU LLM Benchmark, retour à l'accueil">
+          <img className="brand-logo" src="/logo.svg" alt="GPU LLM Benchmark" />
+        </a>
         <div className="topbar-links">
           <a href="#dashboard">Dashboard</a>
           <a href="#tables">Tableaux</a>

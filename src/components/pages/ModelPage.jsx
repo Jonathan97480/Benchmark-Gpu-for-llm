@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { applyPublicSeo } from "../../utils/seo.js";
 import { findModelBySlug, getGpuPath, getModelPath, getVendorPath } from "../../utils/data.js";
 import { Breadcrumbs } from "../common/Breadcrumbs.jsx";
+import { PublicPageShell } from "../common/PublicSiteChrome.jsx";
 import { formatNumber } from "../../utils/formatters.js";
 
 export function ModelPage({ gpuData, models, slug }) {
@@ -87,10 +88,7 @@ export function ModelPage({ gpuData, models, slug }) {
 
   if (!model) {
     return (
-      <div className="app-shell">
-        <div className="bg-orb orb-1"></div>
-        <div className="bg-orb orb-2"></div>
-        <div className="bg-grid"></div>
+      <PublicPageShell>
         <main className="main-content">
           <section className="section reveal visible">
             <div className="card glass">
@@ -103,16 +101,12 @@ export function ModelPage({ gpuData, models, slug }) {
             </div>
           </section>
         </main>
-      </div>
+      </PublicPageShell>
     );
   }
 
   return (
-    <div className="app-shell">
-      <div className="bg-orb orb-1"></div>
-      <div className="bg-orb orb-2"></div>
-      <div className="bg-grid"></div>
-
+    <PublicPageShell>
       <main className="main-content gpu-detail-shell">
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
@@ -278,6 +272,6 @@ export function ModelPage({ gpuData, models, slug }) {
           </div>
         </section>
       </main>
-    </div>
+    </PublicPageShell>
   );
 }

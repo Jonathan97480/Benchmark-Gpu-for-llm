@@ -439,6 +439,38 @@ function getKnownGpuPrice(gpu) {
   return Number(gpu.price_used_value) || Number(gpu.price_new_value) || Number(gpu.price_value) || 0;
 }
 
+function getSitemapComparisonPairs(gpus) {
+  const uniquePairs = new Map();
+  const vendors = ['NVIDIA', 'AMD', 'Intel'];
+
+  vendors.forEach((vendor) => {
+    const candidates = gpus
+      .filter((gpu) => gpu.vendor === vendor && Number(gpu.coverageCount) > 0)
+      .sort((left, right) =>
+        Number(right.coverageCount) - Number(left.coverageCount) ||
+        Number(right.score) - Number(left.score) ||
+        left.name.localeCompare(right.name)
+      )
+      .slice(0, 3);
+
+    for (let index = 0; index < candidates.length - 1; index += 1) {
+      const left = candidates[index];
+      const right = candidates[index + 1];
+      const slug = `${slugifyGpuName(left.name)}-vs-${slugifyGpuName(right.name)}`;
+
+      if (!uniquePairs.has(slug)) {
+        uniquePairs.set(slug, slug);
+      }
+    }
+  });
+
+  return [...uniquePairs.values()];
+}
+
+function getSitemapUsageSlugs() {
+  return ['local-ai', 'budget', 'entreprise'];
+}
+
 function buildUsageStaticContent(title, intro, cards, helpText, guideLabel) {
   const items = cards
     .map((gpu) => `
@@ -614,7 +646,12 @@ app.get('/sitemap.xml', (req, res) => {
   try {
     const db = require('./config/database');
     const gpus = db.prepare(`
-      SELECT name
+      SELECT
+        name,
+        vendor,
+        vram,
+        score,
+        (SELECT COUNT(*) FROM benchmark_results br WHERE br.gpu_id = gpu_benchmarks.id) AS coverageCount
       FROM gpu_benchmarks
       ORDER BY name ASC
     `).all();
@@ -623,6 +660,15 @@ app.get('/sitemap.xml', (req, res) => {
       FROM llm_models
       ORDER BY name ASC
     `).all();
+    const vramComparisonPages = db.prepare(`
+      SELECT vram, COUNT(*) AS gpuCount
+      FROM gpu_benchmarks
+      GROUP BY vram
+      HAVING COUNT(*) >= 2
+      ORDER BY vram ASC
+    `).all();
+    const gpuComparisonPairs = getSitemapComparisonPairs(gpus);
+    const usagePages = getSitemapUsageSlugs();
 
     const urls = [
       {
@@ -659,6 +705,24 @@ app.get('/sitemap.xml', (req, res) => {
         loc: `${PUBLIC_SITE_URL}/gpu/${slugifyGpuName(gpu.name)}`,
         changefreq: 'weekly',
         priority: '0.8',
+        lastmod: DEFAULT_LASTMOD,
+      })),
+      ...vramComparisonPages.map((entry) => ({
+        loc: `${PUBLIC_SITE_URL}/comparatifs/vram/${Number(entry.vram)}go`,
+        changefreq: 'weekly',
+        priority: '0.7',
+        lastmod: DEFAULT_LASTMOD,
+      })),
+      ...gpuComparisonPairs.map((slug) => ({
+        loc: `${PUBLIC_SITE_URL}/comparatifs/gpu/${slug}`,
+        changefreq: 'weekly',
+        priority: '0.7',
+        lastmod: DEFAULT_LASTMOD,
+      })),
+      ...usagePages.map((slug) => ({
+        loc: `${PUBLIC_SITE_URL}/usages/${slug}`,
+        changefreq: 'weekly',
+        priority: '0.7',
         lastmod: DEFAULT_LASTMOD,
       })),
     ];

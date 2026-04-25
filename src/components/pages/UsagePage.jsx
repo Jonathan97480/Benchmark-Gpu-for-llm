@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { applyPublicSeo } from "../../utils/seo.js";
 import { Breadcrumbs } from "../common/Breadcrumbs.jsx";
+import { PublicPageShell } from "../common/PublicSiteChrome.jsx";
 import { getGpuPath } from "../../utils/data.js";
 import { formatNumber, formatPrice } from "../../utils/formatters.js";
 
@@ -203,10 +204,7 @@ export function UsagePage({ gpuData, slug }) {
 
   if (!usage) {
     return (
-      <div className="app-shell">
-        <div className="bg-orb orb-1"></div>
-        <div className="bg-orb orb-2"></div>
-        <div className="bg-grid"></div>
+      <PublicPageShell>
         <main className="main-content">
           <section className="section reveal visible">
             <div className="card glass">
@@ -219,16 +217,12 @@ export function UsagePage({ gpuData, slug }) {
             </div>
           </section>
         </main>
-      </div>
+      </PublicPageShell>
     );
   }
 
   return (
-    <div className="app-shell">
-      <div className="bg-orb orb-1"></div>
-      <div className="bg-orb orb-2"></div>
-      <div className="bg-grid"></div>
-
+    <PublicPageShell>
       <main className="main-content gpu-detail-shell">
         <section className="section reveal visible">
           <div className="card glass gpu-detail-hero">
@@ -317,6 +311,6 @@ export function UsagePage({ gpuData, slug }) {
           </div>
         </section>
       </main>
-    </div>
+    </PublicPageShell>
   );
 }

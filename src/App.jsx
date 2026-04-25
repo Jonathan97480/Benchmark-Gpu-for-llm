@@ -3,6 +3,7 @@ import { HeroSection } from "./components/sections/HeroSection.jsx";
 import { TablesSection } from "./components/sections/TablesSection.jsx";
 import { ContentHubSection } from "./components/sections/ContentHubSection.jsx";
 import { StatusSection } from "./components/sections/StatusSection.jsx";
+import { PublicPageShell } from "./components/common/PublicSiteChrome.jsx";
 import { useDashboardData } from "./hooks/useDashboardData.js";
 import { useReveal } from "./hooks/useReveal.js";
 import { applyPublicSeo, seoDefaults } from "./utils/seo.js";
@@ -83,11 +84,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="app-shell">
-      <div className="bg-orb orb-1"></div>
-      <div className="bg-orb orb-2"></div>
-      <div className="bg-grid"></div>
-
+    <PublicPageShell showHeader={false}>
       <HeroSection
         gpuData={gpuData}
         models={models}
@@ -166,16 +163,6 @@ export default function App() {
         </Suspense>
         <StatusSection error={error} loading={loading} />
       </main>
-
-      <footer className="footer">
-        <p>
-          GPU LLM Benchmark 2026, visualisation web React du dépôt Benchmark-Gpu-for-llm. Développé par{" "}
-          <a href="https://portfolio.jon-dev.fr/" target="_blank" rel="noreferrer">
-            jon-dev
-          </a>
-          .
-        </p>
-      </footer>
-    </div>
+    </PublicPageShell>
   );
 }

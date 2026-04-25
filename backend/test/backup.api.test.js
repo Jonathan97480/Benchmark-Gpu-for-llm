@@ -62,12 +62,33 @@ test('GET /api/v1/gpu/:id/price-history expose l’historique de prix du GPU', a
   assert.equal(response.body.history[0].price_new_value, 2290);
 });
 
-test('GET /sitemap.xml expose les URLs publiques des fiches GPU', async (t) => {
+test('GET /sitemap.xml expose les URLs publiques et exclut l’admin', async (t) => {
   const dbPath = createTempDatabasePath();
   process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
   clearModules();
 
   const { app, db } = loadFreshBackend(dbPath);
+  const model = db.prepare('SELECT id FROM llm_models WHERE name = ?').get('DeepSeek R1 32B');
+
+  const insertedGpus = db.prepare(`
+    INSERT INTO gpu_benchmarks (
+      name, vendor, architecture, vram, bandwidth, price_value, price_new_value, price_used_value, tier, score, tokens_8b, tokens_32b, tokens_70b
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    'RTX 4090', 'NVIDIA', 'Ada Lovelace', 24, 1008, 1800, 1800, 0, 'prosumer', 82, 128, 45, 0,
+    'RTX 3090', 'NVIDIA', 'Ampere', 24, 936, 875, 0, 875, 'prosumer', 78, 112, 32, 10
+  );
+
+  db.prepare(`
+    INSERT INTO benchmark_results (
+      gpu_id, llm_model_id, tokens_per_second, context_size, precision, inference_backend, measurement_type, vram_used_gb, ram_used_gb, kv_cache_precision, batch_size, concurrency, gpu_power_limit_watts, gpu_core_clock_mhz, gpu_memory_clock_mhz, notes
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    insertedGpus.lastInsertRowid - 1, model.id, 45, null, null, 'vLLM', 'decode', 21, 16, 'FP8', 1, 1, 450, 2500, 1300, 'Sitemap comparison seed 4090',
+    insertedGpus.lastInsertRowid, model.id, 32, null, null, 'vLLM', 'decode', 19, 16, 'FP8', 1, 1, 350, 1700, 1200, 'Sitemap comparison seed 3090'
+  );
 
   t.after(() => {
     delete process.env.PUBLIC_SITE_URL;
@@ -83,6 +104,10 @@ test('GET /sitemap.xml expose les URLs publiques des fiches GPU', async (t) => {
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/vendor\/nvidia<\/loc>/);
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/model\/deepseek-r1-32b<\/loc>/);
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/gpu\/rtx-5090<\/loc>/);
+  assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/comparatifs\/vram\/24go<\/loc>/);
+  assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/comparatifs\/gpu\/rtx-5090-vs-rtx-4090<\/loc>/);
+  assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/usages\/local-ai<\/loc>/);
+  assert.doesNotMatch(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/admin/);
 });
 
 test('GET /gpu/:slug renvoie une page HTML prerendue pour le SEO', async (t) => {
