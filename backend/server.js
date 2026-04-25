@@ -23,6 +23,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const authLimiterWindowMs = isProduction ? 15 * 60 * 1000 : 60 * 1000;
 const authLimiterMax = isProduction ? 5 : 20;
 const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL || 'https://gpubenchmark.jon-dev.fr';
+const CANONICAL_PUBLIC_URL = new URL(PUBLIC_SITE_URL);
 const DEFAULT_TITLE = 'Benchmark GPU LLM et cartes graphiques IA';
 const DEFAULT_DESCRIPTION = "Benchmark GPU LLM en français : comparez des cartes graphiques IA, les débits mesurés, la VRAM et les prix pour choisir le bon GPU pour Llama, DeepSeek et l'inférence locale.";
 const DEFAULT_OG_IMAGE = `${PUBLIC_SITE_URL}/og-image.svg`;
@@ -31,6 +32,10 @@ const DEFAULT_LASTMOD = new Date().toISOString().split('T')[0];
 const scriptSrc = ["'self'"];
 const styleSrc = ["'self'", "'unsafe-inline'"];
 const connectSrc = ["'self'"];
+
+if (isProduction) {
+  app.set('trust proxy', true);
+}
 
 if (!isProduction) {
   scriptSrc.push("'unsafe-inline'", "http://localhost:5173");
@@ -699,12 +704,34 @@ function getUsageJsonLd(title, pathName, description) {
   };
 }
 
-function getCanonicalRedirectTarget(pathname) {
-  if (!pathname || pathname === '/' || !pathname.endsWith('/')) {
+const LEGACY_REDIRECTS = new Map([
+  ['/guide', '/guides/choisir-gpu-llm'],
+  ['/guides', '/guides/choisir-gpu-llm'],
+  ['/calculateur', '/calculateur-llm'],
+  ['/calculator', '/calculateur-llm'],
+  ['/faqs', '/faq'],
+]);
+
+function getCanonicalPathTarget(pathname) {
+  if (!pathname) {
     return null;
   }
 
-  const normalizedPath = pathname.replace(/\/+$/, '');
+  const normalizedWithoutTrailingSlash =
+    pathname === '/'
+      ? '/'
+      : pathname.replace(/\/+$/, '');
+  const legacyTarget = LEGACY_REDIRECTS.get(normalizedWithoutTrailingSlash);
+
+  if (legacyTarget) {
+    return legacyTarget;
+  }
+
+  if (pathname === '/' || !pathname.endsWith('/')) {
+    return null;
+  }
+
+  const normalizedPath = normalizedWithoutTrailingSlash;
   const redirectablePrefixes = [
     '/gpu/',
     '/vendor/',
@@ -726,15 +753,40 @@ function getCanonicalRedirectTarget(pathname) {
 }
 
 app.use((req, res, next) => {
-  const redirectTarget = getCanonicalRedirectTarget(req.path);
-
-  if (!redirectTarget) {
+  if (!['GET', 'HEAD'].includes(req.method)) {
     next();
     return;
   }
 
+  const canonicalPathTarget = getCanonicalPathTarget(req.path);
+  const canonicalPath = canonicalPathTarget || req.path;
   const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-  res.redirect(301, `${redirectTarget}${query}`);
+  const forwardedHost = String(req.headers['x-forwarded-host'] || req.headers.host || '')
+    .split(',')[0]
+    .trim()
+    .toLowerCase();
+  const forwardedProto = String(req.headers['x-forwarded-proto'] || req.protocol || '')
+    .split(',')[0]
+    .trim()
+    .toLowerCase();
+  const canonicalHost = CANONICAL_PUBLIC_URL.host.toLowerCase();
+  const canonicalProto = CANONICAL_PUBLIC_URL.protocol.replace(':', '').toLowerCase();
+  const needsCanonicalOriginRedirect =
+    isProduction &&
+    Boolean(forwardedHost) &&
+    (forwardedHost !== canonicalHost || forwardedProto !== canonicalProto);
+
+  if (!canonicalPathTarget && !needsCanonicalOriginRedirect) {
+    next();
+    return;
+  }
+
+  if (needsCanonicalOriginRedirect) {
+    res.redirect(301, `${PUBLIC_SITE_URL.replace(/\/$/, '')}${canonicalPath}${query}`);
+    return;
+  }
+
+  res.redirect(301, `${canonicalPath}${query}`);
 });
 
 app.get('/sitemap.xml', (req, res) => {

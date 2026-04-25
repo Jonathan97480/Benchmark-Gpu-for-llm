@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import "./admin.css";
 import { AdminAuthView } from "./components/AdminAuthView.jsx";
 import { ApiKeysPanel } from "./components/ApiKeysPanel.jsx";
 import { BackupManagementPanel } from "./components/BackupManagementPanel.jsx";

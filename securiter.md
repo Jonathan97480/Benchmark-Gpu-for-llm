@@ -126,17 +126,17 @@ Les tests backend valident deja :
 
 - [ ] generer un `sitemap.xml` et le soumettre dans Google Search Console
 - [ ] creer un compte Google Search Console et verifier le domaine
-- [ ] verifier que les routes admin ne sont pas listees dans le sitemap
+- [x] verifier que les routes admin ne sont pas listees dans le sitemap
 - [x] ajouter du contenu textuel crawlable autour des tableaux et graphiques
 - [ ] prevoir des redirections propres si les URLs changent
 - [x] creer une page categorie indexable pour le calculateur si elle apporte une vraie intention SEO
-- [ ] verifier les redirections canoniques entre versions avec et sans slash final
-- [ ] verifier qu'une seule version du domaine repond en indexable : `https://gpubenchmark.jon-dev.fr/`
-- [ ] optimiser les polices, images et chargements bloquants
-- [ ] ajouter des attributs `alt` pertinents sur toutes les images utiles au contenu
+- [x] verifier les redirections canoniques entre versions avec et sans slash final
+- [x] verifier qu'une seule version du domaine repond en indexable : `https://gpubenchmark.jon-dev.fr/`
+- [x] optimiser les polices, images et chargements bloquants
+- [x] ajouter des attributs `alt` pertinents sur toutes les images utiles au contenu
 - [x] definir une strategie mots-cles en francais
 - [x] reecrire les textes pour cibler des requetes concretes : benchmark GPU LLM, carte graphique IA, GPU pour Llama
-- [ ] preparer un plan de soumission manuelle dans Google Search Console pour la home, les pages vendor, la FAQ et le guide
+- [x] preparer un plan de soumission manuelle dans Google Search Console pour la home, les pages vendor, la FAQ et le guide
 - [ ] verifier dans Search Console les pages exclues, canonicals choisis par Google et problemes d'indexation
 - [ ] suivre les requetes reelles qui generent impressions et clics pour iterer sur les titles/descriptions
 - [ ] mesurer l'indexation reelle dans Search Console apres mise en ligne
@@ -159,3 +159,20 @@ Regle editoriale :
 - les titles doivent contenir la requete principale ou sa variante la plus naturelle
 - les descriptions doivent parler du benefice utilisateur : comparer, choisir, voir le debit mesure, voir les prix
 - les textes visibles doivent reprendre le vocabulaire utilisateur : `carte graphique IA`, `GPU pour Llama`, `benchmark GPU LLM`, pas seulement du vocabulaire interne
+
+## Plan de soumission manuelle
+
+Quand le domaine sera verifie dans Search Console, soumettre manuellement en priorite :
+
+1. la home : `https://gpubenchmark.jon-dev.fr/`
+2. les pages vendor : `https://gpubenchmark.jon-dev.fr/vendor/nvidia`, `https://gpubenchmark.jon-dev.fr/vendor/amd`, `https://gpubenchmark.jon-dev.fr/vendor/intel`
+3. la FAQ : `https://gpubenchmark.jon-dev.fr/faq`
+4. le guide : `https://gpubenchmark.jon-dev.fr/guides/choisir-gpu-llm`
+
+Verification avant soumission :
+
+- la page repond en `200`
+- la balise `canonical` pointe vers l'URL finale sans slash inutile
+- la page apparait dans `sitemap.xml`
+- les meta `title` et `description` sont specifiques a la page
+- la page contient du texte visible utile, pas seulement un tableau ou un graphique

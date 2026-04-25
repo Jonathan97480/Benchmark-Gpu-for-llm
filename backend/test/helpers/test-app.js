@@ -13,7 +13,7 @@ function createTempDatabasePath() {
 }
 
 function loadFreshBackend(dbPath) {
-  process.env.NODE_ENV = 'test';
+  process.env.NODE_ENV = process.env.NODE_ENV || 'test';
   process.env.DATABASE_PATH = dbPath;
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-with-32-characters-minimum';
   process.env.JWT_ACCESS_EXPIRY = '15m';

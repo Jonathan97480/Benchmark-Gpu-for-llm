@@ -5,7 +5,15 @@ export function HeroSection({ gpuData, models, totals, quantizations }) {
     <header className="hero reveal">
       <nav className="topbar glass" aria-label="Navigation principale">
         <a className="brand" href="/" aria-label="GPU LLM Benchmark, retour à l'accueil">
-          <img className="brand-logo" src="/logo.svg" alt="GPU LLM Benchmark" />
+          <img
+            className="brand-logo"
+            src="/logo.svg"
+            alt="Logo GPU LLM Benchmark"
+            width="420"
+            height="72"
+            decoding="async"
+            fetchPriority="high"
+          />
         </a>
         <div className="topbar-links">
           <a href="#dashboard">Dashboard</a>

@@ -1,6 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { useDashboardData } from "./hooks/useDashboardData.js";
-import "./admin/admin.css";
 
 const App = lazy(() => import("./App.jsx"));
 const AdminApp = lazy(() =>

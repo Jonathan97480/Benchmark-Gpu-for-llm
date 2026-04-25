@@ -312,6 +312,78 @@ test('GET /faq/ redirige vers l’URL canonique sans slash final', async (t) => 
   assert.equal(response.headers.location, '/faq');
 });
 
+test('GET /gpu/:slug/ redirige vers l’URL canonique sans slash final', async (t) => {
+  const dbPath = createTempDatabasePath();
+  process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
+  clearModules();
+
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => {
+    delete process.env.PUBLIC_SITE_URL;
+    clearModules();
+    disposeTestDatabase(db, dbPath);
+  });
+
+  const response = await request(app)
+    .get('/gpu/rtx-5090/')
+    .redirects(0)
+    .expect(301);
+
+  assert.equal(response.headers.location, '/gpu/rtx-5090');
+});
+
+test('GET /guides redirige vers le guide canonique', async (t) => {
+  const dbPath = createTempDatabasePath();
+  process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
+  clearModules();
+
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => {
+    delete process.env.PUBLIC_SITE_URL;
+    clearModules();
+    disposeTestDatabase(db, dbPath);
+  });
+
+  const response = await request(app)
+    .get('/guides')
+    .redirects(0)
+    .expect(301);
+
+  assert.equal(response.headers.location, '/guides/choisir-gpu-llm');
+});
+
+test('en production une origine non canonique redirige vers le domaine HTTPS canonique', async (t) => {
+  const dbPath = createTempDatabasePath();
+  const previousNodeEnv = process.env.NODE_ENV;
+  process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
+  process.env.NODE_ENV = 'production';
+  clearModules();
+
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => {
+    delete process.env.PUBLIC_SITE_URL;
+    if (previousNodeEnv === undefined) {
+      delete process.env.NODE_ENV;
+    } else {
+      process.env.NODE_ENV = previousNodeEnv;
+    }
+    clearModules();
+    disposeTestDatabase(db, dbPath);
+  });
+
+  const response = await request(app)
+    .get('/faq?from=test')
+    .set('Host', 'example.com')
+    .set('X-Forwarded-Proto', 'http')
+    .redirects(0)
+    .expect(301);
+
+  assert.equal(response.headers.location, 'https://gpubenchmark.jon-dev.fr/faq?from=test');
+});
+
 test('GET /comparatifs/gpu/:slug renvoie un comparatif dynamique prerendue depuis la base', async (t) => {
   const dbPath = createTempDatabasePath();
   process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
