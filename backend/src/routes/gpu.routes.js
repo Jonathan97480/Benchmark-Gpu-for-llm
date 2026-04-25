@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   getAllGPUs,
+  getPublicCatalogTableDataset,
   getPublicBenchmarkDataset,
   getGPUById,
   getGpuPriceHistory,
@@ -23,6 +24,7 @@ const { validateBenchmarkResult } = require('../middleware/validation.middleware
 
 router.get('/', getAllGPUs);
 
+router.get('/public-catalog-table', getPublicCatalogTableDataset);
 router.get('/public-dataset', getPublicBenchmarkDataset);
 router.get('/:id/price-history', getGpuPriceHistory);
 router.post('/:id/price-history', authenticateAdminOrApiKey, validateGpuPriceHistory, createGpuPriceHistoryEntry);

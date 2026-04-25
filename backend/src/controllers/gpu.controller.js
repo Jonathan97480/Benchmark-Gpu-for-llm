@@ -102,6 +102,75 @@ const getPublicBenchmarkDataset = (req, res) => {
   }
 };
 
+const getPublicCatalogTableDataset = (req, res) => {
+  try {
+    const gpus = db.prepare(`
+      SELECT *
+      FROM gpu_benchmarks
+      ORDER BY score DESC, name ASC
+    `).all();
+
+    const models = db.prepare(`
+      SELECT *
+      FROM llm_models
+      ORDER BY params_billions ASC, total_params_billions ASC, name ASC
+    `).all();
+
+    const benchmarkResults = db.prepare(`
+      SELECT
+        br.*,
+        g.name AS gpu_name,
+        g.vendor,
+        g.architecture,
+        g.tier,
+        g.vram,
+        g.price_value,
+        g.price_new_value,
+        g.price_used_value,
+        lm.name AS model_name,
+        lm.params_billions,
+        lm.total_params_billions
+      FROM benchmark_results br
+      JOIN gpu_benchmarks g ON g.id = br.gpu_id
+      JOIN llm_models lm ON lm.id = br.llm_model_id
+      ORDER BY g.score DESC, g.name ASC, lm.params_billions ASC, lm.total_params_billions ASC, lm.name ASC, br.tokens_per_second DESC, br.id ASC
+    `).all();
+
+    const resultsByGpu = new Map();
+
+    for (const result of benchmarkResults) {
+      if (!resultsByGpu.has(result.gpu_id)) {
+        resultsByGpu.set(result.gpu_id, []);
+      }
+
+      resultsByGpu.get(result.gpu_id).push(result);
+    }
+
+    const catalog = gpus.map((gpu) => {
+      const gpuBenchmarks = resultsByGpu.get(gpu.id) || [];
+
+      return {
+        ...gpu,
+        benchmark_results: gpuBenchmarks,
+        coverage_count: gpuBenchmarks.length,
+      };
+    });
+
+    res.json({
+      gpus: catalog,
+      models,
+      totals: {
+        gpus: catalog.length,
+        models: models.length,
+        benchmark_results: benchmarkResults.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching public catalog table dataset:', error);
+    res.status(500).json({ error: 'Failed to fetch public catalog table dataset' });
+  }
+};
+
 const getGPUById = (req, res) => {
   try {
     const { id } = req.params;
@@ -457,6 +526,7 @@ const deleteGPU = (req, res) => {
 
 module.exports = {
   getAllGPUs,
+  getPublicCatalogTableDataset,
   getPublicBenchmarkDataset,
   getGPUById,
   getGpuPriceHistory,

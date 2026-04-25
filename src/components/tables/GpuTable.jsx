@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getBenchmarkForGpuAndModel, getGpuPath } from "../../utils/data.js";
+import { getBenchmarksForGpuAndModel, getBenchmarkForGpuAndModel, getGpuPath } from "../../utils/data.js";
 import { formatNumber, formatPrice } from "../../utils/formatters.js";
 import { fetchGpuPriceHistory } from "../../services/dashboardApi.js";
 import { ChartCanvas } from "../common/ChartCanvas.jsx";
@@ -32,10 +32,10 @@ function SelectedModelResult({ benchmark }) {
   );
 }
 
-function BenchmarkDetailsPanel({ gpu, onClose }) {
-  const benchmarks = [...gpu.benchmarkResults].sort(
-    (a, b) => b.tokens_per_second - a.tokens_per_second
-  );
+function BenchmarkDetailsPanel({ gpu, selectedModel, onClose }) {
+  const benchmarks = selectedModel
+    ? getBenchmarksForGpuAndModel(gpu, selectedModel.id)
+    : [...gpu.benchmarkResults].sort((a, b) => b.tokens_per_second - a.tokens_per_second);
 
   return (
     <div className="benchmark-panel-overlay" role="dialog" aria-modal="true" aria-labelledby="benchmark-panel-title">
@@ -44,6 +44,7 @@ function BenchmarkDetailsPanel({ gpu, onClose }) {
           <div>
             <span className="card-kicker">Benchmarks détaillés</span>
             <h3 id="benchmark-panel-title">{gpu.name}</h3>
+            {selectedModel ? <p className="table-note">Modèle filtré : {selectedModel.name}</p> : null}
           </div>
           <button className="benchmark-panel-close" type="button" onClick={onClose} aria-label="Fermer">
             ×
@@ -241,8 +242,7 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
               <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("vram")}>VRAM</button></th>
               <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("bandwidth")}>Bande passante</button></th>
               <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("coverageCount")}>Benchmarks</button></th>
-              <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("averageTokens")}>Moyenne mesurée</button></th>
-              <th scope="col">{selectedModel ? selectedModel.name : "Résultat modèle sélectionné"}</th>
+              <th scope="col">{selectedModel ? <button className="table-sort-button" type="button" onClick={() => toggleSort("selectedModelTokens")}>{selectedModel.name}</button> : "Résultat modèle sélectionné"}</th>
               <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("priceNewValue")}>Prix neuf</button></th>
               <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("priceUsedValue")}>Prix occasion</button></th>
               <th scope="col"><button className="table-sort-button" type="button" onClick={() => toggleSort("score")}>Score</button></th>
@@ -251,7 +251,7 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
           <tbody>
             {sortedData.length === 0 ? (
               <tr>
-                <td colSpan={11}>Aucune donnée disponible</td>
+                <td colSpan={10}>Aucune donnée disponible</td>
               </tr>
             ) : (
               sortedData.map((item) => (
@@ -291,13 +291,12 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
                       type="button"
                       onClick={() => setDetailGpu(item)}
                     >
-                      {formatNumber(item.coverageCount)}
+                      {formatNumber(selectedModel ? item.selectedModelCoverageCount : item.coverageCount)}
                     </button>
                   </td>
-                  <td>{item.averageTokens ? `${formatNumber(item.averageTokens)} t/s` : "—"}</td>
                   <td>
                     <SelectedModelResult
-                      benchmark={selectedModel ? getBenchmarkForGpuAndModel(item, selectedModel.id) : null}
+                      benchmark={selectedModel ? item.selectedModelBestBenchmark || getBenchmarkForGpuAndModel(item, selectedModel.id) : null}
                     />
                   </td>
                   <td>{formatPrice(item.priceNewValue)}</td>
@@ -310,7 +309,13 @@ export function GpuTable({ selectedModel, setSort, sortedData }) {
         </table>
       </div>
 
-      {detailGpu ? <BenchmarkDetailsPanel gpu={detailGpu} onClose={() => setDetailGpu(null)} /> : null}
+      {detailGpu ? (
+        <BenchmarkDetailsPanel
+          gpu={detailGpu}
+          selectedModel={selectedModel}
+          onClose={() => setDetailGpu(null)}
+        />
+      ) : null}
       {priceHistoryGpu ? (
         <GpuPriceHistoryPanel gpu={priceHistoryGpu} onClose={() => setPriceHistoryGpu(null)} />
       ) : null}

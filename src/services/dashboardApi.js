@@ -17,6 +17,16 @@ export async function fetchDashboardData() {
   };
 }
 
+export async function fetchPublicCatalogTableData() {
+  const response = await fetch("/api/v1/gpu/public-catalog-table");
+
+  if (!response.ok) {
+    throw new Error("Impossible de charger les données de la table publique depuis l'API.");
+  }
+
+  return response.json();
+}
+
 export async function fetchGpuPriceHistory(gpuId) {
   const response = await fetch(`/api/v1/gpu/${gpuId}/price-history`);
 

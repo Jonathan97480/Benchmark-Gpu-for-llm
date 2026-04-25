@@ -115,6 +115,11 @@ export function TablesSection({
               </p>
               {selectedModel ? (
                 <p className="table-note">
+                  La colonne benchmarks et le panneau détaillé sont limités aux mesures de ce modèle.
+                </p>
+              ) : null}
+              {selectedModel ? (
+                <p className="table-note">
                   Modèle en avant :
                   {" "}
                   <a className="gpu-detail-link" href={getModelPath(selectedModel)}>

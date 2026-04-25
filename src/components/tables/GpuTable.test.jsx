@@ -23,6 +23,7 @@ function createGpu(overrides = {}) {
     vram: 24,
     bandwidth: 1008,
     coverageCount: 2,
+    selectedModelCoverageCount: 1,
     averageTokens: 120,
     priceNewValue: 1800,
     priceUsedValue: 1200,
@@ -42,6 +43,28 @@ function createGpu(overrides = {}) {
     ],
     bestBenchmark: {
       gpu_count: 1,
+    },
+    selectedModelBenchmarks: [
+      {
+        id: 10,
+        llm_model_id: 7,
+        model_name: "DeepSeek R1 32B",
+        gpu_count: 1,
+        tokens_per_second: 120,
+        precision: "INT4",
+        context_size: 8192,
+        notes: "Mesure de test",
+      },
+    ],
+    selectedModelBestBenchmark: {
+      id: 10,
+      llm_model_id: 7,
+      model_name: "DeepSeek R1 32B",
+      gpu_count: 1,
+      tokens_per_second: 120,
+      precision: "INT4",
+      context_size: 8192,
+      notes: "Mesure de test",
     },
     ...overrides,
   };
@@ -96,5 +119,109 @@ describe("GpuTable", () => {
         screen.getByText("Aucun historique de prix n’est encore disponible pour ce GPU.")
       ).toBeInTheDocument();
     });
+  });
+
+  it("limite le panneau des benchmarks au modele selectionne", async () => {
+    render(
+      <GpuTable
+        selectedModel={{ id: 7, name: "DeepSeek R1 32B" }}
+        setSort={vi.fn()}
+        sortedData={[
+          createGpu({
+            coverageCount: 3,
+            selectedModelCoverageCount: 2,
+            benchmarkResults: [
+              {
+                id: 10,
+                llm_model_id: 7,
+                model_name: "DeepSeek R1 32B",
+                gpu_count: 1,
+                tokens_per_second: 120,
+                precision: "INT4",
+                context_size: 8192,
+                notes: "Mesure A",
+              },
+              {
+                id: 11,
+                llm_model_id: 7,
+                model_name: "DeepSeek R1 32B",
+                gpu_count: 2,
+                tokens_per_second: 140,
+                precision: "INT4",
+                context_size: 16384,
+                notes: "Mesure B",
+              },
+              {
+                id: 12,
+                llm_model_id: 8,
+                model_name: "Llama 3 8B",
+                gpu_count: 1,
+                tokens_per_second: 200,
+                precision: "FP8",
+                context_size: 4096,
+                notes: "Autre modele",
+              },
+            ],
+            selectedModelBenchmarks: [
+              {
+                id: 11,
+                llm_model_id: 7,
+                model_name: "DeepSeek R1 32B",
+                gpu_count: 2,
+                tokens_per_second: 140,
+                precision: "INT4",
+                context_size: 16384,
+                notes: "Mesure B",
+              },
+              {
+                id: 10,
+                llm_model_id: 7,
+                model_name: "DeepSeek R1 32B",
+                gpu_count: 1,
+                tokens_per_second: 120,
+                precision: "INT4",
+                context_size: 8192,
+                notes: "Mesure A",
+              },
+            ],
+            selectedModelBestBenchmark: {
+              id: 11,
+              llm_model_id: 7,
+              model_name: "DeepSeek R1 32B",
+              gpu_count: 2,
+              tokens_per_second: 140,
+              precision: "INT4",
+              context_size: 16384,
+              notes: "Mesure B",
+            },
+          }),
+        ]}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "2" }));
+
+    expect(await screen.findByText("Modèle filtré : DeepSeek R1 32B")).toBeInTheDocument();
+    expect(screen.getByText("Mesure A")).toBeInTheDocument();
+    expect(screen.getByText("Mesure B")).toBeInTheDocument();
+    expect(screen.queryByText("Autre modele")).not.toBeInTheDocument();
+  });
+
+  it("masque les GPU non testes pour le modele selectionne", () => {
+    render(
+      <GpuTable
+        selectedModel={{ id: 7, name: "DeepSeek R1 32B" }}
+        setSort={vi.fn()}
+        sortedData={[
+          createGpu({
+            name: "RTX 4090",
+            selectedModelCoverageCount: 1,
+          }),
+        ]}
+      />
+    );
+
+    expect(screen.getByText("RTX 4090")).toBeInTheDocument();
+    expect(screen.queryByText("RTX 4080")).not.toBeInTheDocument();
   });
 });

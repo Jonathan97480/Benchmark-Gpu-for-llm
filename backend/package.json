@@ -13,7 +13,7 @@
     "seed:reset": "node src/db/seeds.js --reset",
     "migrate": "node src/db/migrations.js",
     "migrate:reset": "node src/db/migrations.js --reset",
-    "test": "node --test --test-concurrency=1 test/auth.api.test.js test/models.api.test.js test/backup.api.test.js test/analyticalProfile.utils.test.js",
+    "test": "node --test --test-concurrency=1 test/auth.api.test.js test/models.api.test.js test/gpu.api.test.js test/backup.api.test.js test/analyticalProfile.utils.test.js",
     "test:backup": "node --test --test-concurrency=1 test/backup.api.test.js"
   },
   "dependencies": {

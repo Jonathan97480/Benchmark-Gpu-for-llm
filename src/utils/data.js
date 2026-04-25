@@ -13,6 +13,31 @@ export function sortData(data, sort) {
   });
 }
 
+export function sortCatalogTableData(data, sort, selectedModelId) {
+  const order = sort.direction === "asc" ? 1 : -1;
+
+  return [...data].sort((a, b) => {
+    let aValue = a[sort.key];
+    let bValue = b[sort.key];
+
+    if (sort.key === "coverageCount") {
+      aValue = selectedModelId && selectedModelId !== "all" ? a.selectedModelCoverageCount : a.coverageCount;
+      bValue = selectedModelId && selectedModelId !== "all" ? b.selectedModelCoverageCount : b.coverageCount;
+    }
+
+    if (sort.key === "selectedModelTokens") {
+      aValue = a.selectedModelBestBenchmark?.tokens_per_second ?? 0;
+      bValue = b.selectedModelBestBenchmark?.tokens_per_second ?? 0;
+    }
+
+    if (typeof aValue === "string") {
+      return aValue.localeCompare(bValue) * order;
+    }
+
+    return ((aValue ?? 0) - (bValue ?? 0)) * order;
+  });
+}
+
 export function slugifyGpuName(name) {
   return String(name || "")
     .normalize("NFD")
@@ -383,6 +408,44 @@ export function normalizePublicDataset(rawDataset) {
   };
 }
 
+export function normalizeCatalogTableDataset(rawDataset) {
+  const models = (rawDataset.models || []).map((model) => normalizeModelMetadata(model));
+
+  const gpus = (rawDataset.gpus || []).map((gpu) => {
+    const gpuResults = (gpu.benchmark_results || []).map((result) => ({
+      ...result,
+      gpu_count: Number(result.gpu_count) || 1,
+      precision: result.precision || null,
+      tokens_per_second: Number(result.tokens_per_second) || 0,
+      context_size: result.context_size || null,
+    }));
+    const bestBenchmark = [...gpuResults].sort(
+      (a, b) => b.tokens_per_second - a.tokens_per_second || a.id - b.id
+    )[0] || null;
+    const averageTokens =
+      gpuResults.length > 0
+        ? gpuResults.reduce((sum, result) => sum + result.tokens_per_second, 0) / gpuResults.length
+        : null;
+    const quantizations = [...new Set(gpuResults.map((result) => result.precision).filter(Boolean))];
+
+    return {
+      ...normalizeGpuMetadata(gpu),
+      priceValue: gpu.price_value || 0,
+      priceNewValue: gpu.price_new_value || 0,
+      priceUsedValue: gpu.price_used_value || 0,
+      benchmarkResults: gpuResults,
+      coverageCount: Number(gpu.coverage_count) || gpuResults.length,
+      averageTokens,
+      bestTokens: bestBenchmark?.tokens_per_second || null,
+      bestBenchmark,
+      quantizations,
+      testedModelIds: [...new Set(gpuResults.map((result) => result.llm_model_id))],
+    };
+  });
+
+  return { gpus, models };
+}
+
 export function getTopAveragePerformance(data) {
   return [...data]
     .filter((gpu) => gpu.averageTokens)
@@ -398,4 +461,10 @@ export function getTopCoverage(data) {
 
 export function getBenchmarkForGpuAndModel(gpu, modelId) {
   return gpu.benchmarkResults.find((result) => result.llm_model_id === modelId) || null;
+}
+
+export function getBenchmarksForGpuAndModel(gpu, modelId) {
+  return gpu.benchmarkResults
+    .filter((result) => result.llm_model_id === modelId)
+    .sort((a, b) => b.tokens_per_second - a.tokens_per_second || a.id - b.id);
 }
