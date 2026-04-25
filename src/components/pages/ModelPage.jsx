@@ -75,8 +75,8 @@ export function ModelPage({ gpuData, models, slug }) {
     }
 
     applyPublicSeo({
-      title: `${model.name} | Benchmark LLM`,
-      description: `${model.name} : benchmarks GPU disponibles, débit mesuré, contexte max et cartes compatibles sur GPU LLM Benchmark.`,
+      title: `${model.name} | Quel GPU pour ce LLM`,
+      description: `${model.name} : quel GPU choisir pour ce LLM, benchmarks mesurés, débit observé, contexte max et cartes graphiques IA compatibles.`,
       path: getModelPath(model),
       jsonLd: [
         {

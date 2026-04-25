@@ -162,8 +162,8 @@ export function GpuDetailPage({ gpuData, slug }) {
     }
 
     applyPublicSeo({
-      title: `${gpu.name} | Benchmark GPU LLM`,
-      description: `${gpu.name} (${gpu.vendor}) : VRAM, bande passante, score, benchmarks LLM et historique de prix neuf et occasion.`,
+      title: `${gpu.name} | Benchmark GPU LLM et carte graphique IA`,
+      description: `${gpu.name} (${gpu.vendor}) : benchmark GPU LLM, VRAM, bande passante, débits mesurés et prix pour savoir si cette carte graphique IA convient à Llama ou DeepSeek.`,
       path: getGpuPath(gpu),
       jsonLd: [
         {

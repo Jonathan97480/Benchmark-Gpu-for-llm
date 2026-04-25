@@ -25,7 +25,7 @@ function buildUsageConfig(slug, gpuData) {
       path: "/usages/local-ai",
       title: "Quels GPU regarder pour du local AI",
       description:
-        "Sélection dynamique des GPU pertinents pour le local AI à partir des cartes réellement benchmarkées dans la base : VRAM, prix et couverture benchmark.",
+        "Sélection de GPU pour local AI et inférence locale : cartes graphiques IA réellement benchmarkées, VRAM, prix et couverture benchmark.",
       breadcrumbs: [
         { href: "/", label: "Accueil" },
         { href: "/usages/local-ai", label: "Local AI" },
@@ -76,7 +76,7 @@ function buildUsageConfig(slug, gpuData) {
       path: "/usages/budget",
       title: "Quels GPU regarder avec un budget serré",
       description:
-        "Sélection dynamique des GPU avec prix renseigné et benchmarks disponibles pour repérer les cartes les plus intéressantes quand le budget compte vraiment.",
+        "GPU budget pour LLM : sélection de cartes graphiques IA avec prix renseigné et benchmarks disponibles pour comparer les options les plus intéressantes.",
       breadcrumbs: [
         { href: "/", label: "Accueil" },
         { href: "/usages/budget", label: "Budget" },
@@ -127,7 +127,7 @@ function buildUsageConfig(slug, gpuData) {
       path: "/usages/entreprise",
       title: "Quels GPU regarder pour un usage entreprise",
       description:
-        "Sélection dynamique des GPU orientés entreprise ou très haute capacité mémoire, à partir des cartes réellement présentes dans la base.",
+        "GPU entreprise pour IA et LLM : sélection dynamique des cartes orientées haute VRAM ou usage lourd à partir des données réellement présentes en base.",
       breadcrumbs: [
         { href: "/", label: "Accueil" },
         { href: "/usages/entreprise", label: "Entreprise" },

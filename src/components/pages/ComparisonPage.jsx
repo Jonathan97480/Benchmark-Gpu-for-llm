@@ -58,7 +58,7 @@ function buildGpuPairComparison(slug, gpuData) {
   return {
     path: `/comparatifs/gpu/${slug}`,
     title: `${leftGpu.name} vs ${rightGpu.name} pour LLM`,
-    description: `Comparatif entre ${leftGpu.name} et ${rightGpu.name} pour LLM : VRAM, bande passante, prix et benchmarks réellement disponibles dans la base.`,
+    description: `Comparatif ${leftGpu.name} vs ${rightGpu.name} pour LLM : carte graphique IA, VRAM, prix et benchmarks GPU LLM réellement disponibles dans la base.`,
     breadcrumbs: [
       { href: "/", label: "Accueil" },
       { href: `/comparatifs/gpu/${slug}`, label: `${leftGpu.name} vs ${rightGpu.name}` },
@@ -145,7 +145,7 @@ function buildVramComparison(slug, gpuData) {
   return {
     path: `/comparatifs/vram/${slug}`,
     title: `Quel GPU ${targetVram} Go choisir pour LLM`,
-    description: `Comparatif des GPU ${targetVram} Go présents dans la base : VRAM, prix, bande passante et benchmarks disponibles pour mieux choisir une carte LLM.`,
+    description: `Quel GPU ${targetVram} Go choisir pour LLM : comparatif de cartes graphiques IA avec VRAM, prix, bande passante et benchmarks GPU LLM disponibles.`,
     breadcrumbs: [
       { href: "/", label: "Accueil" },
       { href: `/comparatifs/vram/${slug}`, label: `GPU ${targetVram} Go` },

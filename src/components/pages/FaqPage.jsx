@@ -66,9 +66,9 @@ const faqItems = [
 export function FaqPage() {
   useEffect(() => {
     applyPublicSeo({
-      title: "FAQ GPU LLM Benchmark",
+      title: "FAQ benchmark GPU LLM et carte graphique IA",
       description:
-        "Questions fréquentes sur le benchmark GPU LLM : choix d’une carte graphique, lecture des benchmarks, prix neuf et occasion, calculateur et pages publiques.",
+        "FAQ en français sur le benchmark GPU LLM : carte graphique IA, GPU pour Llama, lecture des benchmarks, prix neuf et occasion.",
       path: "/faq",
       jsonLd: faqJsonLd,
     });

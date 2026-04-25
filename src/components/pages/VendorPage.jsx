@@ -68,8 +68,8 @@ export function VendorPage({ gpuData, slug }) {
     }
 
     applyPublicSeo({
-      title: `${vendor} | Catalogue GPU LLM`,
-      description: `Catalogue public ${vendor} : cartes graphiques, benchmarks LLM, scores et repères de prix sur GPU LLM Benchmark.`,
+      title: `${vendor} | GPU ${vendor} pour LLM et IA`,
+      description: `Catalogue public ${vendor} : GPU pour LLM, cartes graphiques IA, benchmarks mesurés, VRAM et repères de prix pour comparer les références ${vendor}.`,
       path: getVendorPath(vendor),
       jsonLd: [
         {

@@ -23,8 +23,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 const authLimiterWindowMs = isProduction ? 15 * 60 * 1000 : 60 * 1000;
 const authLimiterMax = isProduction ? 5 : 20;
 const PUBLIC_SITE_URL = process.env.PUBLIC_SITE_URL || 'https://gpubenchmark.jon-dev.fr';
-const DEFAULT_TITLE = 'GPU LLM Benchmark 2026';
-const DEFAULT_DESCRIPTION = 'Benchmark GPU pour LLM open source : comparez les cartes graphiques, les vendeurs et les performances mesurées pour choisir le bon matériel IA.';
+const DEFAULT_TITLE = 'Benchmark GPU LLM et cartes graphiques IA';
+const DEFAULT_DESCRIPTION = "Benchmark GPU LLM en français : comparez des cartes graphiques IA, les débits mesurés, la VRAM et les prix pour choisir le bon GPU pour Llama, DeepSeek et l'inférence locale.";
 const DEFAULT_OG_IMAGE = `${PUBLIC_SITE_URL}/og-image.svg`;
 const DEFAULT_LASTMOD = new Date().toISOString().split('T')[0];
 
@@ -844,8 +844,8 @@ app.get(['/gpu/:slug', '/gpu/:slug/*'], (req, res) => {
     `).all(gpu.id);
 
     res.send(renderSeoHtml({
-      title: `${gpu.name} | Benchmark GPU LLM`,
-      description: `${gpu.name} (${gpu.vendor}) : VRAM, bande passante, score, benchmarks LLM et historique de prix neuf et occasion.`,
+      title: `${gpu.name} | Benchmark GPU LLM et carte graphique IA`,
+      description: `${gpu.name} (${gpu.vendor}) : benchmark GPU LLM, VRAM, bande passante, débits mesurés et prix pour savoir si cette carte graphique IA convient à Llama ou DeepSeek.`,
       canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
       jsonLd: getGpuJsonLd(gpu, req.path),
       staticContent: buildGpuStaticContent({
@@ -897,8 +897,8 @@ app.get(['/vendor/:slug', '/vendor/:slug/*'], (req, res) => {
     const vendorGpus = gpus.filter((gpu) => gpu.vendor === vendor);
 
     res.send(renderSeoHtml({
-      title: `${vendor} | Catalogue GPU LLM`,
-      description: `Catalogue public ${vendor} : cartes graphiques, benchmarks LLM, scores et repères de prix sur GPU LLM Benchmark.`,
+      title: `${vendor} | GPU ${vendor} pour LLM et IA`,
+      description: `Catalogue public ${vendor} : GPU pour LLM, cartes graphiques IA, benchmarks mesurés, VRAM et repères de prix pour comparer les références ${vendor}.`,
       canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
       jsonLd: getVendorJsonLd(vendor, req.path),
       staticContent: buildVendorStaticContent(vendor, vendorGpus),
@@ -954,8 +954,8 @@ app.get(['/model/:slug', '/model/:slug/*'], (req, res) => {
     `).all(model.id);
 
     res.send(renderSeoHtml({
-      title: `${model.name} | Benchmark LLM`,
-      description: `${model.name} : benchmarks GPU disponibles, débit mesuré, contexte max et cartes compatibles sur GPU LLM Benchmark.`,
+      title: `${model.name} | Quel GPU pour ce LLM`,
+      description: `${model.name} : quel GPU choisir pour ce LLM, benchmarks mesurés, débit observé, contexte max et cartes graphiques IA compatibles.`,
       canonicalUrl: `${PUBLIC_SITE_URL}${req.path}`,
       jsonLd: getModelJsonLd(model, req.path),
       staticContent: buildModelStaticContent(model, benchmarks),
@@ -974,8 +974,8 @@ app.get(['/model/:slug', '/model/:slug/*'], (req, res) => {
 
 app.get(['/guides/choisir-gpu-llm', '/guides/choisir-gpu-llm/'], (req, res) => {
   res.send(renderSeoHtml({
-    title: 'Choisir un GPU pour LLM | Guide d\'achat',
-    description: "Guide pratique pour choisir un GPU pour l'inference LLM : VRAM, débit mesuré, prix neuf, occasion et lecture du benchmark public.",
+    title: 'Comment choisir un GPU pour LLM et Llama | Guide',
+    description: "Guide pour choisir une carte graphique IA pour LLM et Llama : VRAM, débit mesuré, prix neuf, occasion et repères pour l'inférence locale.",
     canonicalUrl: `${PUBLIC_SITE_URL}/guides/choisir-gpu-llm`,
     jsonLd: getGuideJsonLd('/guides/choisir-gpu-llm'),
     staticContent: buildGuideStaticContent(),
@@ -984,8 +984,8 @@ app.get(['/guides/choisir-gpu-llm', '/guides/choisir-gpu-llm/'], (req, res) => {
 
 app.get(['/faq', '/faq/'], (req, res) => {
   res.send(renderSeoHtml({
-    title: 'FAQ GPU LLM Benchmark',
-    description: 'Questions fréquentes sur le benchmark GPU LLM : choix d’une carte graphique, lecture des benchmarks, prix neuf et occasion, calculateur et pages publiques.',
+    title: 'FAQ benchmark GPU LLM et carte graphique IA',
+    description: 'FAQ en français sur le benchmark GPU LLM : carte graphique IA, GPU pour Llama, lecture des benchmarks, prix neuf et occasion.',
     canonicalUrl: `${PUBLIC_SITE_URL}/faq`,
     jsonLd: getFaqJsonLd('/faq'),
     staticContent: buildFaqStaticContent(),
@@ -1061,12 +1061,12 @@ app.get(['/comparatifs/gpu/:slug', '/comparatifs/gpu/:slug/'], (req, res) => {
 
     res.send(renderSeoHtml({
       title: `${leftGpu.name} vs ${rightGpu.name} pour LLM`,
-      description: `Comparatif entre ${leftGpu.name} et ${rightGpu.name} pour LLM : VRAM, bande passante, prix et benchmarks réellement disponibles dans la base.`,
+      description: `Comparatif ${leftGpu.name} vs ${rightGpu.name} pour LLM : carte graphique IA, VRAM, prix et benchmarks GPU LLM réellement disponibles dans la base.`,
       canonicalUrl: `${PUBLIC_SITE_URL}/comparatifs/gpu/${slug}`,
       jsonLd: getComparisonJsonLd(
         `${leftGpu.name} vs ${rightGpu.name} pour LLM`,
         `/comparatifs/gpu/${slug}`,
-        `Comparatif entre ${leftGpu.name} et ${rightGpu.name} pour LLM : VRAM, bande passante, prix et benchmarks réellement disponibles dans la base.`
+        `Comparatif ${leftGpu.name} vs ${rightGpu.name} pour LLM : carte graphique IA, VRAM, prix et benchmarks GPU LLM réellement disponibles dans la base.`
       ),
       staticContent: buildGpuPairComparisonStaticContent(leftGpu, rightGpu, leftBenchmark, rightBenchmark),
     }));
@@ -1134,12 +1134,12 @@ app.get(['/comparatifs/vram/:slug', '/comparatifs/vram/:slug/'], (req, res) => {
 
     res.send(renderSeoHtml({
       title: `Quel GPU ${targetVram} Go choisir pour LLM`,
-      description: `Comparatif des GPU ${targetVram} Go présents dans la base : VRAM, prix, bande passante et benchmarks disponibles pour mieux choisir une carte LLM.`,
+      description: `Quel GPU ${targetVram} Go choisir pour LLM : comparatif de cartes graphiques IA avec VRAM, prix, bande passante et benchmarks GPU LLM disponibles.`,
       canonicalUrl: `${PUBLIC_SITE_URL}/comparatifs/vram/${slug}`,
       jsonLd: getComparisonJsonLd(
         `Quel GPU ${targetVram} Go choisir pour LLM`,
         `/comparatifs/vram/${slug}`,
-        `Comparatif des GPU ${targetVram} Go présents dans la base : VRAM, prix, bande passante et benchmarks disponibles pour mieux choisir une carte LLM.`
+        `Quel GPU ${targetVram} Go choisir pour LLM : comparatif de cartes graphiques IA avec VRAM, prix, bande passante et benchmarks GPU LLM disponibles.`
       ),
       staticContent: buildVramComparisonStaticContent(targetVram, candidates),
     }));
@@ -1180,7 +1180,7 @@ app.get(['/usages/:slug', '/usages/:slug/'], (req, res) => {
         .filter((gpu) => Number(gpu.vram) >= 16)
         .sort((left, right) => Number(right.coverageCount) - Number(left.coverageCount) || Number(right.score) - Number(left.score));
       title = 'Quels GPU regarder pour du local AI';
-      description = 'Sélection dynamique des GPU pertinents pour le local AI à partir des cartes réellement benchmarkées dans la base : VRAM, prix et couverture benchmark.';
+      description = 'Sélection de GPU pour local AI et inférence locale : cartes graphiques IA réellement benchmarkées, VRAM, prix et couverture benchmark.';
       intro = "Cette page met en avant les cartes les plus pertinentes pour une machine locale sérieuse, en s'appuyant uniquement sur les GPU réellement présents dans la base et sur leur couverture benchmark.";
       helpText = "Commencez par les cartes qui cumulent assez de VRAM et plusieurs benchmarks. Ensuite, vérifiez leur prix observé et ouvrez les fiches pour voir les modèles testés et les débits réellement mesurés.";
       guideLabel = "Lire le guide pour choisir un GPU de local AI";
@@ -1189,7 +1189,7 @@ app.get(['/usages/:slug', '/usages/:slug/'], (req, res) => {
         .filter((gpu) => getKnownGpuPrice(gpu) > 0)
         .sort((left, right) => getKnownGpuPrice(left) - getKnownGpuPrice(right) || Number(right.coverageCount) - Number(left.coverageCount));
       title = 'Quels GPU regarder avec un budget serré';
-      description = 'Sélection dynamique des GPU avec prix renseigné et benchmarks disponibles pour repérer les cartes les plus intéressantes quand le budget compte vraiment.';
+      description = 'GPU budget pour LLM : sélection de cartes graphiques IA avec prix renseigné et benchmarks disponibles pour comparer les options les plus intéressantes.';
       intro = "Cette page isole les cartes dont le prix est réellement renseigné dans la base pour vous aider à comparer les options les plus accessibles sans sortir du concret.";
       helpText = "Ne regardez pas seulement le prix. Une carte un peu plus chère mais mieux couverte par les benchmarks peut être plus sûre qu'une carte bon marché dont on sait encore très peu de choses en usage LLM.";
       guideLabel = "Lire le guide pour choisir un GPU avec budget serré";
@@ -1198,7 +1198,7 @@ app.get(['/usages/:slug', '/usages/:slug/'], (req, res) => {
         .filter((gpu) => gpu.tier === 'enterprise' || Number(gpu.vram) >= 80)
         .sort((left, right) => Number(right.vram) - Number(left.vram) || Number(right.bandwidth) - Number(left.bandwidth));
       title = 'Quels GPU regarder pour un usage entreprise';
-      description = 'Sélection dynamique des GPU orientés entreprise ou très haute capacité mémoire, à partir des cartes réellement présentes dans la base.';
+      description = 'GPU entreprise pour IA et LLM : sélection dynamique des cartes orientées haute VRAM ou usage lourd à partir des données réellement présentes en base.';
       intro = "Cette sélection vise les cartes qui deviennent pertinentes dès qu'on dépasse le poste local classique et qu'on cherche davantage de marge mémoire ou une catégorie matérielle plus lourde.";
       helpText = "Dans cette catégorie, la VRAM reste le premier filtre, mais elle ne suffit pas. Regardez aussi la bande passante, les benchmarks déjà disponibles et le type d'usage réel avant d'arbitrer.";
       guideLabel = "Lire le guide pour choisir un GPU orienté entreprise";

@@ -134,11 +134,28 @@ Les tests backend valident deja :
 - [ ] verifier qu'une seule version du domaine repond en indexable : `https://gpubenchmark.jon-dev.fr/`
 - [ ] optimiser les polices, images et chargements bloquants
 - [ ] ajouter des attributs `alt` pertinents sur toutes les images utiles au contenu
-- [ ] definir une strategie mots-cles en francais
-- [ ] reecrire les textes pour cibler des requetes concretes : benchmark GPU LLM, carte graphique IA, GPU pour Llama
+- [x] definir une strategie mots-cles en francais
+- [x] reecrire les textes pour cibler des requetes concretes : benchmark GPU LLM, carte graphique IA, GPU pour Llama
 - [ ] preparer un plan de soumission manuelle dans Google Search Console pour la home, les pages vendor, la FAQ et le guide
 - [ ] verifier dans Search Console les pages exclues, canonicals choisis par Google et problemes d'indexation
 - [ ] suivre les requetes reelles qui generent impressions et clics pour iterer sur les titles/descriptions
 - [ ] mesurer l'indexation reelle dans Search Console apres mise en ligne
 - [ ] surveiller couverture, clics, impressions et erreurs d'exploration
 - [ ] prevoir une strategie de backlinks et de partage externe
+
+### Strategie mots-cles FR
+
+- cluster home : `benchmark GPU LLM`, `benchmark carte graphique IA`, `comparatif GPU IA`
+- cluster guide : `comment choisir un GPU pour LLM`, `quelle carte graphique pour Llama`, `GPU pour inference locale`
+- cluster GPU : `RTX 4090 LLM`, `RTX 5090 benchmark IA`, `carte graphique 24 Go IA`
+- cluster vendor : `GPU NVIDIA pour LLM`, `GPU AMD pour IA`, `GPU Intel pour inference locale`
+- cluster modeles : `GPU pour Llama`, `GPU pour DeepSeek`, `quelle carte graphique pour [modele]`
+- cluster comparatifs : `[gpu A] vs [gpu B] LLM`, `meilleur GPU 24 Go pour LLM`, `comparatif carte graphique IA`
+- cluster usages : `GPU local AI`, `GPU budget pour LLM`, `GPU entreprise IA`
+
+Regle editoriale :
+
+- une page cible d'abord une intention principale, puis 2 a 3 variantes proches
+- les titles doivent contenir la requete principale ou sa variante la plus naturelle
+- les descriptions doivent parler du benefice utilisateur : comparer, choisir, voir le debit mesure, voir les prix
+- les textes visibles doivent reprendre le vocabulaire utilisateur : `carte graphique IA`, `GPU pour Llama`, `benchmark GPU LLM`, pas seulement du vocabulaire interne

@@ -174,7 +174,7 @@ test('GET /gpu/:slug renvoie une page HTML prerendue pour le SEO', async (t) => 
     .get('/gpu/rtx-5090')
     .expect(200);
 
-  assert.match(response.text, /<title>RTX 5090 \| Benchmark GPU LLM<\/title>/);
+  assert.match(response.text, /<title>RTX 5090 \| Benchmark GPU LLM et carte graphique IA<\/title>/);
   assert.match(response.text, /<h1>RTX 5090<\/h1>/);
   assert.match(response.text, /Benchmarks LLM disponibles/);
 });
@@ -196,7 +196,7 @@ test('GET /vendor/:slug renvoie une page HTML prerendue pour le SEO vendor', asy
     .get('/vendor/nvidia')
     .expect(200);
 
-  assert.match(response.text, /<title>NVIDIA \| Catalogue GPU LLM<\/title>/);
+  assert.match(response.text, /<title>NVIDIA \| GPU NVIDIA pour LLM et IA<\/title>/);
   assert.match(response.text, /<h1>NVIDIA<\/h1>/);
   assert.match(response.text, /Cartes NVIDIA dans le catalogue/);
 });
@@ -218,7 +218,7 @@ test('GET /model/:slug renvoie une page HTML prerendue pour le SEO model', async
     .get('/model/deepseek-r1-32b')
     .expect(200);
 
-  assert.match(response.text, /<title>DeepSeek R1 32B \| Benchmark LLM<\/title>/);
+  assert.match(response.text, /<title>DeepSeek R1 32B \| Quel GPU pour ce LLM<\/title>/);
   assert.match(response.text, /<h1>DeepSeek R1 32B<\/h1>/);
   assert.match(response.text, /Benchmarks GPU disponibles/);
 });
@@ -240,9 +240,9 @@ test('GET /guides/choisir-gpu-llm renvoie une page éditoriale prerendue pour le
     .get('/guides/choisir-gpu-llm')
     .expect(200);
 
-  assert.match(response.text, /<title>Choisir un GPU pour LLM \| Guide d&#39;achat<\/title>/);
+  assert.match(response.text, /<title>Comment choisir un GPU pour LLM et Llama \| Guide<\/title>/);
   assert.match(response.text, /<h1>Comment choisir un GPU pour LLM<\/h1>/);
-  assert.match(response.text, /Guide pratique pour choisir un GPU pour l&#39;inference LLM/);
+  assert.match(response.text, /Guide pour choisir une carte graphique IA pour LLM et Llama/);
   assert.match(response.text, /VRAM/);
 });
 
@@ -263,8 +263,8 @@ test('GET /faq renvoie une FAQ prerendue pour le SEO', async (t) => {
     .get('/faq')
     .expect(200);
 
-  assert.match(response.text, /<title>FAQ GPU LLM Benchmark<\/title>/);
-  assert.match(response.text, /Questions fréquentes sur le benchmark GPU LLM/);
+  assert.match(response.text, /<title>FAQ benchmark GPU LLM et carte graphique IA<\/title>/);
+  assert.match(response.text, /FAQ GPU LLM Benchmark/);
   assert.match(response.text, /Questions fréquentes/);
 });
 

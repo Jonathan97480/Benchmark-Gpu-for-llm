@@ -1,7 +1,7 @@
 const SITE_URL = "https://gpubenchmark.jon-dev.fr";
-const DEFAULT_TITLE = "GPU LLM Benchmark 2026";
+const DEFAULT_TITLE = "Benchmark GPU LLM et cartes graphiques IA";
 const DEFAULT_DESCRIPTION =
-  "Benchmark GPU pour LLM open source : comparez les cartes graphiques, les vendeurs et les performances mesurées pour choisir le bon matériel IA.";
+  "Benchmark GPU LLM en français : comparez des cartes graphiques IA, les débits mesurés, la VRAM et les prix pour choisir le bon GPU pour Llama, DeepSeek et l'inférence locale.";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.svg`;
 
 function normalizeJsonLdEntries(jsonLd, description) {

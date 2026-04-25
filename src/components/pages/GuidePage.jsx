@@ -73,9 +73,9 @@ const internalLinks = [
 export function GuidePage() {
   useEffect(() => {
     applyPublicSeo({
-      title: "Choisir un GPU pour LLM | Guide d'achat",
+      title: "Comment choisir un GPU pour LLM et Llama | Guide",
       description:
-        "Guide pratique pour choisir un GPU pour l’inference LLM : VRAM, débit mesuré, prix neuf, occasion et lecture du benchmark public.",
+        "Guide pour choisir une carte graphique IA pour LLM et Llama : VRAM, débit mesuré, prix neuf, occasion et repères pour l'inférence locale.",
       path: "/guides/choisir-gpu-llm",
       jsonLd: guideJsonLd,
     });
