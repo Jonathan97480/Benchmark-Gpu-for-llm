@@ -128,7 +128,7 @@ Les tests backend valident deja :
 - [ ] creer un compte Google Search Console et verifier le domaine
 - [x] verifier que les routes admin ne sont pas listees dans le sitemap
 - [x] ajouter du contenu textuel crawlable autour des tableaux et graphiques
-- [ ] prevoir des redirections propres si les URLs changent
+- [x] prevoir des redirections propres si les URLs changent
 - [x] creer une page categorie indexable pour le calculateur si elle apporte une vraie intention SEO
 - [x] verifier les redirections canoniques entre versions avec et sans slash final
 - [x] verifier qu'une seule version du domaine repond en indexable : `https://gpubenchmark.jon-dev.fr/`
@@ -141,7 +141,7 @@ Les tests backend valident deja :
 - [ ] suivre les requetes reelles qui generent impressions et clics pour iterer sur les titles/descriptions
 - [ ] mesurer l'indexation reelle dans Search Console apres mise en ligne
 - [ ] surveiller couverture, clics, impressions et erreurs d'exploration
-- [ ] prevoir une strategie de backlinks et de partage externe
+- [x] prevoir une strategie de backlinks et de partage externe
 
 ### Strategie mots-cles FR
 
@@ -176,3 +176,51 @@ Verification avant soumission :
 - la page apparait dans `sitemap.xml`
 - les meta `title` et `description` sont specifiques a la page
 - la page contient du texte visible utile, pas seulement un tableau ou un graphique
+
+## Strategie de redirections
+
+Si une URL publique change, conserver une redirection `301` depuis l'ancienne vers la nouvelle.
+
+Regles a suivre :
+
+- ne jamais casser une URL deja indexee sans redirection
+- pointer vers l'URL finale canonique, pas vers une URL intermediaire
+- conserver les query strings utiles
+- mettre a jour en meme temps la `canonical`, le `sitemap.xml` et les liens internes
+- tester au minimum les pages fortes : home, vendor, GPU, modele, guide, FAQ, calculateur
+
+Alias deja prevus :
+
+- `/guides` vers `/guides/choisir-gpu-llm`
+- `/guide` vers `/guides/choisir-gpu-llm`
+- `/calculateur` vers `/calculateur-llm`
+- `/calculator` vers `/calculateur-llm`
+- `/faqs` vers `/faq`
+
+## Strategie backlinks et partage
+
+Objectif :
+
+- obtenir quelques liens et partages pertinents plutot qu'un grand volume de liens faibles
+
+Canaux prioritaires :
+
+- post de lancement sur X et LinkedIn avec la home, le guide et un comparatif concret
+- partage dans des communautes techniques pertinentes : IA open source, homelab, self-hosting, GPU compute, LLM local
+- publication d'un article ou billet de blog qui cite explicitement le site et ses pages fortes
+- integration du projet dans le portfolio du createur avec lien vers la home
+- message de demonstration sur GitHub avec lien vers le guide et les pages comparatives
+
+Pages a pousser en priorite :
+
+- home pour la requete large
+- guide pour l'intention informationnelle
+- FAQ pour les requetes de comprehension
+- pages vendor et comparatifs pour les requetes de comparaison
+
+Regles de qualite :
+
+- toujours partager une page qui contient deja du texte utile et pas seulement un tableau
+- varier les ancres autour de `benchmark GPU LLM`, `carte graphique IA`, `GPU pour Llama`
+- eviter les annuaires et les backlinks artificiels
+- privilegier les liens contextuels dans un contenu qui parle vraiment de GPU, LLM ou inference locale
