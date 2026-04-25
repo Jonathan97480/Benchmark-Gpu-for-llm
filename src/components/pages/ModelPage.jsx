@@ -5,6 +5,25 @@ import { Breadcrumbs } from "../common/Breadcrumbs.jsx";
 import { PublicPageShell } from "../common/PublicSiteChrome.jsx";
 import { formatNumber } from "../../utils/formatters.js";
 
+function getModelAngle(model, rankedGpus) {
+  const bestGpu = rankedGpus[0];
+  const params = Number(model.params_billions || 0);
+
+  if (!bestGpu) {
+    return `Cette page sert surtout à voir quelles cartes ont déjà été testées sur ${model.name}.`;
+  }
+
+  if (params >= 60) {
+    return `${model.name} fait partie des modèles où la marge mémoire et la stabilité du débit comptent plus que la simple vitesse de pointe. ${bestGpu.name} mène actuellement les mesures disponibles dans la base.`;
+  }
+
+  if (params >= 20) {
+    return `${model.name} se situe dans une zone où plusieurs cartes restent envisageables, mais pas avec les mêmes compromis de VRAM, de contexte et de prix. ${bestGpu.name} tient aujourd'hui la meilleure mesure disponible.`;
+  }
+
+  return `${model.name} peut rester accessible sur davantage de cartes, ce qui rend la comparaison par débit et coût beaucoup plus utile qu'un simple tri par fiche technique. ${bestGpu.name} signe actuellement le meilleur résultat enregistré.`;
+}
+
 export function ModelPage({ gpuData, models, slug }) {
   const model = useMemo(() => findModelBySlug(models, slug), [models, slug]);
   const benchmarks = useMemo(
@@ -42,6 +61,8 @@ export function ModelPage({ gpuData, models, slug }) {
     () => [...new Set(rankedGpus.map((gpu) => gpu.vendor))].slice(0, 3),
     [rankedGpus]
   );
+  const bestGpu = rankedGpus[0] || null;
+  const slowestGpu = rankedGpus[rankedGpus.length - 1] || null;
 
   useEffect(() => {
     if (!model) {
@@ -115,8 +136,8 @@ export function ModelPage({ gpuData, models, slug }) {
               <span className="section-kicker">Modèle LLM</span>
               <h1>{model.name}</h1>
               <p>
-                Cette page regroupe les benchmarks GPU disponibles pour {model.name},
-                les débits observés et les cartes les mieux placées dans le catalogue public.
+                {getModelAngle(model, rankedGpus)}{" "}
+                {bestGpu ? `Le meilleur débit observé atteint actuellement ${formatNumber(bestGpu.benchmark.tokens_per_second)} t/s.` : ""}
               </p>
               <div className="hero-actions">
                 <a className="btn btn-primary" href="/">
@@ -157,9 +178,11 @@ export function ModelPage({ gpuData, models, slug }) {
               </div>
             </div>
             <p className="page-intro">
-              Pour ce modèle, le plus utile est de comparer les cartes sur un terrain identique: même LLM, même précision
-              et taille de contexte proche de votre usage. Une carte très rapide sur un test court n’est pas forcément la
-              meilleure si vous visez des contextes longs, un budget serré ou une machine locale silencieuse.
+              Pour {model.name}, le plus utile est de comparer les cartes sur un terrain identique: même LLM, même précision
+              et taille de contexte proche de votre usage.{" "}
+              {slowestGpu && bestGpu
+                ? `Dans les données actuelles, l'écart va de ${formatNumber(slowestGpu.benchmark.tokens_per_second)} t/s à ${formatNumber(bestGpu.benchmark.tokens_per_second)} t/s selon la carte, ce qui change vraiment l'expérience d'usage.`
+                : `Une carte rapide sur un test court n'est pas forcément la meilleure si vous visez des contextes longs ou un budget serré.`}
             </p>
             <div className="content-link-grid">
               <a className="content-link-card" href="/guides/choisir-gpu-llm">

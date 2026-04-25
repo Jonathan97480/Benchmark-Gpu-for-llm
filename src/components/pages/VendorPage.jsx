@@ -5,6 +5,22 @@ import { Breadcrumbs } from "../common/Breadcrumbs.jsx";
 import { PublicPageShell } from "../common/PublicSiteChrome.jsx";
 import { formatNumber, formatPrice } from "../../utils/formatters.js";
 
+function getVendorAngle(vendor) {
+  if (vendor === "NVIDIA") {
+    return "Le catalogue NVIDIA couvre souvent le plus grand éventail d'usages LLM, du poste local haut de gamme jusqu'aux cartes très lourdes. La vraie différence se joue surtout entre quantité de VRAM, couverture benchmark et niveau de prix observé.";
+  }
+
+  if (vendor === "AMD") {
+    return "Le catalogue AMD devient surtout intéressant quand vous cherchez une alternative crédible sur certains paliers de mémoire ou de prix. Ici, le plus utile est de vérifier où les benchmarks existent déjà et quelles cartes ont assez de recul pour être comparées proprement.";
+  }
+
+  if (vendor === "Intel") {
+    return "Le catalogue Intel reste plus resserré, donc chaque fiche doit être lue avec attention. L'intérêt de cette page est de repérer rapidement les cartes qui ont déjà des mesures utiles et celles qui restent encore peu documentées.";
+  }
+
+  return `Cette page aide à comparer les cartes ${vendor} avec un peu plus de contexte que la table principale.`;
+}
+
 export function VendorPage({ gpuData, slug }) {
   const vendor = useMemo(() => findVendorBySlug(gpuData, slug), [gpuData, slug]);
   const vendorGpus = useMemo(
@@ -13,6 +29,22 @@ export function VendorPage({ gpuData, slug }) {
         .filter((gpu) => gpu.vendor === vendor)
         .sort((left, right) => right.score - left.score || right.coverageCount - left.coverageCount),
     [gpuData, vendor]
+  );
+  const topGpu = vendorGpus[0] || null;
+  const cheapestGpu = useMemo(
+    () =>
+      [...vendorGpus]
+        .filter((gpu) => (gpu.priceUsedValue || gpu.priceNewValue || gpu.priceValue) > 0)
+        .sort(
+          (left, right) =>
+            (left.priceUsedValue || left.priceNewValue || left.priceValue) -
+            (right.priceUsedValue || right.priceNewValue || right.priceValue)
+        )[0] || null,
+    [vendorGpus]
+  );
+  const widestVramGpu = useMemo(
+    () => [...vendorGpus].sort((left, right) => right.vram - left.vram || right.score - left.score)[0] || null,
+    [vendorGpus]
   );
   const breadcrumbs = useMemo(
     () =>
@@ -97,8 +129,8 @@ export function VendorPage({ gpuData, slug }) {
               <span className="section-kicker">Vendor</span>
               <h1>{vendor}</h1>
               <p>
-                Cette page regroupe les GPU {vendor} présents dans le catalogue public,
-                avec leurs repères techniques, leurs benchmarks LLM et leurs niveaux de prix.
+                {getVendorAngle(vendor)}{" "}
+                {topGpu ? `Aujourd'hui, ${topGpu.name} est la référence ${vendor} la mieux notée dans la base.` : ""}
               </p>
               <div className="hero-actions">
                 <a className="btn btn-primary" href="/">
@@ -139,9 +171,13 @@ export function VendorPage({ gpuData, slug }) {
               </div>
             </div>
             <p className="page-intro">
-              Toutes les cartes {vendor} ne répondent pas au même besoin. Certaines sont intéressantes pour charger
-              un modèle plus grand grâce à la VRAM, d’autres pour maximiser le débit sur des modèles plus compacts.
-              Utilisez cette page pour repérer rapidement les écarts de mémoire, de bande passante, de prix et de couverture benchmark.
+              {widestVramGpu
+                ? `${widestVramGpu.name} est actuellement la carte ${vendor} avec la plus grande marge mémoire dans ce catalogue, avec ${formatNumber(widestVramGpu.vram)} Go.`
+                : `Toutes les cartes ${vendor} ne répondent pas au même besoin.`}{" "}
+              {cheapestGpu
+                ? `${cheapestGpu.name} représente le point d'entrée prix le plus bas observé à ${formatPrice(cheapestGpu.priceUsedValue || cheapestGpu.priceNewValue || cheapestGpu.priceValue)}.`
+                : `Le vrai tri se fait ensuite entre mémoire, bande passante, prix et couverture benchmark.`}{" "}
+              Utilisez cette page pour voir rapidement quel palier matériel colle le mieux à votre usage LLM réel.
             </p>
             <div className="content-link-grid">
               <a className="content-link-card" href="/guides/choisir-gpu-llm">

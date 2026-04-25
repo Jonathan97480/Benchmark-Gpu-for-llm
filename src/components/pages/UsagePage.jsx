@@ -49,6 +49,10 @@ function buildUsageConfig(slug, gpuData) {
           body:
             "Commencez par les cartes qui cumulent assez de VRAM et plusieurs benchmarks. Ensuite, regardez leur prix réel, puis ouvrez leurs fiches pour vérifier les modèles testés et les débits mesurés qui ressemblent à votre usage.",
         },
+        {
+          title: `Repère concret dans la base actuelle`,
+          body: `${candidates[0].name} est aujourd'hui la carte la plus couverte de cette sélection avec ${formatNumber(candidates[0].coverageCount)} benchmarks stockés. Elle donne donc davantage de matière pour juger un achat qu'une carte encore peu documentée.`,
+        },
       ],
       tableRows: candidates.slice(0, 8).map((gpu) => ({
         metric: gpu.name,
@@ -96,6 +100,10 @@ function buildUsageConfig(slug, gpuData) {
           body:
             "Regardez d'abord le prix observé, puis la VRAM, puis le nombre de benchmarks déjà disponibles. Une carte un peu plus chère mais mieux couverte peut être plus sûre qu'une option très bon marché mais presque sans données.",
         },
+        {
+          title: "Ce que montre cette sélection aujourd'hui",
+          body: `${candidates[0].name} ouvre actuellement la liste des cartes les moins chères observées à ${formatPrice(getKnownPrice(candidates[0]))}, mais ce n'est pas automatiquement la meilleure affaire si une autre carte ajoute plus de VRAM ou davantage de benchmarks pour un faible écart de prix.`,
+        },
       ],
       tableRows: candidates.slice(0, 8).map((gpu) => ({
         metric: gpu.name,
@@ -142,6 +150,10 @@ function buildUsageConfig(slug, gpuData) {
           title: "Comment les comparer utilement",
           body:
             "La VRAM reste le premier filtre, mais elle ne suffit pas. Il faut aussi regarder la bande passante, les quelques benchmarks déjà disponibles et le contexte réel du déploiement avant d'arbitrer.",
+        },
+        {
+          title: "Repère mémoire dans cette catégorie",
+          body: `${candidates[0].name} offre actuellement la marge mémoire la plus haute de cette page avec ${formatNumber(candidates[0].vram)} Go. C'est utile si vous cherchez d'abord à éviter les compromis de chargement sur les modèles les plus lourds.`,
         },
       ],
       tableRows: candidates.slice(0, 8).map((gpu) => ({

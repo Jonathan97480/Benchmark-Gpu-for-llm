@@ -50,6 +50,10 @@ function buildGpuPairComparison(slug, gpuData) {
         ((topShared.right.tokens_per_second - topShared.left.tokens_per_second) / topShared.left.tokens_per_second) * 100
       )
     : null;
+  const leftKnownPrice = leftGpu.priceUsedValue || leftGpu.priceNewValue || leftGpu.priceValue || 0;
+  const rightKnownPrice = rightGpu.priceUsedValue || rightGpu.priceNewValue || rightGpu.priceValue || 0;
+  const priceGap =
+    leftKnownPrice > 0 && rightKnownPrice > 0 ? Math.abs(rightKnownPrice - leftKnownPrice) : null;
 
   return {
     path: `/comparatifs/gpu/${slug}`,
@@ -86,6 +90,13 @@ function buildGpuPairComparison(slug, gpuData) {
       {
         title: `Quand préférer ${rightGpu.name}`,
         body: `${rightGpu.name} devient plus pertinente si vous cherchez davantage de marge mémoire, plus de bande passante ou une meilleure tenue sur des modèles lourds. Elle sera surtout intéressante si le budget suit et si vous voulez réduire les compromis sur les usages LLM les plus exigeants.`,
+      },
+      {
+        title: "Écart budget contre écart mesuré",
+        body:
+          priceGap !== null
+            ? `Dans les prix actuellement connus, l'écart entre ces deux cartes tourne autour de ${formatPrice(priceGap)}. L'intérêt réel dépend donc de la manière dont ce surcoût se transforme en marge mémoire ou en débit sur le benchmark commun déjà enregistré.`
+            : "La lecture prix reste incomplète tant que les deux cartes n'ont pas chacune un repère neuf ou occasion exploitable. Dans ce cas, le benchmark commun et la VRAM deviennent les meilleurs points d'appui.",
       },
     ],
     tableRows: [
@@ -127,6 +138,9 @@ function buildVramComparison(slug, gpuData) {
   const cheapestGpu = [...candidates]
     .filter((gpu) => (gpu.priceNewValue || gpu.priceUsedValue || gpu.priceValue) > 0)
     .sort((left, right) => (left.priceNewValue || left.priceUsedValue || left.priceValue) - (right.priceNewValue || right.priceUsedValue || right.priceValue))[0] || null;
+  const bestCoveredGpu = [...candidates].sort(
+    (left, right) => (right.coverageCount || 0) - (left.coverageCount || 0) || right.score - left.score
+  )[0] || null;
 
   return {
     path: `/comparatifs/vram/${slug}`,
@@ -156,6 +170,12 @@ function buildVramComparison(slug, gpuData) {
       {
         title: "Comment utiliser ce tableau",
         body: "Commencez par repérer les cartes qui ont à la fois une couverture benchmark suffisante et un prix connu. Ensuite, ouvrez leurs fiches pour vérifier les modèles testés, la précision utilisée et l'écart entre neuf et occasion avant de décider.",
+      },
+      {
+        title: "Repère concret dans cette famille mémoire",
+        body: bestCoveredGpu
+          ? `${bestCoveredGpu.name} est actuellement la carte ${targetVram} Go la mieux documentée dans la base avec ${formatNumber(bestCoveredGpu.coverageCount)} benchmarks. C'est souvent un meilleur point de départ qu'une carte un peu plus rapide mais encore peu couverte.`
+          : `Le bon point de départ est la carte ${targetVram} Go qui cumule assez de benchmarks et un prix exploitable.`,
       },
     ],
     tableRows: candidates.map((gpu) => ({
