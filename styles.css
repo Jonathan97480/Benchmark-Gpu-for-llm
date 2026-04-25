@@ -1489,6 +1489,29 @@ table tbody tr:hover {
   color: var(--muted);
 }
 
+.calculator-scene {
+  margin: 1rem 0 0;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+}
+
+.calculator-scene-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.calculator-scene-caption {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .calculator-result {
   display: flex;
   flex-direction: column;

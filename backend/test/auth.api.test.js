@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
+const { hashRefreshToken } = require('../src/utils/jwt.utils');
 const {
   createTempDatabasePath,
   disposeTestDatabase,
@@ -25,9 +26,16 @@ test('POST /api/v1/auth/login renvoie un access token et pose un cookie HttpOnly
   assert.equal(response.body.refresh_token, undefined);
   assert.ok(
     response.headers['set-cookie'].some((cookie) =>
-      cookie.includes('refresh_token=') && cookie.includes('HttpOnly')
+      cookie.includes('refresh_token=') && cookie.includes('HttpOnly') && cookie.includes('SameSite=Strict')
     )
   );
+  const storedToken = db.prepare('SELECT token FROM refresh_tokens LIMIT 1').get();
+  const rawRefreshCookie = response.headers['set-cookie'].find((cookie) => cookie.includes('refresh_token='));
+  const refreshToken = rawRefreshCookie.match(/refresh_token=([^;]+)/)?.[1];
+
+  assert.ok(refreshToken);
+  assert.equal(storedToken.token, hashRefreshToken(refreshToken));
+  assert.notEqual(storedToken.token, refreshToken);
 });
 
 test('POST /api/v1/auth/refresh accepte le refresh token via cookie HttpOnly', async (t) => {
@@ -53,6 +61,29 @@ test('POST /api/v1/auth/refresh accepte le refresh token via cookie HttpOnly', a
 
   assert.ok(refreshResponse.body.access_token);
   assert.equal(refreshResponse.body.refresh_token, undefined);
+});
+
+test('POST /api/v1/auth/refresh refuse un refresh token transmis dans le body sans cookie', async (t) => {
+  const dbPath = createTempDatabasePath();
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => disposeTestDatabase(db, dbPath));
+
+  const loginResponse = await request(app)
+    .post('/api/v1/auth/login')
+    .send({
+      username: 'admin',
+      password: 'Admin1234',
+    })
+    .expect(200);
+
+  const rawRefreshCookie = loginResponse.headers['set-cookie'].find((cookie) => cookie.includes('refresh_token='));
+  const refreshToken = rawRefreshCookie.match(/refresh_token=([^;]+)/)?.[1];
+
+  await request(app)
+    .post('/api/v1/auth/refresh')
+    .send({ refresh_token: refreshToken })
+    .expect(400);
 });
 
 test('POST /api/v1/models exige un access token valide', async (t) => {

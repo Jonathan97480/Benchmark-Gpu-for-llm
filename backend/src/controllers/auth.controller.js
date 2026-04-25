@@ -1,13 +1,13 @@
 const db = require('../../config/database');
 const { hashPassword, comparePassword } = require('../utils/password.utils');
-const { generateAccessToken, generateRefreshToken, verifyToken } = require('../utils/jwt.utils');
+const { generateAccessToken, generateRefreshToken, hashRefreshToken, verifyToken } = require('../utils/jwt.utils');
 
 const REFRESH_COOKIE_NAME = 'refresh_token';
 
 function getRefreshCookieOptions() {
   return {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000
@@ -77,11 +77,12 @@ const login = async (req, res) => {
 
     const accessToken = generateAccessToken(user.id, user.username);
     const refreshToken = generateRefreshToken(user.id);
+    const refreshTokenHash = hashRefreshToken(refreshToken);
 
     db.prepare(`
       INSERT INTO refresh_tokens (user_id, token, expires_at)
       VALUES (?, ?, datetime('now', '+7 days'))
-    `).run(user.id, refreshToken);
+    `).run(user.id, refreshTokenHash);
 
     db.prepare("UPDATE users SET last_login = datetime('now') WHERE id = ?").run(user.id);
 
@@ -104,7 +105,7 @@ const login = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const refresh_token = req.body?.refresh_token || req.cookies?.[REFRESH_COOKIE_NAME];
+    const refresh_token = req.cookies?.[REFRESH_COOKIE_NAME];
 
     if (!refresh_token) {
       return res.status(400).json({ error: 'Refresh token required' });
@@ -116,12 +117,14 @@ const refreshToken = async (req, res) => {
       return res.status(401).json({ error: 'Invalid token type' });
     }
 
+    const refreshTokenHash = hashRefreshToken(refresh_token);
+
     const storedToken = db.prepare(`
       SELECT rt.*, u.username
       FROM refresh_tokens rt
       JOIN users u ON u.id = rt.user_id
       WHERE rt.token = ? AND rt.expires_at > datetime('now')
-    `).get(refresh_token);
+    `).get(refreshTokenHash);
 
     if (!storedToken) {
       return res.status(401).json({ error: 'Invalid or expired refresh token' });
@@ -129,12 +132,13 @@ const refreshToken = async (req, res) => {
 
     const newAccessToken = generateAccessToken(storedToken.user_id, storedToken.username);
     const newRefreshToken = generateRefreshToken(storedToken.user_id);
+    const newRefreshTokenHash = hashRefreshToken(newRefreshToken);
 
-    db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(refresh_token);
+    db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(refreshTokenHash);
     db.prepare(`
       INSERT INTO refresh_tokens (user_id, token, expires_at)
       VALUES (?, ?, datetime('now', '+7 days'))
-    `).run(storedToken.user_id, newRefreshToken);
+    `).run(storedToken.user_id, newRefreshTokenHash);
 
     res.cookie(REFRESH_COOKIE_NAME, newRefreshToken, getRefreshCookieOptions());
 
@@ -153,10 +157,10 @@ const refreshToken = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const refresh_token = req.body?.refresh_token || req.cookies?.[REFRESH_COOKIE_NAME];
+    const refresh_token = req.cookies?.[REFRESH_COOKIE_NAME];
 
     if (refresh_token) {
-      db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(refresh_token);
+      db.prepare('DELETE FROM refresh_tokens WHERE token = ?').run(hashRefreshToken(refresh_token));
     }
 
     res.clearCookie(REFRESH_COOKIE_NAME, getRefreshCookieOptions());

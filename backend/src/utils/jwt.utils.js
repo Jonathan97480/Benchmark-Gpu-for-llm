@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const generateAccessToken = (userId, username) => {
   return jwt.sign(
@@ -24,9 +25,14 @@ const decodeToken = (token) => {
   return jwt.decode(token);
 };
 
+const hashRefreshToken = (token) => {
+  return crypto.createHash('sha256').update(String(token || '')).digest('hex');
+};
+
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
+  hashRefreshToken,
   verifyToken,
   decodeToken
 };

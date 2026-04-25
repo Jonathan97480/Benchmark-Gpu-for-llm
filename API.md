@@ -13,6 +13,12 @@ Les routes protegees acceptent selon le cas :
 - `Authorization: Bearer <access_token>`
 - ou `x-api-key: <api_key>`
 
+Pour l'admin web :
+
+- le `refresh_token` n'est jamais renvoye dans le JSON
+- il est pose uniquement en cookie `HttpOnly`
+- il est stocke sous forme hashée en base
+
 ## Routes auth
 
 ### Verifier si un admin existe
@@ -74,13 +80,20 @@ Reponse :
 
 Le `refresh_token` est pose dans un cookie `HttpOnly`. Il n'est pas renvoye dans le JSON.
 
+Caracteristiques du cookie de refresh :
+
+- `HttpOnly`
+- `SameSite=Strict`
+- `Secure` en production
+- `path=/`
+
 ### Refresh
 
 ```http
 POST /auth/refresh
 ```
 
-Le backend lit d'abord le cookie `refresh_token`. Un `refresh_token` dans le body reste accepte pour compatibilite.
+Le backend lit uniquement le cookie `refresh_token`. Un token transmis dans le body est refuse.
 
 Reponse :
 
@@ -97,7 +110,7 @@ Reponse :
 POST /auth/logout
 ```
 
-Le backend supprime le `refresh_token` stocke et efface le cookie.
+Le backend supprime le hash du `refresh_token` stocke et efface le cookie.
 
 ### Gestion des API keys
 
@@ -211,6 +224,83 @@ Extrait de `benchmark_results` :
   "model_name": "DeepSeek R1 32B",
   "params_billions": 32,
   "total_params_billions": 32
+}
+```
+
+### Dataset public dedie a la table catalogue
+
+```http
+GET /gpu/public-catalog-table
+```
+
+Cette route publique est dediee a la grande table du catalogue frontend. Elle renvoie :
+
+- la liste des GPU
+- la liste des modeles
+- pour chaque GPU, sa liste `benchmark_results`
+- `coverage_count` calcule cote backend
+
+Elle est utile quand le frontend doit :
+
+- filtrer les benchmarks par modele selectionne
+- compter seulement les benchmarks du modele selectionne
+- afficher plusieurs benchmarks pour un meme couple `GPU x modele`
+
+Exemple de reponse :
+
+```json
+{
+  "gpus": [
+    {
+      "id": 1,
+      "name": "RTX 4090",
+      "vendor": "NVIDIA",
+      "architecture": "Ada Lovelace",
+      "vram": 24,
+      "bandwidth": 1008,
+      "price_value": 1800,
+      "price_new_value": 1800,
+      "price_used_value": 1200,
+      "tier": "prosumer",
+      "score": 82,
+      "coverage_count": 3,
+      "benchmark_results": [
+        {
+          "id": 12,
+          "gpu_id": 1,
+          "gpu_count": 1,
+          "llm_model_id": 2,
+          "model_name": "DeepSeek R1 32B",
+          "tokens_per_second": 142.5,
+          "context_size": 8192,
+          "precision": "INT4",
+          "notes": "Mesure A"
+        },
+        {
+          "id": 13,
+          "gpu_id": 1,
+          "gpu_count": 2,
+          "llm_model_id": 2,
+          "model_name": "DeepSeek R1 32B",
+          "tokens_per_second": 260,
+          "context_size": 16384,
+          "precision": "INT4",
+          "notes": "Mesure B"
+        }
+      ]
+    }
+  ],
+  "models": [
+    {
+      "id": 2,
+      "name": "DeepSeek R1 32B"
+    }
+  ],
+  "totals": {
+    "gpus": 1,
+    "models": 1,
+    "benchmark_results": 3
+  }
 }
 ```
 

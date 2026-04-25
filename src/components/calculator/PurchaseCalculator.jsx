@@ -1,5 +1,11 @@
 import { useMemo, useState } from "react";
 import { formatNumber, formatPrice } from "../../utils/formatters.js";
+import oneCardImage from "../../image/cardEvolution/1card.jpg";
+import twoCardImage from "../../image/cardEvolution/2card.jpg";
+import threeCardImage from "../../image/cardEvolution/3card.jpg";
+import fourCardImage from "../../image/cardEvolution/4card.jpg";
+import sixCardImage from "../../image/cardEvolution/6card.jpg";
+import sevenCardImage from "../../image/cardEvolution/7card.jpg";
 import {
   BACKEND_OPTIONS,
   DEFAULT_CPU,
@@ -14,6 +20,29 @@ import {
 } from "../../utils/calculator.js";
 
 const DEFAULT_GPU_NAME = "RTX 3060 12GB";
+const GPU_COUNT_SCENE_IMAGES = {
+  1: oneCardImage,
+  2: twoCardImage,
+  3: threeCardImage,
+  4: fourCardImage,
+  6: sixCardImage,
+  7: sevenCardImage,
+};
+
+function getClosestAvailableGpuSceneCount(requestedCount) {
+  const safeCount = Math.max(1, Number(requestedCount) || 1);
+  const availableCounts = Object.keys(GPU_COUNT_SCENE_IMAGES)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const exactMatch = availableCounts.find((count) => count === safeCount);
+
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  const lowerOrEqual = [...availableCounts].reverse().find((count) => count <= safeCount);
+  return lowerOrEqual || availableCounts[0];
+}
 
 function getSyntheticDefaultGpu() {
   return {
@@ -63,6 +92,9 @@ export function PurchaseCalculator({ gpuData, models }) {
   const selectedGpu =
     gpuOptions.find((gpu) => gpu.name === selectedGpuName) || gpuOptions[0] || getSyntheticDefaultGpu();
   const selectedModel = models.find((model) => String(model.id) === String(selectedModelId)) || models[0] || null;
+  const selectedGpuCountNumber = Math.max(1, Number(selectedGpuCount) || 1);
+  const sceneGpuCount = getClosestAvailableGpuSceneCount(selectedGpuCountNumber);
+  const selectedGpuSceneImage = GPU_COUNT_SCENE_IMAGES[sceneGpuCount];
 
   const requestedContextSize = useMemo(
     () => getRequestedContextSize(contextSize, selectedModel),
@@ -91,9 +123,9 @@ export function PurchaseCalculator({ gpuData, models }) {
       effectiveContextSize,
       selectedQuantizationKey,
       selectedBackendKey,
-      selectedGpuCount: Number(selectedGpuCount) || 1,
+      selectedGpuCount: selectedGpuCountNumber,
     });
-  }, [cpuCores, cpuFrequency, cpuThreads, effectiveContextSize, ramGb, requestedContextSize, selectedBackendKey, selectedGpu, selectedGpuCount, selectedModel, selectedQuantizationKey]);
+  }, [cpuCores, cpuFrequency, cpuThreads, effectiveContextSize, ramGb, requestedContextSize, selectedBackendKey, selectedGpu, selectedGpuCountNumber, selectedModel, selectedQuantizationKey]);
 
   if (!selectedModel || gpuOptions.length === 0) {
     return null;
@@ -216,6 +248,20 @@ export function PurchaseCalculator({ gpuData, models }) {
           <p className="calculator-note">
             Base par défaut: CPU 6 cœurs / 12 threads à 4.0 GHz, 32 Go de RAM et RTX 3060 12 Go.
           </p>
+          {selectedGpuSceneImage ? (
+            <figure className="calculator-scene">
+              <img
+                className="calculator-scene-image"
+                src={selectedGpuSceneImage}
+                alt={`Station LLM illustrative avec ${sceneGpuCount} carte${sceneGpuCount > 1 ? "s" : ""} graphique${sceneGpuCount > 1 ? "s" : ""}`}
+              />
+              <figcaption className="calculator-scene-caption">
+                {selectedGpuCountNumber === sceneGpuCount
+                  ? `Illustration de station avec ${sceneGpuCount} GPU.`
+                  : `Illustration approchante: station avec ${sceneGpuCount} GPU pour une configuration saisie à ${selectedGpuCountNumber} GPU.`}
+              </figcaption>
+            </figure>
+          ) : null}
         </article>
 
         <article className="card glass calculator-card">

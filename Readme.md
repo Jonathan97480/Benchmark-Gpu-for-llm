@@ -10,6 +10,7 @@ Application de benchmark GPU pour LLM avec :
 - simulateur analytique separe pour projeter une estimation de debit
 - modeles avec `params_billions` actifs et `total_params_billions` pour le chargement memoire
 - support d'API keys pour ingestion externe
+- refresh token admin stocke cote navigateur en cookie `HttpOnly` et hashé en base
 
 ## Dossiers principaux
 
@@ -113,6 +114,23 @@ Si aucun admin n'existe lors du bootstrap :
 - utilisateur : `admin`
 - mot de passe : `Admin1234`
 
+Important :
+
+- cet identifiant par defaut ne doit servir qu'a une initialisation controlee
+- en production, definissez un identifiant fort et supprimez toute dependance a ce couple par defaut
+
+## Securite auth
+
+Le backend admin utilise :
+
+- un `access_token` JWT court dans la reponse JSON
+- un `refresh_token` uniquement en cookie `HttpOnly`
+- cookie `SameSite=Strict`
+- cookie `Secure` en production
+- refresh tokens stockes sous forme hashée en base
+
+Les routes `POST /api/v1/auth/refresh` et `POST /api/v1/auth/logout` lisent uniquement le cookie de refresh. Le token n'est plus accepte dans le body.
+
 ## Tests
 
 Frontend :
@@ -139,7 +157,10 @@ Les tests frontend couvrent aussi le simulateur analytique du calculateur dans `
 Les tests backend couvrent maintenant :
 
 - l'authentification admin et API key
+- le stockage hashé du refresh token
+- le refresh via cookie `HttpOnly` uniquement
 - les routes API des modeles
+- la route publique `GET /api/v1/gpu/public-catalog-table`
 - l'endpoint public `GET /gpu/:id/price-history`
 - les routes d'ecriture `POST/PUT/DELETE /gpu/:id/price-history`
 - le systeme de backup admin, creation, listing et telechargement
@@ -159,6 +180,19 @@ npm run dev:seed-fake-prices
 ```
 
 Le script appelle [seedFakePriceHistory.js](/c:/Users/berou/Desktop/Benchmark-Gpu-for-llm-main/backend/src/db/seedFakePriceHistory.js), recree un historique faux mais plausible pour chaque GPU et reste bloque en production sauf usage explicite de `--force`.
+
+## Catalogue public
+
+Le frontend public utilise maintenant deux flux distincts :
+
+- `GET /api/v1/gpu/public-dataset` pour le dashboard global, les pages publiques et les datasets transverses
+- `GET /api/v1/gpu/public-catalog-table` pour la grande table du catalogue
+
+La route de table permet d'afficher proprement :
+
+- uniquement les benchmarks lies au modele selectionne
+- le nombre de benchmarks du modele selectionne
+- plusieurs benchmarks pour un meme couple `GPU x modele`
 
 ## Calculateur analytique
 
