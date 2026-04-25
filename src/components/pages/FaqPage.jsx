@@ -122,6 +122,9 @@ export function FaqPage() {
               <a className="content-link-card" href="/guides/choisir-gpu-llm">
                 Lire le guide d'achat GPU LLM
               </a>
+              <a className="content-link-card" href="/calculateur-llm">
+                Ouvrir le calculateur GPU LLM
+              </a>
               <a className="content-link-card" href="/vendor/nvidia">
                 Explorer les GPU NVIDIA
               </a>

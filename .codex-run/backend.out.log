@@ -1,0 +1,50 @@
+
+> gpu-benchmark-backend@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.14[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+Server running on port 3000
+Environment: development
+Public frontend: http://localhost:3000/
+Admin panel: http://localhost:3000/admin
+API health: http://localhost:3000/api/v1/health
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+Server running on port 3000
+Environment: development
+Public frontend: http://localhost:3000/
+Admin panel: http://localhost:3000/admin
+API health: http://localhost:3000/api/v1/health
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+Server running on port 3000
+Environment: development
+Public frontend: http://localhost:3000/
+Admin panel: http://localhost:3000/admin
+API health: http://localhost:3000/api/v1/health
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+Server running on port 3000
+Environment: development
+Public frontend: http://localhost:3000/
+Admin panel: http://localhost:3000/admin
+API health: http://localhost:3000/api/v1/health
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+Server running on port 3000
+Environment: development
+Public frontend: http://localhost:3000/
+Admin panel: http://localhost:3000/admin
+API health: http://localhost:3000/api/v1/health
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+Server running on port 3000
+Environment: development
+Public frontend: http://localhost:3000/
+Admin panel: http://localhost:3000/admin
+API health: http://localhost:3000/api/v1/health

@@ -26,6 +26,26 @@ export function DashboardSection({
         </p>
       </div>
 
+      <div className="card glass reveal status-card">
+        <p>
+          La base publique affiche actuellement <strong>{gpuData.length}</strong> cartes,{" "}
+          <strong>{models.length}</strong> modèles LLM et <strong>{benchmarkResults.length}</strong>{" "}
+          résultats de benchmark. {selectedModel
+            ? (
+              <>
+                Le comparatif du dessus est centré sur <strong>{selectedModel.name}</strong> pour vous
+                permettre de voir rapidement quels GPU ont déjà été mesurés sur ce modèle.
+              </>
+            )
+            : (
+              <>
+                Sélectionnez un modèle dans le filtre pour passer d’une vue globale du catalogue à
+                un comparatif centré sur un usage LLM précis.
+              </>
+            )}
+        </p>
+      </div>
+
       <div className="dashboard-layout">
         <AdvancedMetrics
           gpuData={gpuData}

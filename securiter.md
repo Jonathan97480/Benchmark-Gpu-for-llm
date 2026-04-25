@@ -127,9 +127,9 @@ Les tests backend valident deja :
 - [ ] generer un `sitemap.xml` et le soumettre dans Google Search Console
 - [ ] creer un compte Google Search Console et verifier le domaine
 - [ ] verifier que les routes admin ne sont pas listees dans le sitemap
-- [ ] ajouter du contenu textuel crawlable autour des tableaux et graphiques
+- [x] ajouter du contenu textuel crawlable autour des tableaux et graphiques
 - [ ] prevoir des redirections propres si les URLs changent
-- [ ] creer une page categorie indexable pour le calculateur si elle apporte une vraie intention SEO
+- [x] creer une page categorie indexable pour le calculateur si elle apporte une vraie intention SEO
 - [ ] verifier les redirections canoniques entre versions avec et sans slash final
 - [ ] verifier qu'une seule version du domaine repond en indexable : `https://gpubenchmark.jon-dev.fr/`
 - [ ] optimiser les polices, images et chargements bloquants

@@ -208,6 +208,7 @@ function buildHomeStaticContent() {
       <ul>
         <li><a href="/guides/choisir-gpu-llm">Lire le guide pour choisir un GPU</a></li>
         <li><a href="/faq">Consulter la FAQ</a></li>
+        <li><a href="/calculateur-llm">Tester le calculateur GPU LLM</a></li>
         <li><a href="/vendor/nvidia">Voir les cartes NVIDIA</a></li>
         <li><a href="/vendor/amd">Voir les cartes AMD</a></li>
         <li><a href="/vendor/intel">Voir les cartes Intel</a></li>
@@ -342,6 +343,35 @@ function buildGuideStaticContent() {
         <li><a href="/vendor/nvidia">Comparer les cartes NVIDIA</a></li>
         <li><a href="/vendor/amd">Comparer les cartes AMD</a></li>
         <li><a href="/vendor/intel">Comparer les cartes Intel</a></li>
+      </ul>
+    </section>
+  `;
+}
+
+function buildCalculatorStaticContent() {
+  return `
+    <section>
+      <h1>Calculateur GPU LLM</h1>
+      <p>Cette page permet d'estimer rapidement si une configuration semble cohérente pour votre usage LLM avant d'aller verifier les benchmarks mesurés sur les fiches GPU et les comparatifs.</p>
+    </section>
+    <section>
+      <h2>Ce que le calculateur aide a verifier</h2>
+      <ul>
+        <li>Si la VRAM parait suffisante pour le modele, la quantization et le contexte vises</li>
+        <li>Si la memoire totale estimee reste cohérente avec la machine visee</li>
+        <li>Si le debit projete semble plausible avant d'etudier les mesures reelles</li>
+        <li>Si un changement de GPU, de backend ou de nombre de cartes peut avoir du sens</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Comment bien l'utiliser</h2>
+      <p>Choisissez un GPU reel du catalogue, un modele reel present dans la base, puis saisissez un contexte proche de votre usage. Si le resultat vous semble credible, ouvrez ensuite les fiches detaillees et les comparatifs pour voir les debits mesurés sur des cas proches.</p>
+    </section>
+    <section>
+      <ul>
+        <li><a href="/guides/choisir-gpu-llm">Lire le guide pour choisir un GPU</a></li>
+        <li><a href="/faq">Comprendre la difference entre estimation et benchmark</a></li>
+        <li><a href="/usages/local-ai">Voir une selection de GPU pour local AI</a></li>
       </ul>
     </section>
   `;
@@ -598,6 +628,18 @@ function getGuideJsonLd(pathName) {
   };
 }
 
+function getCalculatorJsonLd(pathName) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    headline: 'Calculateur GPU LLM',
+    name: 'Calculateur GPU LLM',
+    url: `${PUBLIC_SITE_URL}${pathName}`,
+    description: "Calculateur GPU LLM en français : estimez VRAM, mémoire totale et débit attendu selon le GPU, le modèle, la quantization et le contexte avant d'ouvrir les benchmarks mesurés.",
+    inLanguage: 'fr',
+  };
+}
+
 function getFaqJsonLd(pathName) {
   return {
     '@context': 'https://schema.org',
@@ -673,6 +715,7 @@ function getCanonicalRedirectTarget(pathname) {
 
   if (
     normalizedPath === '/faq' ||
+    normalizedPath === '/calculateur-llm' ||
     normalizedPath === '/guides/choisir-gpu-llm' ||
     redirectablePrefixes.some((prefix) => normalizedPath.startsWith(prefix))
   ) {
@@ -738,6 +781,12 @@ app.get('/sitemap.xml', (req, res) => {
       {
         loc: `${PUBLIC_SITE_URL}/faq`,
         changefreq: 'monthly',
+        priority: '0.7',
+        lastmod: DEFAULT_LASTMOD,
+      },
+      {
+        loc: `${PUBLIC_SITE_URL}/calculateur-llm`,
+        changefreq: 'weekly',
         priority: '0.7',
         lastmod: DEFAULT_LASTMOD,
       },
@@ -979,6 +1028,16 @@ app.get(['/guides/choisir-gpu-llm', '/guides/choisir-gpu-llm/'], (req, res) => {
     canonicalUrl: `${PUBLIC_SITE_URL}/guides/choisir-gpu-llm`,
     jsonLd: getGuideJsonLd('/guides/choisir-gpu-llm'),
     staticContent: buildGuideStaticContent(),
+  }));
+});
+
+app.get(['/calculateur-llm', '/calculateur-llm/'], (req, res) => {
+  res.send(renderSeoHtml({
+    title: 'Calculateur GPU LLM | Estimation VRAM et débit',
+    description: "Calculateur GPU LLM en français : estimez VRAM, mémoire totale et débit attendu selon le GPU, le modèle, la quantization et le contexte avant d'ouvrir les benchmarks mesurés.",
+    canonicalUrl: `${PUBLIC_SITE_URL}/calculateur-llm`,
+    jsonLd: getCalculatorJsonLd('/calculateur-llm'),
+    staticContent: buildCalculatorStaticContent(),
   }));
 });
 

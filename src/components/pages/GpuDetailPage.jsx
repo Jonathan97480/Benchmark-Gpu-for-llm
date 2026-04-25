@@ -239,7 +239,7 @@ export function GpuDetailPage({ gpuData, slug }) {
                 <a className="btn btn-primary" href="/">
                   Retour au benchmark
                 </a>
-                <a className="btn btn-secondary" href="/#calculator">
+                <a className="btn btn-secondary" href="/calculateur-llm">
                   Ouvrir le calculateur
                 </a>
               </div>

@@ -10,7 +10,7 @@ export function PublicSiteHeader() {
           <a href="/#tables">Tableaux</a>
           <a href="/guides/choisir-gpu-llm">Guide</a>
           <a href="/faq">FAQ</a>
-          <a href="/#calculator" className="admin-link">Calculateur</a>
+          <a href="/calculateur-llm" className="admin-link">Calculateur</a>
         </div>
       </nav>
     </header>

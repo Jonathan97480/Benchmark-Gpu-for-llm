@@ -12,6 +12,11 @@ const FaqPage = lazy(() =>
 const GuidePage = lazy(() =>
   import("./components/pages/GuidePage.jsx").then((module) => ({ default: module.GuidePage }))
 );
+const CalculatorPage = lazy(() =>
+  import("./components/pages/CalculatorPage.jsx").then((module) => ({
+    default: module.CalculatorPage,
+  }))
+);
 const GpuDetailPage = lazy(() =>
   import("./components/pages/GpuDetailPage.jsx").then((module) => ({ default: module.GpuDetailPage }))
 );
@@ -146,6 +151,14 @@ export default function AppRouter() {
     return (
       <Suspense fallback={<RouteSkeleton />}>
         <GuidePage />
+      </Suspense>
+    );
+  }
+
+  if (pathname === "/calculateur-llm" || pathname === "/calculateur-llm/") {
+    return (
+      <Suspense fallback={<RouteSkeleton />}>
+        <CalculatorPage />
       </Suspense>
     );
   }

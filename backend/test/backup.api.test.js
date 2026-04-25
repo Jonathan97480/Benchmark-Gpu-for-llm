@@ -104,6 +104,7 @@ test('GET /sitemap.xml expose les URLs publiques et exclut l’admin', async (t)
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/vendor\/nvidia<\/loc>/);
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/model\/deepseek-r1-32b<\/loc>/);
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/gpu\/rtx-5090<\/loc>/);
+  assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/calculateur-llm<\/loc>/);
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/comparatifs\/vram\/24go<\/loc>/);
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/comparatifs\/gpu\/rtx-5090-vs-rtx-4090<\/loc>/);
   assert.match(response.text, /https:\/\/gpubenchmark\.jon-dev\.fr\/usages\/local-ai<\/loc>/);
@@ -244,6 +245,28 @@ test('GET /guides/choisir-gpu-llm renvoie une page éditoriale prerendue pour le
   assert.match(response.text, /<h1>Comment choisir un GPU pour LLM<\/h1>/);
   assert.match(response.text, /Guide pour choisir une carte graphique IA pour LLM et Llama/);
   assert.match(response.text, /VRAM/);
+});
+
+test('GET /calculateur-llm renvoie une page prerendue pour le calculateur SEO', async (t) => {
+  const dbPath = createTempDatabasePath();
+  process.env.PUBLIC_SITE_URL = 'https://gpubenchmark.jon-dev.fr';
+  clearModules();
+
+  const { app, db } = loadFreshBackend(dbPath);
+
+  t.after(() => {
+    delete process.env.PUBLIC_SITE_URL;
+    clearModules();
+    disposeTestDatabase(db, dbPath);
+  });
+
+  const response = await request(app)
+    .get('/calculateur-llm')
+    .expect(200);
+
+  assert.match(response.text, /<title>Calculateur GPU LLM \| Estimation VRAM et débit<\/title>/);
+  assert.match(response.text, /<h1>Calculateur GPU LLM<\/h1>/);
+  assert.match(response.text, /Ce que le calculateur aide a verifier/);
 });
 
 test('GET /faq renvoie une FAQ prerendue pour le SEO', async (t) => {

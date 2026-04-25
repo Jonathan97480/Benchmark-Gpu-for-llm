@@ -16,6 +16,13 @@ function buildContentCards(gpuData) {
       description:
         "Une FAQ indexable pour expliquer la logique du benchmark, du calculateur et du suivi de prix.",
     },
+    {
+      href: "/calculateur-llm",
+      kicker: "Calculateur",
+      title: "Estimer une configuration LLM",
+      description:
+        "Une page dédiée pour tester VRAM, contexte, quantization et débit attendu avant de revenir aux benchmarks mesurés.",
+    },
   ];
 
   const testedGpus = gpuData

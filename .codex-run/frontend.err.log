@@ -1,0 +1,16 @@
+[2m08:23:27[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/gpu/public-dataset[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1116:18)
+    at afterConnectMultiple (node:net:1683:7)
+[2m08:23:27[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/insights[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1116:18)
+    at afterConnectMultiple (node:net:1683:7)
+[2m08:23:27[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/gpu/public-dataset[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1116:18)
+    at afterConnectMultiple (node:net:1683:7)
+[2m08:23:27[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/insights[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1116:18)
+    at afterConnectMultiple (node:net:1683:7)

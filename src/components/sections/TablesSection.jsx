@@ -32,6 +32,23 @@ export function TablesSection({
         </p>
       </div>
 
+      <div className="card glass reveal status-card">
+        <p>
+          Cette table liste <strong>{sortedData.length}</strong> GPU correspondant aux filtres actuels.
+          {vendor !== "all" ? <> Le constructeur retenu est <strong>{vendor}</strong>.</> : null}
+          {tier !== "all" ? <> Le segment retenu est <strong>{tier}</strong>.</> : null}
+          {selectedModel ? (
+            <>
+              {" "}Le modèle mis en avant est <a className="gpu-detail-link" href={getModelPath(selectedModel)}>
+                {selectedModel.name}
+              </a>, ce qui permet de faire remonter d’abord les cartes déjà benchmarkées sur ce cas.
+            </>
+          ) : (
+            <> Sans modèle sélectionné, la table reste utile pour comparer la couverture benchmark, la VRAM et les prix sur l’ensemble du catalogue.</>
+          )}
+        </p>
+      </div>
+
       <div className="controls glass">
         <div className="control">
           <label htmlFor="searchInput">Recherche</label>
