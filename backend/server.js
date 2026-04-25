@@ -18,7 +18,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ROOT_DIR = path.join(__dirname, '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 const HAS_DIST = fs.existsSync(DIST_DIR);
+const HAS_PUBLIC = fs.existsSync(PUBLIC_DIR);
 const isProduction = process.env.NODE_ENV === 'production';
 const authLimiterWindowMs = isProduction ? 15 * 60 * 1000 : 60 * 1000;
 const authLimiterMax = isProduction ? 5 : 20;
@@ -897,6 +899,10 @@ ${urls.map((entry) => `  <url>
     res.status(500).type('application/xml').send('<?xml version="1.0" encoding="UTF-8"?><error />');
   }
 });
+
+if (HAS_PUBLIC) {
+  app.use(express.static(PUBLIC_DIR, { index: false }));
+}
 
 if (HAS_DIST) {
   app.use(express.static(DIST_DIR, { index: false }));
