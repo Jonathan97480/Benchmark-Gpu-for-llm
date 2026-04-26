@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CALIBRATION } from "./calibrationProfiles.js";
 import {
   computeEstimate,
   estimateMemoryRequirementGb,
@@ -184,11 +185,12 @@ describe("calculator", () => {
       selectedGpuCount: 1,
     });
 
-    expect(estimate.estimatedTokensPerSecond).toBeGreaterThanOrEqual(45);
-    expect(estimate.estimatedTokensPerSecond).toBeLessThanOrEqual(55);
+    expect(estimate.estimatedTokensPerSecond).toBeGreaterThanOrEqual(CALIBRATION[rtx3060.name].min);
+    expect(estimate.estimatedTokensPerSecond).toBeLessThanOrEqual(CALIBRATION[rtx3060.name].max);
     expect(estimate.memoryBreakdown.modelMemoryGb).toBeGreaterThanOrEqual(4.8);
     expect(estimate.memoryBreakdown.modelMemoryGb).toBeLessThanOrEqual(5.0);
     expect(estimate.calibration.isReferenceCase).toBe(true);
+    expect(estimate.calibration.expectedRange).toEqual(CALIBRATION[rtx3060.name]);
   });
 
   it("reste dans la plage attendue sur RTX 4090 pour Llama 3 8B INT4 en prompt court", () => {
@@ -218,8 +220,9 @@ describe("calculator", () => {
       selectedGpuCount: 1,
     });
 
-    expect(estimate.estimatedTokensPerSecond).toBeGreaterThanOrEqual(140);
-    expect(estimate.estimatedTokensPerSecond).toBeLessThanOrEqual(160);
+    expect(estimate.estimatedTokensPerSecond).toBeGreaterThanOrEqual(CALIBRATION[rtx4090.name].min);
+    expect(estimate.estimatedTokensPerSecond).toBeLessThanOrEqual(CALIBRATION[rtx4090.name].max);
+    expect(estimate.calibration.expectedRange).toEqual(CALIBRATION[rtx4090.name]);
   });
 
   it("réduit nettement le débit quand le contexte long gonfle le KV cache", () => {
