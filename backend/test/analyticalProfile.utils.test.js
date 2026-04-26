@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { computeCalibrationFromBenchmarks } = require('../src/utils/analyticalProfile.utils');
 
-test('computeCalibrationFromBenchmarks utilise les nouveaux champs benchmark quand ils sont disponibles', () => {
+test('computeCalibrationFromBenchmarks utilise les nouveaux champs benchmark quand ils sont disponibles', async () => {
   const model = {
     name: 'Unit Test 10B',
     params_billions: 10,
@@ -63,7 +63,7 @@ test('computeCalibrationFromBenchmarks utilise les nouveaux champs benchmark qua
     },
   ];
 
-  const calibration = computeCalibrationFromBenchmarks(model, benchmarks);
+  const calibration = await computeCalibrationFromBenchmarks(model, benchmarks);
 
   assert.deepEqual(calibration, {
     analytical_throughput_multiplier: 0.666,

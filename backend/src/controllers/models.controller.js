@@ -204,7 +204,7 @@ const deleteModel = (req, res) => {
   }
 };
 
-const recomputeModelAnalyticalProfile = (req, res) => {
+const recomputeModelAnalyticalProfile = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -230,7 +230,7 @@ const recomputeModelAnalyticalProfile = (req, res) => {
       return res.status(400).json({ error: 'No benchmark available for this model' });
     }
 
-    const calibration = computeCalibrationFromBenchmarks(model, benchmarks);
+    const calibration = await computeCalibrationFromBenchmarks(model, benchmarks);
 
     if (!calibration) {
       return res.status(400).json({ error: 'Unable to derive analytical coefficient from available benchmarks' });

@@ -1,18 +1,29 @@
-import { DEFAULT_BACKEND_KEY, DEFAULT_CPU, DEFAULT_QUANTIZATION_KEY, DEFAULT_RAM_GB, BACKEND_OPTIONS, QUANTIZATION_OPTIONS } from "./constants.js";
+import {
+  DEFAULT_BACKEND_KEY,
+  DEFAULT_CPU,
+  DEFAULT_QUANTIZATION_KEY,
+  DEFAULT_RAM_GB,
+  BACKEND_OPTIONS,
+  QUANTIZATION_OPTIONS,
+  DECODE_TRAFFIC_MULTIPLIER,
+  QUANTIZATION_PROFILES,
+} from "./constants.js";
 import { computeDecodeCalibrationFactor, computeBackendAccelerationFactor, getAnalyticalTokenBaseline, getCalibrationContext } from "./calibration.js";
 import { computeCpuPenalty } from "./cpu.js";
 import { estimateKvCacheGb, estimateMemoryRequirementGb, estimateModelMemoryGb, estimateRuntimeMemoryGb } from "./memory.js";
 import { computeMultiGpuScaling } from "./multiGpu.js";
 import { computeContextPenalty, computeHeadroomPenalty, computeModelAwareContextPenalty, computeOffloadPenalty, computeRamPenalty, computeViabilityPenalty, computeVramPenalty } from "./penalties.js";
-import { getActiveParamsBillions, getDefaultRequestedContextSize, getEffectiveContextSize, getRequestedContextSize, getTotalParamsBillions } from "./profiles.js";
+import { getActiveParamsBillions, getBackendProfile, getDefaultRequestedContextSize, getEffectiveContextSize, getRequestedContextSize, getTotalParamsBillions } from "./profiles.js";
 import { getEstimateWarnings } from "./warnings.js";
 
 export {
   BACKEND_OPTIONS,
+  DECODE_TRAFFIC_MULTIPLIER,
   DEFAULT_BACKEND_KEY,
   DEFAULT_CPU,
   DEFAULT_QUANTIZATION_KEY,
   DEFAULT_RAM_GB,
+  QUANTIZATION_PROFILES,
   QUANTIZATION_OPTIONS,
   computeBackendAccelerationFactor,
   computeContextPenalty,
@@ -31,6 +42,7 @@ export {
   estimateRuntimeMemoryGb,
   getActiveParamsBillions,
   getAnalyticalTokenBaseline,
+  getBackendProfile,
   getCalibrationContext,
   getDefaultRequestedContextSize,
   getEffectiveContextSize,
