@@ -46,7 +46,7 @@ export const CALIBRATION = {
 
 - [x] Ajouter `backend/src/services/` pour éviter que la logique métier dérive dans les routes ou contrôleurs.
 - [x] Déplacer progressivement les traitements métier backend dans des services dédiés.
-- [ ] Clarifier la séparation `routes/`, `controllers/`, `services/`, `utils/`.
+- [x] Clarifier la séparation `routes/`, `controllers/`, `services/`, `utils/`.
 
 - [x] Renforcer la gestion d’erreurs backend.
 - [x] Vérifier que `backend/src/middleware/errorHandler.middleware.js` est bien branché globalement dans l’application.
@@ -62,11 +62,11 @@ export const CALIBRATION = {
 - [ ] Centraliser les constantes métier dans un fichier dédié si besoin.
 
 - [ ] Structurer davantage la configuration backend.
-- [ ] Compléter ou documenter les variables d’environnement :
+- [x] Compléter ou documenter les variables d’environnement :
   - `CORS_ORIGIN=`
   - `JWT_SECRET=`
   - `NODE_ENV=`
-- [ ] Ajouter un exemple de fichier `.env.example` si absent.
+- [x] Ajouter un exemple de fichier `.env.example` si absent.
 
 ## Ordre recommandé
 

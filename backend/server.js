@@ -31,6 +31,29 @@ const DEFAULT_TITLE = 'Benchmark GPU LLM et cartes graphiques IA';
 const DEFAULT_DESCRIPTION = "Benchmark GPU LLM en français : comparez des cartes graphiques IA, les débits mesurés, la VRAM et les prix pour choisir le bon GPU pour Llama, DeepSeek et l'inférence locale.";
 const DEFAULT_OG_IMAGE = `${PUBLIC_SITE_URL}/og-image.svg`;
 const DEFAULT_LASTMOD = new Date().toISOString().split('T')[0];
+const DEFAULT_DEV_CORS_ORIGINS = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+];
+
+function parseCorsOrigins(rawValue) {
+  return String(rawValue || '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function getAllowedCorsOrigins() {
+  const configuredOrigins = parseCorsOrigins(process.env.CORS_ORIGIN);
+
+  if (configuredOrigins.length > 0) {
+    return configuredOrigins;
+  }
+
+  return isProduction ? [PUBLIC_SITE_URL] : DEFAULT_DEV_CORS_ORIGINS;
+}
 
 const scriptSrc = ["'self'"];
 const styleSrc = ["'self'", "'unsafe-inline'"];
@@ -66,9 +89,7 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://your-domain.com']
-    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: getAllowedCorsOrigins(),
   credentials: true
 }));
 
