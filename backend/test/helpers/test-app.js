@@ -27,12 +27,15 @@ function loadFreshBackend(dbPath) {
   clearModule('../../src/controllers/apiKeys.controller');
   clearModule('../../src/controllers/gpu.controller');
   clearModule('../../src/controllers/models.controller');
+  clearModule('../../src/controllers/calculator.controller');
   clearModule('../../src/controllers/benchmark.controller');
   clearModule('../../src/middleware/auth.middleware');
   clearModule('../../src/routes/auth.routes');
+  clearModule('../../src/routes/calculator.routes');
   clearModule('../../src/routes/gpu.routes');
   clearModule('../../src/routes/models.routes');
   clearModule('../../src/routes/insights.routes');
+  clearModule('../../src/services/calculator.service');
   clearModule('../../server');
 
   const db = require('../../config/database');

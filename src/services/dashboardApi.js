@@ -36,3 +36,29 @@ export async function fetchGpuPriceHistory(gpuId) {
 
   return response.json();
 }
+
+export async function fetchCalculatorEstimate(payload) {
+  const response = await fetch("/api/v1/calculator/estimate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let message = "Impossible de calculer l'estimation analytique.";
+
+    try {
+      const data = await response.json();
+      message = data.error || message;
+    } catch {
+      // Ignore invalid error body and keep fallback message.
+    }
+
+    throw new Error(message);
+  }
+
+  const data = await response.json();
+  return data.estimate;
+}

@@ -49,8 +49,10 @@ export function PurchaseCalculator({ gpuData, models }) {
     contextSize,
     effectiveContextSize,
     estimate,
+    estimateError,
     getDefaultRequestedContextSize,
     gpuOptions,
+    isEstimateLoading,
     ramGb,
     requestedContextSize,
     selectedBackendKey,
@@ -310,6 +312,12 @@ export function PurchaseCalculator({ gpuData, models }) {
                   La configuration semble cohérente pour une estimation d&apos;inférence locale sur ce modèle.
                 </p>
               )}
+            </div>
+          ) : isEstimateLoading ? (
+            <p className="calculator-subnote">Calcul de l&apos;estimation en cours…</p>
+          ) : estimateError ? (
+            <div className="calculator-warnings">
+              <p>{estimateError}</p>
             </div>
           ) : null}
         </article>

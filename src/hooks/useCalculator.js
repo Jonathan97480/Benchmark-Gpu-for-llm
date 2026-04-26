@@ -1,14 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DEFAULT_BACKEND_KEY,
   DEFAULT_CPU,
   DEFAULT_RAM_GB,
   DEFAULT_QUANTIZATION_KEY,
-  computeEstimate,
   getDefaultRequestedContextSize,
   getEffectiveContextSize,
   getRequestedContextSize,
 } from "../utils/calculator.js";
+import { fetchCalculatorEstimate } from "../services/dashboardApi.js";
 
 const DEFAULT_GPU_NAME = "RTX 3060 12GB";
 
@@ -52,6 +52,9 @@ export function useCalculator({ gpuData, models }) {
   const [cpuCores, setCpuCores] = useState(String(DEFAULT_CPU.cores));
   const [cpuThreads, setCpuThreads] = useState(String(DEFAULT_CPU.threads));
   const [cpuFrequency, setCpuFrequency] = useState(String(DEFAULT_CPU.frequency));
+  const [estimate, setEstimate] = useState(null);
+  const [estimateError, setEstimateError] = useState("");
+  const [isEstimateLoading, setIsEstimateLoading] = useState(false);
 
   const selectedGpu =
     gpuOptions.find((gpu) => gpu.name === selectedGpuName) || gpuOptions[0] || getSyntheticDefaultGpu();
@@ -67,31 +70,25 @@ export function useCalculator({ gpuData, models }) {
     [requestedContextSize, selectedModel]
   );
 
-  const estimate = useMemo(() => {
-    if (!selectedModel || !selectedGpu) {
-      return null;
-    }
-
-    return computeEstimate({
-      model: selectedModel,
-      gpu: selectedGpu,
-      cpu: {
-        cores: Number(cpuCores) || DEFAULT_CPU.cores,
-        threads: Number(cpuThreads) || DEFAULT_CPU.threads,
-        frequency: Number(cpuFrequency) || DEFAULT_CPU.frequency,
-      },
-      ramGb: Number(ramGb) || DEFAULT_RAM_GB,
-      requestedContextSize,
-      effectiveContextSize,
-      selectedQuantizationKey,
-      selectedBackendKey,
-      selectedGpuCount: selectedGpuCountNumber,
-    });
-  }, [
+  const requestPayload = useMemo(() => ({
+    cpu: {
+      cores: Number(cpuCores) || DEFAULT_CPU.cores,
+      threads: Number(cpuThreads) || DEFAULT_CPU.threads,
+      frequency: Number(cpuFrequency) || DEFAULT_CPU.frequency,
+    },
+    ramGb: Number(ramGb) || DEFAULT_RAM_GB,
+    requestedContextSize,
+    selectedQuantizationKey,
+    selectedBackendKey,
+    selectedGpuCount: selectedGpuCountNumber,
+    modelId: selectedModel?.id,
+    gpuId: selectedGpu?.id,
+    model: selectedModel,
+    gpu: selectedGpu,
+  }), [
     cpuCores,
     cpuFrequency,
     cpuThreads,
-    effectiveContextSize,
     ramGb,
     requestedContextSize,
     selectedBackendKey,
@@ -101,6 +98,46 @@ export function useCalculator({ gpuData, models }) {
     selectedQuantizationKey,
   ]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!selectedModel || !selectedGpu) {
+      setEstimate(null);
+      setEstimateError("");
+      setIsEstimateLoading(false);
+      return undefined;
+    }
+
+    setIsEstimateLoading(true);
+    setEstimateError("");
+
+    fetchCalculatorEstimate(requestPayload)
+      .then((nextEstimate) => {
+        if (cancelled) {
+          return;
+        }
+
+        setEstimate(nextEstimate);
+      })
+      .catch((error) => {
+        if (cancelled) {
+          return;
+        }
+
+        setEstimate(null);
+        setEstimateError(error.message || "Impossible de calculer l'estimation analytique.");
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsEstimateLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requestPayload, selectedGpu, selectedModel]);
+
   return {
     cpuCores,
     cpuFrequency,
@@ -108,8 +145,10 @@ export function useCalculator({ gpuData, models }) {
     contextSize,
     effectiveContextSize,
     estimate,
+    estimateError,
     getDefaultRequestedContextSize,
     gpuOptions,
+    isEstimateLoading,
     ramGb,
     requestedContextSize,
     selectedBackendKey,

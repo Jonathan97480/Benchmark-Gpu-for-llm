@@ -252,7 +252,7 @@ export function resolveModelAnalyticalProfile(model) {
   };
 }
 
-function normalizeGpuMetadata(gpu) {
+export function normalizeGpuMetadata(gpu) {
   const assumptions = GPU_METADATA_ASSUMPTIONS[gpu.name] || {};
   const vram = Math.max(1, Number(gpu.vram) || 0);
   const bandwidth = Math.max(0, Number(gpu.bandwidth) || Number(assumptions.bandwidth) || 0);
@@ -267,7 +267,7 @@ function normalizeGpuMetadata(gpu) {
   };
 }
 
-function normalizeModelMetadata(model) {
+export function normalizeModelMetadata(model) {
   const assumptions = MODEL_METADATA_ASSUMPTIONS[model.name] || {};
   const paramsBillions = Math.max(
     1,
