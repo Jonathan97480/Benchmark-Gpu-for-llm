@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL_ANALYTICAL_PROFILE, resolveModelAnalyticalProfile } from "../data.js";
+import { DEFAULT_MODEL_ANALYTICAL_PROFILE, resolveModelAnalyticalProfile } from "../data/modelProfiles.js";
 import {
   BACKEND_PROFILES,
   DEFAULT_BACKEND_KEY,

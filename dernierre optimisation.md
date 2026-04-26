@@ -21,7 +21,7 @@
 
 - [x] Sortir la calibration implicite des tests de `src/utils/calculator.test.js`.
 - [x] Créer `src/utils/calibrationProfiles.js`.
-- [ ] Déclarer les profils métier explicitement, par exemple :
+- [x] Déclarer les profils métier explicitement, par exemple :
 
 ```js
 export const CALIBRATION = {
@@ -75,6 +75,7 @@ export const CALIBRATION = {
 - [x] 3. Extraction des profils de calibration
 - [x] 4. Hook `useCalculator`
 - [ ] 5. Mise en place des services backend
+- [x] 5. Mise en place des services backend
 - [x] 6. Nettoyage des données et constantes
 - [x] 7. Renforcement erreurs + configuration
 - [ ] 8. Étude TypeScript
@@ -89,4 +90,5 @@ export const CALIBRATION = {
 - [x] La configuration backend lit maintenant `CORS_ORIGIN` depuis l’environnement avec test dédié.
 - [x] Les erreurs backend renvoient maintenant un format plus homogène avec `status` et logs plus utiles.
 - [x] `src/utils/data.js` a été allégé en extrayant les hypothèses et les normalizers dédiés.
+- [x] La résolution des profils analytiques modèle a été isolée dans un module dédié, ce qui prépare une éventuelle extraction `/shared/calculator/`.
 - [ ] L’option `/shared/calculator/` reste à évaluer si tu veux pousser la mutualisation plus loin.

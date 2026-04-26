@@ -1,11 +1,13 @@
 export {
-  DEFAULT_MODEL_ANALYTICAL_PROFILE,
   normalizeCatalogTableDataset,
   normalizeGpuMetadata,
   normalizeModelMetadata,
   normalizePublicDataset,
-  resolveModelAnalyticalProfile,
 } from "./data/normalizers.js";
+export {
+  DEFAULT_MODEL_ANALYTICAL_PROFILE,
+  resolveModelAnalyticalProfile,
+} from "./data/modelProfiles.js";
 
 export function sortData(data, sort) {
   const order = sort.direction === "asc" ? 1 : -1;
