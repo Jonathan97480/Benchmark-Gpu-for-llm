@@ -13,7 +13,7 @@
 - [x] Définir des responsabilités claires par module pour éviter les effets domino lors des modifications de formule.
 - [x] Ajouter ou réorganiser les tests pour couvrir le calculateur après découpage.
 
-- [ ] Supprimer la duplication de logique métier entre `src/utils/calculator.js` et `backend/src/utils/analyticalProfile.utils.js`.
+- [x] Réduire fortement la duplication de logique métier entre `src/utils/calculator.js` et `backend/src/utils/analyticalProfile.utils.js` en réutilisant le moteur de calcul partagé.
 - [x] Choisir une source de vérité unique pour les calculs.
 - [x] Prioriser l’option recommandée : backend = calcul, frontend = affichage uniquement.
 - [ ] Évaluer en alternative l’extraction d’un module partagé dans `/shared/calculator/`.
@@ -39,8 +39,8 @@ export const CALIBRATION = {
 - [x] Extraire les appels calculateur et l’orchestration dans `src/hooks/useCalculator.js`.
 - [x] Laisser dans le composant uniquement la logique d’affichage et les interactions UI.
 
-- [ ] Revoir `src/utils/data.js`, trop statique et rigide.
-- [ ] Normaliser les données GPU.
+- [x] Revoir `src/utils/data.js`, trop statique et rigide.
+- [x] Normaliser les données GPU.
 - [ ] Étudier un stockage externe : JSON dédié, structure partagée ou base de données.
 - [ ] Ajouter un typage strict minimal si le fichier reste en JavaScript.
 
@@ -61,7 +61,7 @@ export const CALIBRATION = {
 - [ ] Exemple : remplacer `0.75` par `MEMORY_PRESSURE_PENALTY`.
 - [ ] Centraliser les constantes métier dans un fichier dédié si besoin.
 
-- [ ] Structurer davantage la configuration backend.
+- [x] Structurer davantage la configuration backend.
 - [x] Compléter ou documenter les variables d’environnement :
   - `CORS_ORIGIN=`
   - `JWT_SECRET=`
@@ -75,6 +75,17 @@ export const CALIBRATION = {
 - [x] 3. Extraction des profils de calibration
 - [x] 4. Hook `useCalculator`
 - [ ] 5. Mise en place des services backend
-- [ ] 6. Nettoyage des données et constantes
+- [x] 6. Nettoyage des données et constantes
 - [ ] 7. Renforcement erreurs + configuration
 - [ ] 8. Étude TypeScript
+
+## État actuel
+
+- [x] Le calculateur frontend a été découpé en modules.
+- [x] Le hook `useCalculator` a remplacé la logique métier directe du composant.
+- [x] Le calcul affiché par le frontend passe maintenant par l’API backend.
+- [x] `backend/src/services/` est en place avec un service de calcul dédié.
+- [x] `backend/src/utils/analyticalProfile.utils.js` réutilise désormais le moteur du calculateur au lieu de dupliquer davantage de logique.
+- [x] La configuration backend lit maintenant `CORS_ORIGIN` depuis l’environnement avec test dédié.
+- [x] `src/utils/data.js` a été allégé en extrayant les hypothèses et les normalizers dédiés.
+- [ ] L’option `/shared/calculator/` reste à évaluer si tu veux pousser la mutualisation plus loin.
