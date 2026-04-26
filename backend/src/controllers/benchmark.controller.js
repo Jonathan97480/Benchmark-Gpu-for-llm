@@ -1,4 +1,5 @@
 const db = require('../../config/database');
+const { sendError } = require('../utils/httpResponses.utils');
 
 const createBenchmarkResult = (req, res) => {
   try {
@@ -24,12 +25,12 @@ const createBenchmarkResult = (req, res) => {
 
     const gpuExists = db.prepare('SELECT id FROM gpu_benchmarks WHERE id = ?').get(gpu_id);
     if (!gpuExists) {
-      return res.status(404).json({ error: 'GPU not found' });
+      return sendError(res, 404, 'GPU not found');
     }
 
     const modelExists = db.prepare('SELECT id FROM llm_models WHERE id = ?').get(llm_model_id);
     if (!modelExists) {
-      return res.status(404).json({ error: 'LLM model not found' });
+      return sendError(res, 404, 'LLM model not found');
     }
 
     const result = db.prepare(`
@@ -81,7 +82,7 @@ const createBenchmarkResult = (req, res) => {
     });
   } catch (error) {
     console.error('Error creating benchmark result:', error);
-    res.status(500).json({ error: 'Failed to create benchmark result' });
+    return sendError(res, 500, 'Failed to create benchmark result');
   }
 };
 
@@ -112,13 +113,13 @@ const updateBenchmarkResult = (req, res) => {
     `).get(result_id, gpu_id);
 
     if (!existingResult) {
-      return res.status(404).json({ error: 'Benchmark result not found' });
+      return sendError(res, 404, 'Benchmark result not found');
     }
 
     if (llm_model_id) {
       const modelExists = db.prepare('SELECT id FROM llm_models WHERE id = ?').get(llm_model_id);
       if (!modelExists) {
-        return res.status(404).json({ error: 'LLM model not found' });
+        return sendError(res, 404, 'LLM model not found');
       }
     }
 
@@ -143,7 +144,7 @@ const updateBenchmarkResult = (req, res) => {
     if (notes !== undefined) { updateFields.push('notes = ?'); params.push(notes); }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
+      return sendError(res, 400, 'No fields to update');
     }
 
     params.push(result_id);
@@ -162,7 +163,7 @@ const updateBenchmarkResult = (req, res) => {
     });
   } catch (error) {
     console.error('Error updating benchmark result:', error);
-    res.status(500).json({ error: 'Failed to update benchmark result' });
+    return sendError(res, 500, 'Failed to update benchmark result');
   }
 };
 
@@ -175,7 +176,7 @@ const deleteBenchmarkResult = (req, res) => {
     `).get(result_id, gpu_id);
 
     if (!existingResult) {
-      return res.status(404).json({ error: 'Benchmark result not found' });
+      return sendError(res, 404, 'Benchmark result not found');
     }
 
     db.prepare('DELETE FROM benchmark_results WHERE id = ?').run(result_id);
@@ -185,7 +186,7 @@ const deleteBenchmarkResult = (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting benchmark result:', error);
-    res.status(500).json({ error: 'Failed to delete benchmark result' });
+    return sendError(res, 500, 'Failed to delete benchmark result');
   }
 };
 

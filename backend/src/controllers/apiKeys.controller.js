@@ -1,5 +1,6 @@
 const db = require('../../config/database');
 const { generateApiKey, getApiKeyPrefix, hashApiKey } = require('../utils/apiKey.utils');
+const { sendError } = require('../utils/httpResponses.utils');
 
 const listApiKeys = (req, res) => {
   try {
@@ -15,7 +16,7 @@ const listApiKeys = (req, res) => {
     });
   } catch (error) {
     console.error('Error listing API keys:', error);
-    res.status(500).json({ error: 'Failed to list API keys' });
+    return sendError(res, 500, 'Failed to list API keys');
   }
 };
 
@@ -43,7 +44,7 @@ const createApiKey = (req, res) => {
     });
   } catch (error) {
     console.error('Error creating API key:', error);
-    res.status(500).json({ error: 'Failed to create API key' });
+    return sendError(res, 500, 'Failed to create API key');
   }
 };
 
@@ -53,7 +54,7 @@ const revokeApiKey = (req, res) => {
     const existingKey = db.prepare('SELECT id FROM api_keys WHERE id = ?').get(id);
 
     if (!existingKey) {
-      return res.status(404).json({ error: 'API key not found' });
+      return sendError(res, 404, 'API key not found');
     }
 
     db.prepare(`
@@ -65,7 +66,7 @@ const revokeApiKey = (req, res) => {
     res.json({ message: 'API key revoked successfully' });
   } catch (error) {
     console.error('Error revoking API key:', error);
-    res.status(500).json({ error: 'Failed to revoke API key' });
+    return sendError(res, 500, 'Failed to revoke API key');
   }
 };
 

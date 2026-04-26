@@ -1,25 +1,30 @@
+const { sendError } = require('../utils/httpResponses.utils');
+
 const errorHandler = (err, req, res, next) => {
-  console.error('Error:', err);
+  const status = err.statusCode || err.status || 500;
+  console.error('Error:', {
+    method: req.method,
+    path: req.originalUrl,
+    status,
+    code: err.code,
+    type: err.type,
+    message: err.message,
+  });
 
   if (err.type === 'entity.parse.failed') {
-    return res.status(400).json({ error: 'Invalid JSON payload' });
+    return sendError(res, 400, 'Invalid JSON payload');
   }
 
   if (err.code === 'SQLITE_CONSTRAINT') {
-    return res.status(400).json({ error: 'Database constraint violation' });
+    return sendError(res, 400, 'Database constraint violation');
   }
 
   if (err.code === 'SQLITE_ERROR') {
-    return res.status(500).json({ error: 'Database error' });
+    return sendError(res, 500, 'Database error');
   }
 
-  const status = err.statusCode || err.status || 500;
   const message = status >= 500 ? 'Internal server error' : err.message || 'Request failed';
-
-  res.status(status).json({
-    error: message,
-    status,
-  });
+  return sendError(res, status, message);
 };
 
 module.exports = { errorHandler };

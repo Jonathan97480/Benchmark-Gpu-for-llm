@@ -1,6 +1,7 @@
 const db = require('../../config/database');
 const { hashPassword, comparePassword } = require('../utils/password.utils');
 const { generateAccessToken, generateRefreshToken, hashRefreshToken, verifyToken } = require('../utils/jwt.utils');
+const { sendError } = require('../utils/httpResponses.utils');
 
 const REFRESH_COOKIE_NAME = 'refresh_token';
 
@@ -22,14 +23,14 @@ const adminExists = () => {
 const registerAdmin = async (req, res) => {
   try {
     if (adminExists()) {
-      return res.status(400).json({ error: 'Admin already exists' });
+      return sendError(res, 400, 'Admin already exists');
     }
 
     const { username, password } = req.body;
 
     const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
     if (existingUser) {
-      return res.status(400).json({ error: 'Username already exists' });
+      return sendError(res, 400, 'Username already exists');
     }
 
     const passwordHash = await hashPassword(password);
@@ -51,7 +52,7 @@ const registerAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Failed to create admin' });
+    return sendError(res, 500, 'Failed to create admin');
   }
 };
 
@@ -62,17 +63,17 @@ const login = async (req, res) => {
     const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return sendError(res, 401, 'Invalid credentials');
     }
 
     if (!user.is_active) {
-      return res.status(401).json({ error: 'Account is disabled' });
+      return sendError(res, 401, 'Account is disabled');
     }
 
     const isValidPassword = await comparePassword(password, user.password_hash);
 
     if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return sendError(res, 401, 'Invalid credentials');
     }
 
     const accessToken = generateAccessToken(user.id, user.username);
@@ -99,7 +100,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
+    return sendError(res, 500, 'Login failed');
   }
 };
 
@@ -108,13 +109,13 @@ const refreshToken = async (req, res) => {
     const refresh_token = req.cookies?.[REFRESH_COOKIE_NAME];
 
     if (!refresh_token) {
-      return res.status(400).json({ error: 'Refresh token required' });
+      return sendError(res, 400, 'Refresh token required');
     }
 
     const decoded = verifyToken(refresh_token);
 
     if (decoded.type !== 'refresh') {
-      return res.status(401).json({ error: 'Invalid token type' });
+      return sendError(res, 401, 'Invalid token type');
     }
 
     const refreshTokenHash = hashRefreshToken(refresh_token);
@@ -127,7 +128,7 @@ const refreshToken = async (req, res) => {
     `).get(refreshTokenHash);
 
     if (!storedToken) {
-      return res.status(401).json({ error: 'Invalid or expired refresh token' });
+      return sendError(res, 401, 'Invalid or expired refresh token');
     }
 
     const newAccessToken = generateAccessToken(storedToken.user_id, storedToken.username);
@@ -149,9 +150,9 @@ const refreshToken = async (req, res) => {
   } catch (error) {
     console.error('Token refresh error:', error);
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Refresh token expired' });
+      return sendError(res, 401, 'Refresh token expired');
     }
-    res.status(500).json({ error: 'Token refresh failed' });
+    return sendError(res, 500, 'Token refresh failed');
   }
 };
 
@@ -168,7 +169,7 @@ const logout = async (req, res) => {
     res.json({ message: 'Logged out successfully' });
   } catch (error) {
     console.error('Logout error:', error);
-    res.status(500).json({ error: 'Logout failed' });
+    return sendError(res, 500, 'Logout failed');
   }
 };
 

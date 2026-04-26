@@ -1,5 +1,6 @@
 const db = require('../../config/database');
 const { computeCalibrationFromBenchmarks } = require('../utils/analyticalProfile.utils');
+const { sendError } = require('../utils/httpResponses.utils');
 
 const MODEL_ANALYTICAL_COLUMNS = [
   'analytical_kv_cache_multiplier',
@@ -21,7 +22,7 @@ const getAllModels = (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching models:', error);
-    res.status(500).json({ error: 'Failed to fetch LLM models' });
+    return sendError(res, 500, 'Failed to fetch LLM models');
   }
 };
 
@@ -32,7 +33,7 @@ const getModelById = (req, res) => {
     const model = db.prepare('SELECT * FROM llm_models WHERE id = ?').get(id);
 
     if (!model) {
-      return res.status(404).json({ error: 'Model not found' });
+      return sendError(res, 404, 'Model not found');
     }
 
     const benchmarks = db.prepare(`
@@ -49,7 +50,7 @@ const getModelById = (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching model:', error);
-    res.status(500).json({ error: 'Failed to fetch LLM model' });
+    return sendError(res, 500, 'Failed to fetch LLM model');
   }
 };
 
@@ -110,9 +111,9 @@ const createModel = (req, res) => {
   } catch (error) {
     console.error('Error creating model:', error);
     if (error.code === 'SQLITE_CONSTRAINT') {
-      return res.status(400).json({ error: 'Model name already exists' });
+      return sendError(res, 400, 'Model name already exists');
     }
-    res.status(500).json({ error: 'Failed to create LLM model' });
+    return sendError(res, 500, 'Failed to create LLM model');
   }
 };
 
@@ -137,7 +138,7 @@ const updateModel = (req, res) => {
     const existingModel = db.prepare('SELECT * FROM llm_models WHERE id = ?').get(id);
 
     if (!existingModel) {
-      return res.status(404).json({ error: 'Model not found' });
+      return sendError(res, 404, 'Model not found');
     }
 
     const updateFields = [];
@@ -157,7 +158,7 @@ const updateModel = (req, res) => {
     if (description !== undefined) { updateFields.push('description = ?'); params.push(description); }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
+      return sendError(res, 400, 'No fields to update');
     }
 
     params.push(id);
@@ -177,9 +178,9 @@ const updateModel = (req, res) => {
   } catch (error) {
     console.error('Error updating model:', error);
     if (error.code === 'SQLITE_CONSTRAINT') {
-      return res.status(400).json({ error: 'Model name already exists' });
+      return sendError(res, 400, 'Model name already exists');
     }
-    res.status(500).json({ error: 'Failed to update LLM model' });
+    return sendError(res, 500, 'Failed to update LLM model');
   }
 };
 
@@ -190,7 +191,7 @@ const deleteModel = (req, res) => {
     const existingModel = db.prepare('SELECT * FROM llm_models WHERE id = ?').get(id);
 
     if (!existingModel) {
-      return res.status(404).json({ error: 'Model not found' });
+      return sendError(res, 404, 'Model not found');
     }
 
     db.prepare('DELETE FROM llm_models WHERE id = ?').run(id);
@@ -200,7 +201,7 @@ const deleteModel = (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting model:', error);
-    res.status(500).json({ error: 'Failed to delete LLM model' });
+    return sendError(res, 500, 'Failed to delete LLM model');
   }
 };
 
@@ -211,7 +212,7 @@ const recomputeModelAnalyticalProfile = async (req, res) => {
     const model = db.prepare('SELECT * FROM llm_models WHERE id = ?').get(id);
 
     if (!model) {
-      return res.status(404).json({ error: 'Model not found' });
+      return sendError(res, 404, 'Model not found');
     }
 
     const benchmarks = db.prepare(`
@@ -227,13 +228,13 @@ const recomputeModelAnalyticalProfile = async (req, res) => {
     `).all(id);
 
     if (benchmarks.length === 0) {
-      return res.status(400).json({ error: 'No benchmark available for this model' });
+      return sendError(res, 400, 'No benchmark available for this model');
     }
 
     const calibration = await computeCalibrationFromBenchmarks(model, benchmarks);
 
     if (!calibration) {
-      return res.status(400).json({ error: 'Unable to derive analytical coefficient from available benchmarks' });
+      return sendError(res, 400, 'Unable to derive analytical coefficient from available benchmarks');
     }
 
     const updateFields = [];
@@ -247,7 +248,7 @@ const recomputeModelAnalyticalProfile = async (req, res) => {
     }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'Unable to derive analytical coefficient from available benchmarks' });
+      return sendError(res, 400, 'Unable to derive analytical coefficient from available benchmarks');
     }
 
     updateValues.push(id);
@@ -267,7 +268,7 @@ const recomputeModelAnalyticalProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('Error recomputing model analytical profile:', error);
-    res.status(500).json({ error: 'Failed to recompute analytical coefficient' });
+    return sendError(res, 500, 'Failed to recompute analytical coefficient');
   }
 };
 

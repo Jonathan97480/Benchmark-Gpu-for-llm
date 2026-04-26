@@ -1,5 +1,6 @@
 const db = require('../../config/database');
 const { ensureGpuPriceHistoryEntry } = require('../db/migrations');
+const { sendError } = require('../utils/httpResponses.utils');
 
 const getAllGPUs = (req, res) => {
   try {
@@ -48,7 +49,7 @@ const getAllGPUs = (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching GPUs:', error);
-    res.status(500).json({ error: 'Failed to fetch GPUs' });
+    return sendError(res, 500, 'Failed to fetch GPUs');
   }
 };
 
@@ -98,7 +99,7 @@ const getPublicBenchmarkDataset = (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching public benchmark dataset:', error);
-    res.status(500).json({ error: 'Failed to fetch public benchmark dataset' });
+    return sendError(res, 500, 'Failed to fetch public benchmark dataset');
   }
 };
 
@@ -167,7 +168,7 @@ const getPublicCatalogTableDataset = (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching public catalog table dataset:', error);
-    res.status(500).json({ error: 'Failed to fetch public catalog table dataset' });
+    return sendError(res, 500, 'Failed to fetch public catalog table dataset');
   }
 };
 
@@ -178,7 +179,7 @@ const getGPUById = (req, res) => {
     const gpu = db.prepare('SELECT * FROM gpu_benchmarks WHERE id = ?').get(id);
 
     if (!gpu) {
-      return res.status(404).json({ error: 'GPU not found' });
+      return sendError(res, 404, 'GPU not found');
     }
 
     const benchmarkResults = db.prepare(`
@@ -194,7 +195,7 @@ const getGPUById = (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching GPU:', error);
-    res.status(500).json({ error: 'Failed to fetch GPU' });
+    return sendError(res, 500, 'Failed to fetch GPU');
   }
 };
 
@@ -205,7 +206,7 @@ const getGpuPriceHistory = (req, res) => {
     const gpu = db.prepare('SELECT id, name, price_new_value, price_used_value FROM gpu_benchmarks WHERE id = ?').get(id);
 
     if (!gpu) {
-      return res.status(404).json({ error: 'GPU not found' });
+      return sendError(res, 404, 'GPU not found');
     }
 
     const history = db.prepare(`
@@ -226,7 +227,7 @@ const getGpuPriceHistory = (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching GPU price history:', error);
-    res.status(500).json({ error: 'Failed to fetch GPU price history' });
+    return sendError(res, 500, 'Failed to fetch GPU price history');
   }
 };
 
@@ -242,7 +243,7 @@ const createGpuPriceHistoryEntry = (req, res) => {
     const gpu = db.prepare('SELECT id, name FROM gpu_benchmarks WHERE id = ?').get(id);
 
     if (!gpu) {
-      return res.status(404).json({ error: 'GPU not found' });
+      return sendError(res, 404, 'GPU not found');
     }
 
     const result = db.prepare(`
@@ -272,7 +273,7 @@ const createGpuPriceHistoryEntry = (req, res) => {
     });
   } catch (error) {
     console.error('Error creating GPU price history entry:', error);
-    res.status(500).json({ error: 'Failed to create GPU price history entry' });
+    return sendError(res, 500, 'Failed to create GPU price history entry');
   }
 };
 
@@ -292,7 +293,7 @@ const updateGpuPriceHistoryEntry = (req, res) => {
     `).get(history_id, id);
 
     if (!existingEntry) {
-      return res.status(404).json({ error: 'GPU price history entry not found' });
+      return sendError(res, 404, 'GPU price history entry not found');
     }
 
     const updateFields = [];
@@ -314,7 +315,7 @@ const updateGpuPriceHistoryEntry = (req, res) => {
     }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
+      return sendError(res, 400, 'No fields to update');
     }
 
     params.push(history_id, id);
@@ -337,7 +338,7 @@ const updateGpuPriceHistoryEntry = (req, res) => {
     });
   } catch (error) {
     console.error('Error updating GPU price history entry:', error);
-    res.status(500).json({ error: 'Failed to update GPU price history entry' });
+    return sendError(res, 500, 'Failed to update GPU price history entry');
   }
 };
 
@@ -352,7 +353,7 @@ const deleteGpuPriceHistoryEntry = (req, res) => {
     `).get(history_id, id);
 
     if (!existingEntry) {
-      return res.status(404).json({ error: 'GPU price history entry not found' });
+      return sendError(res, 404, 'GPU price history entry not found');
     }
 
     db.prepare(`
@@ -365,7 +366,7 @@ const deleteGpuPriceHistoryEntry = (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting GPU price history entry:', error);
-    res.status(500).json({ error: 'Failed to delete GPU price history entry' });
+    return sendError(res, 500, 'Failed to delete GPU price history entry');
   }
 };
 
@@ -428,7 +429,7 @@ const createGPU = (req, res) => {
     });
   } catch (error) {
     console.error('Error creating GPU:', error);
-    res.status(500).json({ error: 'Failed to create GPU' });
+    return sendError(res, 500, 'Failed to create GPU');
   }
 };
 
@@ -444,7 +445,7 @@ const updateGPU = (req, res) => {
     const existingGPU = db.prepare('SELECT * FROM gpu_benchmarks WHERE id = ?').get(id);
 
     if (!existingGPU) {
-      return res.status(404).json({ error: 'GPU not found' });
+      return sendError(res, 404, 'GPU not found');
     }
 
     const updateFields = [];
@@ -474,7 +475,7 @@ const updateGPU = (req, res) => {
     }
 
     if (updateFields.length === 0) {
-      return res.status(400).json({ error: 'No fields to update' });
+      return sendError(res, 400, 'No fields to update');
     }
 
     updateFields.push("updated_at = datetime('now')");
@@ -499,7 +500,7 @@ const updateGPU = (req, res) => {
     });
   } catch (error) {
     console.error('Error updating GPU:', error);
-    res.status(500).json({ error: 'Failed to update GPU' });
+    return sendError(res, 500, 'Failed to update GPU');
   }
 };
 
@@ -510,7 +511,7 @@ const deleteGPU = (req, res) => {
     const existingGPU = db.prepare('SELECT * FROM gpu_benchmarks WHERE id = ?').get(id);
 
     if (!existingGPU) {
-      return res.status(404).json({ error: 'GPU not found' });
+      return sendError(res, 404, 'GPU not found');
     }
 
     db.prepare('DELETE FROM gpu_benchmarks WHERE id = ?').run(id);
@@ -520,7 +521,7 @@ const deleteGPU = (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting GPU:', error);
-    res.status(500).json({ error: 'Failed to delete GPU' });
+    return sendError(res, 500, 'Failed to delete GPU');
   }
 };
 

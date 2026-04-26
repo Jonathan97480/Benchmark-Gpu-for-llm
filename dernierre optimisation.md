@@ -50,7 +50,7 @@ export const CALIBRATION = {
 
 - [x] Renforcer la gestion d’erreurs backend.
 - [x] Vérifier que `backend/src/middleware/errorHandler.middleware.js` est bien branché globalement dans l’application.
-- [ ] Uniformiser le format des erreurs API et améliorer les logs.
+- [x] Uniformiser le format des erreurs API et améliorer les logs.
 
 ## 🟡 Problèmes mineurs
 
@@ -76,7 +76,7 @@ export const CALIBRATION = {
 - [x] 4. Hook `useCalculator`
 - [ ] 5. Mise en place des services backend
 - [x] 6. Nettoyage des données et constantes
-- [ ] 7. Renforcement erreurs + configuration
+- [x] 7. Renforcement erreurs + configuration
 - [ ] 8. Étude TypeScript
 
 ## État actuel
@@ -87,5 +87,6 @@ export const CALIBRATION = {
 - [x] `backend/src/services/` est en place avec un service de calcul dédié.
 - [x] `backend/src/utils/analyticalProfile.utils.js` réutilise désormais le moteur du calculateur au lieu de dupliquer davantage de logique.
 - [x] La configuration backend lit maintenant `CORS_ORIGIN` depuis l’environnement avec test dédié.
+- [x] Les erreurs backend renvoient maintenant un format plus homogène avec `status` et logs plus utiles.
 - [x] `src/utils/data.js` a été allégé en extrayant les hypothèses et les normalizers dédiés.
 - [ ] L’option `/shared/calculator/` reste à évaluer si tu veux pousser la mutualisation plus loin.

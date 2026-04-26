@@ -14,6 +14,7 @@ const insightsRoutes = require('./src/routes/insights.routes');
 const backupsRoutes = require('./src/routes/backups.routes');
 const calculatorRoutes = require('./src/routes/calculator.routes');
 const { errorHandler } = require('./src/middleware/errorHandler.middleware');
+const { sendError } = require('./src/utils/httpResponses.utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -1439,14 +1440,14 @@ app.get('/api/v1/stats', (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching stats:', error);
-    res.status(500).json({ error: 'Failed to fetch statistics' });
+    return sendError(res, 500, 'Failed to fetch statistics');
   }
 });
 
 app.use(errorHandler);
 
 app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
+  return sendError(res, 404, 'Endpoint not found');
 });
 
 let server = null;
