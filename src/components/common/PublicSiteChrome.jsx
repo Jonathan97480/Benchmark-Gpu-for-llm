@@ -17,6 +17,7 @@ export function PublicSiteHeader() {
           <a href="/#dashboard">Dashboard</a>
           <a href="/#tables">Tableaux</a>
           <a href="/guides/choisir-gpu-llm">Guide</a>
+          <a href="/guides/etat-art-llm-code">LLM Code 2026</a>
           <a href="/faq">FAQ</a>
           <a href="/calculateur-llm" className="admin-link">Calculateur</a>
         </div>

@@ -8,6 +8,9 @@ const AdminApp = lazy(() =>
 const FaqPage = lazy(() =>
   import("./components/pages/FaqPage.jsx").then((module) => ({ default: module.FaqPage }))
 );
+const EtatArtPage = lazy(() =>
+  import("./components/pages/EtatArtPage.jsx").then((module) => ({ default: module.EtatArtPage }))
+);
 const GuidePage = lazy(() =>
   import("./components/pages/GuidePage.jsx").then((module) => ({ default: module.GuidePage }))
 );
@@ -150,6 +153,14 @@ export default function AppRouter() {
     return (
       <Suspense fallback={<RouteSkeleton />}>
         <GuidePage />
+      </Suspense>
+    );
+  }
+
+  if (pathname === "/guides/etat-art-llm-code" || pathname === "/guides/etat-art-llm-code/") {
+    return (
+      <Suspense fallback={<RouteSkeleton />}>
+        <EtatArtPage />
       </Suspense>
     );
   }

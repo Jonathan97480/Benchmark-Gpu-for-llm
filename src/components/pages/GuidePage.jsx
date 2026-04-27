@@ -64,6 +64,7 @@ const guideSections = [
 
 const internalLinks = [
   { href: "/calculateur-llm", label: "Ouvrir le calculateur" },
+  { href: "/guides/etat-art-llm-code", label: "État de l'art LLM Code 2026" },
   { href: "/vendor/nvidia", label: "Explorer NVIDIA" },
   { href: "/vendor/amd", label: "Explorer AMD" },
   { href: "/vendor/intel", label: "Explorer Intel" },
