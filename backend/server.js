@@ -407,6 +407,47 @@ function buildCalculatorStaticContent() {
   `;
 }
 
+function buildEtatArtStaticContent() {
+  return `
+    <section>
+      <h1>État de l'art des LLM open source pour le code (2025–2026)</h1>
+      <p>Panorama des modèles de génération de code les plus performants en 2025–2026, avec les chiffres VRAM concrets et une explication détaillée des niveaux de quantification pour le code local.</p>
+    </section>
+    <section>
+      <h2>Les quatre modèles de référence</h2>
+      <ul>
+        <li><strong>Qwen 3.6-27B</strong> : le nouveau roi du code local, optimisé pour Python, TypeScript, Go. Raisonnement amélioré de 40 % par rapport au Qwen 2.5.</li>
+        <li><strong>Gemma 4 (31B)</strong> : la meilleure précision syntaxique du panel, idéal pour le typage strict et le bas niveau (Rust, C++).</li>
+        <li><strong>DeepSeek-V4 Flash</strong> : architecture MoE avec 13B de paramètres actifs sur 284B au total. Contexte jusqu'à 1M tokens. Le meilleur rapport performance/VRAM.</li>
+        <li><strong>GLM-5.1</strong> : spécialisé dans l'ingénierie logicielle complexe et la résolution de bugs multi-fichiers.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Pourquoi Q4_K_M pour le code local</h2>
+      <p>Le code, plus structuré que le langage naturel, résiste mieux à la compression 4-bit. Q4_K_M offre une réduction de VRAM de ~4x vs FP16 avec des pertes mesurées autour de 3–5 % sur les benchmarks SWE-bench et HumanEval. C'est le meilleur compromis qualité/mémoire pour la génération de code en local.</p>
+    </section>
+    <section>
+      <ul>
+        <li><a href="/guides/choisir-gpu-llm">Guide : choisir un GPU pour LLM</a></li>
+        <li><a href="/calculateur-llm">Calculateur GPU LLM</a></li>
+        <li><a href="/faq">FAQ benchmark GPU LLM</a></li>
+      </ul>
+    </section>
+  `;
+}
+
+function getEtatArtJsonLd(pathName) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'État de l\'art des LLM open source pour le code (2025–2026)',
+    name: 'État de l\'art LLM Code',
+    url: `${PUBLIC_SITE_URL}${pathName}`,
+    description: "Panorama des meilleurs modèles open source pour le code en 2025–2026 : Qwen 3.6, Gemma 4, DeepSeek-V4 Flash, GLM-5.1. VRAM, quantification Q4_K_M et recommandations par configuration.",
+    inLanguage: 'fr',
+  };
+}
+
 function buildFaqStaticContent() {
   return `
     <section>
@@ -769,6 +810,7 @@ function getCanonicalPathTarget(pathname) {
     normalizedPath === '/faq' ||
     normalizedPath === '/calculateur-llm' ||
     normalizedPath === '/guides/choisir-gpu-llm' ||
+    normalizedPath === '/guides/etat-art-llm-code' ||
     redirectablePrefixes.some((prefix) => normalizedPath.startsWith(prefix))
   ) {
     return normalizedPath;
@@ -851,6 +893,12 @@ app.get('/sitemap.xml', (req, res) => {
       },
       {
         loc: `${PUBLIC_SITE_URL}/guides/choisir-gpu-llm`,
+        changefreq: 'monthly',
+        priority: '0.8',
+        lastmod: DEFAULT_LASTMOD,
+      },
+      {
+        loc: `${PUBLIC_SITE_URL}/guides/etat-art-llm-code`,
         changefreq: 'monthly',
         priority: '0.8',
         lastmod: DEFAULT_LASTMOD,
@@ -1109,6 +1157,16 @@ app.get(['/guides/choisir-gpu-llm', '/guides/choisir-gpu-llm/'], (req, res) => {
     canonicalUrl: `${PUBLIC_SITE_URL}/guides/choisir-gpu-llm`,
     jsonLd: getGuideJsonLd('/guides/choisir-gpu-llm'),
     staticContent: buildGuideStaticContent(),
+  }));
+});
+
+app.get(['/guides/etat-art-llm-code', '/guides/etat-art-llm-code/'], (req, res) => {
+  res.send(renderSeoHtml({
+    title: 'État de l\'art des LLM open source pour le code (2025–2026)',
+    description: 'Panorama des meilleurs modèles open source pour le code en 2025–2026 : Qwen 3.6, Gemma 4, DeepSeek-V4 Flash, GLM-5.1. VRAM, quantification Q4_K_M et recommandations par configuration.',
+    canonicalUrl: `${PUBLIC_SITE_URL}/guides/etat-art-llm-code`,
+    jsonLd: getEtatArtJsonLd('/guides/etat-art-llm-code'),
+    staticContent: buildEtatArtStaticContent(),
   }));
 });
 

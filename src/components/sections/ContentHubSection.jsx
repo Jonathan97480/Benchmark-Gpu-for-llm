@@ -10,6 +10,13 @@ function buildContentCards(gpuData) {
         "Une page éditoriale pour lire le benchmark correctement: VRAM, débit mesuré, prix neuf et occasion.",
     },
     {
+      href: "/guides/etat-art-llm-code",
+      kicker: "Guide",
+      title: "État de l'art LLM Code 2026",
+      description:
+        "Panorama des meilleurs modèles open source pour le code : Qwen 3.6, Gemma 4, DeepSeek-V4 Flash, GLM-5.1, VRAM et quantification.",
+    },
+    {
       href: "/faq",
       kicker: "FAQ",
       title: "Questions fréquentes",
